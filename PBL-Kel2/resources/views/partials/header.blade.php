@@ -20,11 +20,17 @@
         <div>
             @auth
                 <a href="/dashboard" class="btn btn-primary">Akun Saya</a>
+        
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
             @else
                 <a href="{{ route('login') }}" class="btn btn-link">Masuk</a>
                 <a href="{{ route('register') }}" class="btn btn-primary">Daftar</a>
             @endauth
         </div>
+        
 
     </div>
 </nav>
