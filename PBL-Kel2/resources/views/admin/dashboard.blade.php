@@ -25,3 +25,4 @@
 
   <!-- Tambahkan konten lainnya sesuai keperluan -->
 @endsection
+  
