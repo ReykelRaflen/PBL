@@ -158,8 +158,8 @@
           </button>
           <ul x-show="openMenu === 'penjualan'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
-                <i data-lucide="file" class="w-4 h-4"></i> Buku Individu
+              <a href="{{ route('penjualanIndividu.index') }}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Buku Individu
               </a>
             </li>
             <li>
@@ -222,11 +222,16 @@
                 <i data-lucide="key-round" class="w-4 h-4"></i> Role & Permission
               </a>
             </li>
-            <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-4 text-red-500 rounded hover:bg-red-100 dark:hover:bg-red-800">
-                <i data-lucide="power" class="w-4 h-4"></i> Keluar
-              </a>
-            </li>
+           <!-- Replace the existing logout link in the "Setting Admin" section with this form -->
+<li>
+  <form method="POST" action="{{ route('logout') }}" class="w-full">
+    @csrf
+    <button type="submit" class="w-full flex items-center gap-2 text-left py-1 px-4 text-red-500 rounded hover:bg-red-100 dark:hover:bg-red-800">
+      <i data-lucide="power" class="w-4 h-4"></i> Keluar
+    </button>
+  </form>
+</li>
+
           </ul>
         </li>
       </ul>
@@ -236,6 +241,11 @@
 
   <!-- Main Content -->
   <div class="ml-64 w-full">
+    <div class="ml-64 flex-1 p-8">
+      <main class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+        @yield('main')
+      </main>
+    </div>
     <!-- Header for User Profile -->
     <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
       <div class="flex items-center gap-3">
