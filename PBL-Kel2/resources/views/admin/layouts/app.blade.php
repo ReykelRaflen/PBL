@@ -111,7 +111,7 @@
         <!-- Promo -->
         <li class="mt-4 font-semibold text-gray-600 dark:text-gray-300">Promo</li>
         <li>
-          <a href="#" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+          <a href="{{route('promos.index')}}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
             <i data-lucide="percent" class="w-4 h-4"></i> Kode Diskon
           </a>
         </li>
