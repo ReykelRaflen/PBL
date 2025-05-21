@@ -15,6 +15,7 @@ class LaporanPenjualanIndividu extends Model
         'judul_buku',
         'penulis',
         'jumlah_terjual',
+        'total_harga',
         'tanggal_penjualan',
         'status_pembayaran',
         'bukti_pembayaran',
