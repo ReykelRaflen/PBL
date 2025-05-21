@@ -1,8 +1,8 @@
 @extends('admin.layouts.app')
 
 @section('main')
-<div class="p-6">
-    <h1 class="text-2xl font-bold mb-6 text-gray-800">Dashboard Admin</h1>
+<div class="container">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Dashboard Admin</h1>
 
     <!-- Kartu Statistik -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

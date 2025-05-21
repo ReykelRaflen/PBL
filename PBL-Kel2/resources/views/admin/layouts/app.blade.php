@@ -178,10 +178,11 @@
           </button>
           <ul x-show="openMenu === 'penerbitan'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
-                <i data-lucide="file-text" class="w-4 h-4"></i> Buku Individu
-              </a>
-            </li>
+            <a href="{{ route('penerbitanIndividu.index') }}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <i data-lucide="file-text" class="w-4 h-4"></i> Buku Individu
+            </a>
+           </li>
+
             <li>
               <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-plus" class="w-4 h-4"></i> Buku Kolaborasi
@@ -240,14 +241,8 @@
   
 
   <!-- Main Content -->
- 
-    <div class="ml-64 w-full">
-    <div class="ml-64 flex-1 p-8">
-      <main class="bg-gray-100 dark:bg-gray-900 min-h-screen">
-        @yield('main')
-      </main>
-    </div>
-    <!-- Header for User Profile -->
+  <div class="ml-64 w-full">
+    <!-- Header for User Profile - MOVED TO TOP -->
     <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
       <div class="flex items-center gap-3">
         <img src="/images/admin/user-avatar.png" alt="Avatar" class="w-10 h-10 rounded-full border">
@@ -257,6 +252,13 @@
         </div>
       </div>
     </header>
+    
+    <div class="p-8">
+      <main class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+        @yield('main')
+      </main>
+    </div>
+  </div>
 
   <script>
     lucide.createIcons();
