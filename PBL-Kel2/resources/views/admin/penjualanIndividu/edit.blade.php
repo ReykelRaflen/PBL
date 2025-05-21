@@ -20,7 +20,7 @@
 
         <div>
             <label>Nama Penulis:</label>
-            <input type="text" name="nama_penulis" class="w-full p-2 border rounded" value="{{ $laporan->nama_penulis }}" required>
+            <input type="text" name="penulis" class="w-full p-2 border rounded" value="{{ $laporan->nama_penulis }}" required>
         </div>
 
         <div>

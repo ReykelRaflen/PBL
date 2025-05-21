@@ -27,7 +27,7 @@ class LaporanPenjualanKolaborasiController extends Controller
             'penulis' => 'required|string|max:100',
             'judul_buku' => 'required|string|max:255',
             'jumlah_terjual' => 'required|integer|min:1',
-            'total_harga' => 'required|double',
+            'total_harga' => 'required|numeric',
             'tanggal_penjualan' => 'required|date',
             'status_pembayaran' => 'required|in:Valid,Tidak Valid',
         ]);
@@ -59,7 +59,7 @@ class LaporanPenjualanKolaborasiController extends Controller
             'penulis' => 'required|string|max:100',
             'judul_buku' => 'required|string|max:255',
             'jumlah_terjual' => 'required|integer|min:1',
-            'total_harga' => 'required|double',
+            'total_harga' => 'required|numeric',
             'tanggal_penjualan' => 'required|date',
             'status_pembayaran' => 'required|in:valid,tidak valid',
         ]);

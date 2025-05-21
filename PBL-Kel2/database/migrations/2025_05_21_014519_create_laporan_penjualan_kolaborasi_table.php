@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('penulis');
             $table->integer('jumlah_terjual');
             $table->double('total_harga');
+            $table->date('tanggal_penjualan');
             $table->enum('status_pembayaran', ['Valid', 'Tidak Valid']);
-            $table->string('bukti_pembayaran')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
