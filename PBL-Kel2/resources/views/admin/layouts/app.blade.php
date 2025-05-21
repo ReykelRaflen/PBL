@@ -82,7 +82,7 @@
       <ul class="space-y-2">
         <!-- Dashboard -->
         <li>
-          <a href="#" class="flex items-center gap-2 py-2 px-2 rounded hover:bg-blue-100 dark:hover:bg-gray-700 transition">
+          <a href="{{route('admin.dashboard')}}" class="flex items-center gap-2 py-2 px-2 rounded hover:bg-blue-100 dark:hover:bg-gray-700 transition">
             <i data-lucide="home" class="w-4 h-4"></i> Dashboard
           </a>
         </li>
@@ -178,10 +178,11 @@
           </button>
           <ul x-show="openMenu === 'penerbitan'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
-                <i data-lucide="file-text" class="w-4 h-4"></i> Buku Individu
-              </a>
-            </li>
+            <a href="{{ route('penerbitanIndividu.index') }}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <i data-lucide="file-text" class="w-4 h-4"></i> Buku Individu
+            </a>
+           </li>
+
             <li>
               <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-plus" class="w-4 h-4"></i> Buku Kolaborasi
@@ -236,6 +237,11 @@
 
   <!-- Main Content -->
   <div class="ml-64 w-full">
+    <div class="ml-64 flex-1 p-8">
+      <main class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+        @yield('main')
+      </main>
+    </div>
     <!-- Header for User Profile -->
     <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
       <div class="flex items-center gap-3">
