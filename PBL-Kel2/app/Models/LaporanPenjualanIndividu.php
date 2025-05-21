@@ -20,3 +20,5 @@ class LaporanPenjualanIndividu extends Model
         'bukti_pembayaran',
     ];
 }
+
+

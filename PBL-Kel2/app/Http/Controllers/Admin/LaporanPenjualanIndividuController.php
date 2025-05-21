@@ -27,6 +27,7 @@ class LaporanPenjualanIndividuController extends Controller
             'penulis' => 'required|string|max:100',
             'judul_buku' => 'required|string|max:255',
             'jumlah_terjual' => 'required|integer|min:1',
+            'total_harga' => 'required|double',
             'tanggal_penjualan' => 'required|date',
             'status_pembayaran' => 'required|in:Valid,Tidak Valid',
         ]);
@@ -35,6 +36,7 @@ class LaporanPenjualanIndividuController extends Controller
             'penulis' => $data['penulis'],
             'judul_buku' => $data['judul_buku'],
             'jumlah_terjual' => $data['jumlah_terjual'],
+            'total_harga' => $data['total_harga'],
             'tanggal_penjualan' => $data['tanggal_penjualan'],
             'status_pembayaran' => $data['status_pembayaran'],
         ]);
@@ -54,9 +56,10 @@ class LaporanPenjualanIndividuController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'penulis' => 'string|max:100',
+            'penulis' => 'required|string|max:100',
             'judul_buku' => 'required|string|max:255',
             'jumlah_terjual' => 'required|integer|min:1',
+            'total_harga' => 'required|double',
             'tanggal_penjualan' => 'required|date',
             'status_pembayaran' => 'required|in:valid,tidak valid',
         ]);

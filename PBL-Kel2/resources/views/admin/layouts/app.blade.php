@@ -163,7 +163,7 @@
               </a>
             </li>
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('penjualanKolaborasi.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="layers" class="w-4 h-4"></i> Buku Kolaborasi
               </a>
             </li>
@@ -240,7 +240,8 @@
   
 
   <!-- Main Content -->
-  <div class="ml-64 w-full">
+ 
+    <div class="ml-64 w-full">
     <div class="ml-64 flex-1 p-8">
       <main class="bg-gray-100 dark:bg-gray-900 min-h-screen">
         @yield('main')

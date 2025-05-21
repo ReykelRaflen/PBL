@@ -20,7 +20,7 @@
 
         <div>
             <label>Nama Penulis:</label>
-            <input type="text" name="penulis" class="w-full p-2 border rounded" value="{{ $laporan->penulis }}" required>
+            <input type="text" name="nama_penulis" class="w-full p-2 border rounded" value="{{ $laporan->nama_penulis }}" required>
         </div>
 
         <div>
@@ -32,6 +32,12 @@
             <label>Jumlah Terjual:</label>
             <input type="number" name="jumlah_terjual" class="w-full p-2 border rounded" value="{{ $laporan->jumlah_terjual }}" required>
         </div>
+        
+        <div>
+            <label>Total Harga:</label>
+            <input type="number" name="total_harga" class="w-full p-2 border rounded" value="{{ $laporan->total_harga }}" required>
+        </div>
+        
 
         <div>
             <label>Tanggal Penjualan:</label>

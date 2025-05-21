@@ -60,6 +60,21 @@
                     >
                 </div>
 
+                <div
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Total Harga
+                </label>
+                    <input
+                        type="number"
+                        name="total_harga"
+                        value="{{ old('total_harga') }}"
+                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    >
+                </div>
+
+
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Tanggal Penjualan
