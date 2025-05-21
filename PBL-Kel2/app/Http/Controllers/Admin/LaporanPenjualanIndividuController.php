@@ -54,7 +54,7 @@ class LaporanPenjualanIndividuController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'penulis' => 'required|string|max:100',
+            'penulis' => 'string|max:100',
             'judul_buku' => 'required|string|max:255',
             'jumlah_terjual' => 'required|integer|min:1',
             'tanggal_penjualan' => 'required|date',

@@ -28,7 +28,7 @@
                 @forelse ($laporan as $item)
                 <tr>
                     <td class="py-2 px-4 border">{{ $loop->iteration }}</td>
-                    <td class="py-2 px-4 border">{{ $item->nama_buku }}</td>
+                    <td class="py-2 px-4 border">{{ $item->judul_buku }}</td>
                     <td class="py-2 px-4 border">{{ $item->penulis }}</td>
                     <td class="py-2 px-4 border">{{ $item->jumlah_terjual }}</td>
                     <td class="py-2 px-4 border">Rp{{ number_format($item->total_harga, 0, ',', '.') }}</td>

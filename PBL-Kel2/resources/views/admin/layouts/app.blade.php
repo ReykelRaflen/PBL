@@ -82,7 +82,7 @@
       <ul class="space-y-2">
         <!-- Dashboard -->
         <li>
-          <a href="#" class="flex items-center gap-2 py-2 px-2 rounded hover:bg-blue-100 dark:hover:bg-gray-700 transition">
+          <a href="{{route('admin.dashboard')}}" class="flex items-center gap-2 py-2 px-2 rounded hover:bg-blue-100 dark:hover:bg-gray-700 transition">
             <i data-lucide="home" class="w-4 h-4"></i> Dashboard
           </a>
         </li>
