@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Register | Fanya Publishing</title>
+    <title>Verifikasi Email | Fanya Publishing</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -14,35 +14,49 @@
         </div>
     </nav>
 
-    {{-- Konten Register --}}
+    {{-- Konten Verifikasi --}}
     <div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
         <div class="p-4 rounded border text-center" style="width: 400px;">
-            <h5 class="fw-bold mb-4">Buat Akun</h5>
-            <form method="POST" action="{{ route('register') }}">
+            <h5 class="fw-bold mb-4">Verifikasi Email</h5>
+            
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <p>Kami telah mengirimkan kode verifikasi ke email Anda: <strong>{{ $email }}</strong></p>
+            
+            <form method="POST" action="{{ route('verification.verify') }}">
                 @csrf
-                <div class="mb-3 text-start">
-                    <label for="name" class="form-label">Nama Lengkap</label>
-                    <input type="text" name="name" class="form-control rounded-pill" required>
+                <input type="hidden" name="email" value="{{ $email }}">
+                
+                <div class="mb-3">
+                    <label for="otp" class="form-label">Kode Verifikasi</label>
+                    <input type="text" name="otp" class="form-control rounded-pill text-center" required autofocus>
                 </div>
-                <div class="mb-3 text-start">
-                    <label for="phone" class="form-label">Nomor Handphone</label>
-                    <input type="tel" name="phone" class="form-control rounded-pill" required>
-                </div>
-                <div class="mb-3 text-start">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control rounded-pill" required>
-                </div>
-                <div class="mb-3 text-start">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control rounded-pill" required>
-                </div>
-                <div class="mb-3 text-start">
-                    <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation" class="form-control rounded-pill" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 rounded-pill" style="background-color: #a5b4fc;">Daftar</button>
+                
+                <button type="submit" class="btn btn-primary w-100 rounded-pill" style="background-color: #a5b4fc;">Verifikasi</button>
             </form>
-            <p class="mt-3 small">Sudah memiliki akun? <a href="{{ route('login') }}">Masuk</a></p>
+            
+            <div class="mt-3">
+                <p class="small">Tidak menerima kode?</p>
+                <form method="POST" action="{{ route('verification.resend') }}">
+                    @csrf
+                    <input type="hidden" name="email" value="{{ $email }}">
+                    <button type="submit" class="btn btn-link p-0">Kirim ulang kode</button>
+                </form>
+            </div>
         </div>
     </div>
 

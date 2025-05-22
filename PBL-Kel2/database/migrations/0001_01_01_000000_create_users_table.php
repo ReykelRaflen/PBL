@@ -14,9 +14,13 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('phone')->nullable(); // Added phone field
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('otp')->nullable(); // Added for email verification with OTP
+            $table->timestamp('otp_created_at')->nullable(); // Added for OTP expiration
+            $table->boolean('is_verified')->default(false); // Added to track verification status
             $table->rememberToken();
             $table->timestamps();
         });
