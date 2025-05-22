@@ -16,6 +16,10 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
+// Verification routes
+Route::get('/email/verify', [App\Http\Controllers\Auth\RegisterController::class, 'showVerificationForm'])->name('verification.notice');
+Route::post('/email/verify', [App\Http\Controllers\Auth\RegisterController::class, 'verifyOtp'])->name('verification.verify');
+Route::post('/email/resend', [App\Http\Controllers\Auth\RegisterController::class, 'resendOtp'])->name('verification.resend');
     
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuth::class, 'showLoginForm'])->name('admin.login');

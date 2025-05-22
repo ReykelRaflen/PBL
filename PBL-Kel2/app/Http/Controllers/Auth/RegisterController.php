@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
 {
@@ -17,35 +18,43 @@ class RegisterController extends Controller
         return view('user.auth.register');
     }
 
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'phone'    => 'required|string|max:15',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
+   public function register(Request $request)
+{
+    // Validasi dasar
+    $request->validate([
+        'name'     => 'required|string|max:255',
+        'phone'    => 'required|string|max:15',
+        'password' => 'required|string|min:6|confirmed',
+    ]);
 
-        // Generate OTP
-        $otp = rand(100000, 999999);
-
-        $user = User::create([
-            'name'     => $request->name,
-            'phone'    => $request->phone,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'otp'      => $otp,
-            'otp_created_at' => Carbon::now(),
-            'is_verified' => false,
-        ]);
-
-        // Send OTP via email
-        $this->sendOtpEmail($user, $otp);
-
-        // Redirect to verification page
-        return redirect()->route('verification.notice', ['email' => $user->email])
-            ->with('success', 'Pendaftaran berhasil! Silakan periksa email Anda untuk kode verifikasi.');
+    // Validasi email secara manual
+    $existingUser = User::where('email', $request->email)->first();
+    if ($existingUser) {
+        return back()
+            ->withInput($request->except('password', 'password_confirmation'))
+            ->withErrors(['email' => 'Email ini sudah terdaftar. Silakan gunakan email lain atau coba login.']);
     }
+
+    // Lanjutkan dengan pendaftaran jika email belum terdaftar
+    $otp = rand(100000, 999999);
+    
+    $user = User::create([
+        'name'     => $request->name,
+        'phone'    => $request->phone,
+        'email'    => $request->email,
+        'password' => Hash::make($request->password),
+        'otp'      => $otp,
+        'otp_created_at' => Carbon::now(),
+        'is_verified' => false,
+    ]);
+
+    // Kirim OTP dan redirect
+    $this->sendOtpEmail($user, $otp);
+    
+    return redirect()->route('verification.notice', ['email' => $user->email])
+        ->with('success', 'Pendaftaran berhasil! Silakan periksa email Anda untuk kode verifikasi.');
+}
+
 
     public function showVerificationForm(Request $request)
     {
