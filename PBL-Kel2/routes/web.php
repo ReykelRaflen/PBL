@@ -20,6 +20,13 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/email/verify', [App\Http\Controllers\Auth\RegisterController::class, 'showVerificationForm'])->name('verification.notice');
 Route::post('/email/verify', [App\Http\Controllers\Auth\RegisterController::class, 'verifyOtp'])->name('verification.verify');
 Route::post('/email/resend', [App\Http\Controllers\Auth\RegisterController::class, 'resendOtp'])->name('verification.resend');
+// Password Reset Routes
+Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/password/reset/{email}', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'reset'])->name('password.update');
+Route::post('/password/resend-otp', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'resendOtp'])->name('password.resend');
+
     
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuth::class, 'showLoginForm'])->name('admin.login');

@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login | Fanya Publishing</title>
+    <title>Lupa Password | Fanya Publishing</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -14,12 +14,17 @@
         </div>
     </nav>
 
-    {{-- Konten Login --}}
+    {{-- Konten Lupa Password --}}
     <div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
         <div class="p-4 rounded border text-center" style="width: 400px;">
-            <h5 class="fw-bold mb-4">Masuk Akun</h5>
+            <h5 class="fw-bold mb-4">Lupa Password</h5>
             
-            {{-- Display validation errors --}}
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert alert-danger text-start">
                     <ul class="mb-0">
@@ -30,7 +35,9 @@
                 </div>
             @endif
             
-            <form method="POST" action="{{ route('login') }}">
+            <p class="text-start mb-4">Masukkan alamat email Anda dan kami akan mengirimkan kode OTP untuk mereset password Anda.</p>
+            
+            <form method="POST" action="{{ route('password.email') }}">
                 @csrf
                 <div class="mb-3 text-start">
                     <label for="email" class="form-label">Email</label>
@@ -39,19 +46,9 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="mb-3 text-start">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control rounded-pill @error('password') is-invalid @enderror" required>
-                    @error('password')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="mb-3 text-start">
-                    <a href="{{ route('password.request') }}" class="text-primary small">Lupa Password?</a>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 rounded-pill" style="background-color: #a5b4fc;">Masuk</button>
+                <button type="submit" class="btn btn-primary w-100 rounded-pill" style="background-color: #a5b4fc;">Kirim Kode Reset</button>
             </form>
-            <p class="mt-3 small">Belum memiliki akun? <a href="{{ route('register') }}">Buat Akun</a></p>
+            <p class="mt-3 small"><a href="{{ route('login') }}">Kembali ke halaman login</a></p>
         </div>
     </div>
 

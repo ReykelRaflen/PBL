@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login | Fanya Publishing</title>
+    <title>Reset Password | Fanya Publishing</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -14,12 +14,17 @@
         </div>
     </nav>
 
-    {{-- Konten Login --}}
+    {{-- Konten Reset Password --}}
     <div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
         <div class="p-4 rounded border text-center" style="width: 400px;">
-            <h5 class="fw-bold mb-4">Masuk Akun</h5>
+            <h5 class="fw-bold mb-4">Reset Password</h5>
             
-            {{-- Display validation errors --}}
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert alert-danger text-start">
                     <ul class="mb-0">
@@ -30,28 +35,44 @@
                 </div>
             @endif
             
-            <form method="POST" action="{{ route('login') }}">
+            <p class="text-start mb-4">Kami telah mengirimkan kode OTP ke email Anda: <strong>{{ $email }}</strong></p>
+            
+            <form method="POST" action="{{ route('password.update') }}">
                 @csrf
+                <input type="hidden" name="email" value="{{ $email }}">
+                
                 <div class="mb-3 text-start">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control rounded-pill @error('email') is-invalid @enderror" value="{{ old('email') }}" required>
-                    @error('email')
+                    <label for="otp" class="form-label">Kode OTP</label>
+                    <input type="text" name="otp" class="form-control rounded-pill @error('otp') is-invalid @enderror" required>
+                    @error('otp')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+                
                 <div class="mb-3 text-start">
-                    <label for="password" class="form-label">Password</label>
+                    <label for="password" class="form-label">Password Baru</label>
                     <input type="password" name="password" class="form-control rounded-pill @error('password') is-invalid @enderror" required>
                     @error('password')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+                
                 <div class="mb-3 text-start">
-                    <a href="{{ route('password.request') }}" class="text-primary small">Lupa Password?</a>
+                    <label for="password_confirmation" class="form-label">Konfirmasi Password Baru</label>
+                    <input type="password" name="password_confirmation" class="form-control rounded-pill" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 rounded-pill" style="background-color: #a5b4fc;">Masuk</button>
+                
+                <button type="submit" class="btn btn-primary w-100 rounded-pill" style="background-color: #a5b4fc;">Reset Password</button>
             </form>
-            <p class="mt-3 small">Belum memiliki akun? <a href="{{ route('register') }}">Buat Akun</a></p>
+            
+            <div class="mt-3">
+                <p class="small">Tidak menerima kode?</p>
+                <form method="POST" action="{{ route('password.resend') }}">
+                    @csrf
+                    <input type="hidden" name="email" value="{{ $email }}">
+                    <button type="submit" class="btn btn-link p-0">Kirim ulang kode</button>
+                </form>
+            </div>
         </div>
     </div>
 
