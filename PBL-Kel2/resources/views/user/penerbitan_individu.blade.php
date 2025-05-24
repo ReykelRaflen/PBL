@@ -99,7 +99,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="naskah" class="form-label">Upload Naskah (PDF/Doc)</label>
-                    <input type="file" class="form-control" id="naskah">
+                    <input type="file" name="file_upload" class="form-control" id="naskah" accept=".pdf, .doc,.docx">
                 </div>
                 <h4>Pilih Paket</h4>
                 <div class="form-check">
@@ -115,8 +115,8 @@
                     <label class="form-check-label" for="pro">Pro</label>
                 </div>
                 <div class="mb-3">
-                    <label for="buktipembayaran" class="form-label">Upload Bukti Pembayaran</label>
-                    <input type="file" class="form-control" id="buktipembayaran">
+                    <label for="buktipembayaran" class="form-label">Upload Bukti Pembayaran (JPG/JPEG/PNG)</label>
+                    <input type="file" name="file_upload" class="form-control" id="buktipembayaran" accept=".jpg, .jpeg, .png">
                 </div>
                 <div class="button-container">
                     <button type="submit" class="btn btn-primary btn-right">Kirim Pengajuan</button>

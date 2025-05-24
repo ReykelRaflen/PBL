@@ -25,12 +25,14 @@
     <div class="container mt-5 text-center">
         <div class="row">
             <div class="col">
-                <img src="{{ asset('img/Buku_Individu.png') }}" class="mb-2" width="50">
-                <p>Buku Individu</p>
+                <a href="{{ url('/penerbitan_individu') }}">
+                    <img src="{{ asset('img/Buku_Individu.png') }}" class="mb-2" width="75">
+                </a>
             </div>
             <div class="col">
-                <img src="{{ asset('img/Buku_kolaborasi.png') }}" class="mb-2" width="50">
-                <p>Buku Kolaboratif</p>
+                <a href="{{ url('/penerbitan_kolaborasi') }}">
+                    <img src="{{ asset('img/Buku_Kolaborasi.png') }}" class="mb-2" width="75">
+                </a>
             </div>
         </div>
     </div>

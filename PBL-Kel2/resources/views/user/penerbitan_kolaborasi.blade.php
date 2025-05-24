@@ -73,20 +73,17 @@
     <div class="book-item">
         <img src="{{ asset('images/book1.jpg') }}" alt="Book 1">
         <h3>Antologi Puisi Nusantara</h3>
-        <p>Rp 100.000</p>
         <button class="btn btn-primary">Lihat Bab</button>
     </div>
     <!-- Add more book items as needed -->
     <div class="book-item">
         <img src="{{ asset('images/book2.jpg') }}" alt="Book 2">
         <h3>Title of Book 2</h3>
-        <p>Rp 150.000</p>
         <button class="btn btn-primary">Lihat Bab</button>
     </div>
     <div class="book-item">
         <img src="{{ asset('images/book3.jpg') }}" alt="Book 3">
         <h3>Title of Book 3</h3>
-        <p>Rp 200.000</p>
         <button class="btn btn-primary">Lihat Bab</button>
     </div>
 </div>
@@ -109,7 +106,7 @@
             <p>Puisi tentang kemegahan dan mistis Gunung Bromo</p>
             <p>Deadline: 5 Juni 2025 | Rp 500.000</p>
         </div>
-        <button class="btn btn-primary">Bab Sudah Diambil</button>
+        <button style="background-color: #d3d3d3; color: #333333; border: none; padding: 0.5em 1em; border-radius: 6px; cursor: pointer;">Bab Sudah Diambil</button>
     </div>
 
             <!-- Add more chapters as needed -->
@@ -120,8 +117,8 @@
         <p>Bank BRI: 1234-5678-9101 a.n. CV. Fanya Bintang Sejahtera</p>
             <form>
             <div class="mb-3">
-                    <label for="buktipembayaran" class="form-label">Upload Bukti Pembayaran</label>
-                    <input type="file" class="form-control" id="buktipembayaran">
+                    <label for="buktipembayaran" class="form-label">Upload Bukti Pembayaran (JPG/JPEG/PNG)</label>
+                    <input type="file" name="file_upload" class="form-control" id="buktipembayaran" accept=".jpg, .jpeg, .png">
                 </div>
                 <div class="button-container">
                     <button type="submit" class="btn btn-primary btn-right">Konfirmasi Pembayaran</button>

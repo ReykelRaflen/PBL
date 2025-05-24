@@ -14,7 +14,7 @@
       <p class="text-xl font-bold text-blue-600">1.234</p>
     </div>
     <div class="bg-white p-4 rounded shadow text-center">
-      <p class="text-gray-500 text-sm">Editor</p>
+      <p class="text-gray-500 text-sm">Editor</p>   
       <p class="text-xl font-bold text-blue-600">324</p>
     </div>
     <div class="bg-white p-4 rounded shadow text-center">
@@ -25,3 +25,4 @@
 
   <!-- Tambahkan konten lainnya sesuai keperluan -->
 @endsection
+  

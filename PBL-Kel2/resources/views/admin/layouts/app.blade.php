@@ -119,7 +119,7 @@
         <!-- Buku, Member, Editor -->
         <li class="mt-4 font-semibold text-gray-600 dark:text-gray-300">Buku, Member, Editor</li>
         <li>
-          <a href="#" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+          <a href="/admin/publish_buku" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
             <i data-lucide="book-open" class="w-4 h-4"></i> Buku
           </a>
         </li>
@@ -135,7 +135,7 @@
           </button>
           <ul x-show="openMenu === 'editor'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="/admin/naskah" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Naskah
               </a>
             </li>
@@ -196,6 +196,13 @@
             <i data-lucide="check-circle" class="w-4 h-4"></i> Bukti Pembayaran
           </a>
         </li>
+
+        <!-- Katalog Buku -->
+        <li>
+          <a href="#" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+            <i data-lucide="book" class="w-4 h-4"></i> Katalog Buku
+          </a>
+        </li>
   
         <!-- Download -->
         <li class="mt-4">
@@ -203,6 +210,8 @@
             <i data-lucide="download" class="w-4 h-4"></i> Download
           </a>
         </li>
+
+        
   
         <!-- Setting Admin -->
         <li class="mt-4 font-semibold text-gray-600 dark:text-gray-300">Setting</li>
