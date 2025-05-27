@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\Admin\DesignSampulController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -45,5 +46,16 @@ Route::prefix('admin')->group(function () {
                 Route::put('/{id}', [LaporanPenjualanKolaborasiController::class, 'update'])->name('penjualanKolaborasi.update');
                 Route::delete('/{id}', [LaporanPenjualanKolaborasiController::class, 'destroy'])->name('penjualanKolaborasi.destroy');
             });
+
+
+            //Design Sampul Routes
+             Route::prefix('dashboard/DesignSampul')->group(function() {
+                Route::get('/', [DesignSampulController::class, 'index'])->name('DesignSampul.index');
+                Route::get('/create', [DesignSampulController::class, 'create'])->name('DesignSampul.create');
+                Route::post('/', [DesignSampulController::class, 'store'])->name('DesignSampul.store');
+                Route::get('/{id}/edit', [DesignSampulController::class, 'edit'])->name('DesignSampul.edit');
+                Route::put('/{id}', [DesignSampulController::class, 'update'])->name('DesignSampul.update');
+                Route::delete('/{id}', [DesignSampulController::class, 'destroy'])->name('DesignSampul.destroy');
         });
-});
+    });
+    });

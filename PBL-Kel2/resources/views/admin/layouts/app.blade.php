@@ -140,7 +140,7 @@
               </a>
             </li>
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('DesignSampul.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="brush" class="w-4 h-4"></i> Design
               </a>
             </li>
