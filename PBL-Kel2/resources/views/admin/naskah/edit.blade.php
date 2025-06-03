@@ -479,15 +479,55 @@ p.text-sm.text-gray-500 a:hover {
                 </select>
             </div>
 
-            <!-- File (opsional, jika ada upload file) -->
-            <div class="col-span-1 md:col-span-2">
-                <label for="file" class="block text-sm font-semibold">File</label>
-                <input type="file" class="form-control" id="file" name="file" accept=".pdf,.doc,.docx,.txt">
-                @if($naskah->file_naskah)
-                    <p class="mt-2 text-sm text-gray-500">File saat ini: <a href="{{ asset('storage/' . $naskah->file_naskah) }}" target="_blank" class="text-blue-600 hover:underline">Lihat File</a></p>
-                @endif
-            </div>
+           <!-- File (opsional, jika ada upload file) -->
+        <div class="col-span-1 md:col-span-2">
+            <label for="file" class="block text-sm font-semibold">File</label>
+            
+            <input type="file" name="file" accept=".pdf,.doc,.docx,.txt">
+
+
+            <p class="mt-1 text-sm text-gray-500">
+                Format yang diizinkan: <strong>pdf, doc, docx</strong>. Maksimal <strong>20MB</strong>.
+            </p>
+
+            @if($naskah->file_naskah)
+                <p class="mt-2 text-sm text-black-500">
+                    File saat ini: 
+                    <a href="{{ asset('storage/' . $naskah->file_naskah) }}" 
+                    target="_blank" 
+                    class="text-black bg-red-500 hover:bg-green-600 px-2 py-1 rounded hover:underline transition">
+                        Lihat File
+                    </a>
+                </p>
+            @endif
+
         </div>
+
+        <!-- Validasi file di sisi client -->
+        <script>
+        document.getElementById('file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const allowedExtensions = ['pdf', 'doc', 'docx'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (!allowedExtensions.includes(fileExtension)) {
+                alert('Hanya file dengan format PDF, DOC, atau DOCX yang diperbolehkan.');
+                e.target.value = ''; // Reset input
+                return;
+            }
+
+            const maxSize = 20 * 1024 * 1024; // 20MB
+            if (file.size > maxSize) {
+                alert('Ukuran file maksimal adalah 20MB.');
+                e.target.value = ''; // Reset input
+            }
+        });
+        </script>
+        </div>
+
+
 
         <div class="mt-6 flex justify-between">
             <a href="{{ route('admin.naskah') }}" class="btn btn-outline-secondary">Batal</a>

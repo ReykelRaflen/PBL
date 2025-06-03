@@ -304,9 +304,9 @@
     <div class="p-6">
         <h1 class="text-xl font-semibold text-gray-900">Daftar Naskah</h1>
     </div>
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto px-4">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-60">
                 <tr>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul Naskah</th>

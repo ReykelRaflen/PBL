@@ -54,13 +54,15 @@ public function show($naskahId)
     // Mengupdate naskah tertentu
     public function update(Request $request, $id)
 {
+    // Validasi input
     $validatedData = $request->validate([
         'judul' => 'required|string|max:255',
         'pengarang' => 'required|string|max:100',
         'deskripsi_singkat' => 'required|string|max:100',
         'tanggal' => 'required|date',
         'status' => 'required|in:Dalam Review,Siap Terbit,Ditolak',
-        'file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:2048', // adjust max size as needed
+        'file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:20480', // adjust max size as needed
+        
     ]);
 
     $naskah = Naskah::findOrFail($id);
