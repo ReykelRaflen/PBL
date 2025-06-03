@@ -1,56 +1,63 @@
 <?php
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
+namespace App\Http\Controllers\Admin;
 use App\Models\KategoriBuku;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class KategoriBukuController extends Controller
 {
     public function index()
     {
-        $kategoris = KategoriBuku::paginate(10);
-        return view('kategori.index', compact('kategoris'));
+        $kategori = KategoriBuku::paginate(10);
+        return view('admin.kategoriBuku.index', compact('kategori'));
     }
 
     public function create()
     {
-        return view('kategori.create');
+        return view('admin.kategoriBuku.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'kode_kategori' => 'required|unique:kategori_buku',
-            'nama_kategori' => 'required',
-            'deskripsi' => 'required',
+            'nama' => 'required|string|max:255',
+            'status' => 'required|in:0,1',
         ]);
 
-        KategoriBuku::create($request->all());
-        return redirect()->route('kategori.index')->with('success', 'Kategori berhasil ditambahkan!');
+        KategoriBuku::create([
+            'nama' => $request->nama,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('kategori-buku.index')->with('success', 'Kategori berhasil ditambahkan');
     }
 
     public function edit($id)
     {
-        $kategori = KategoriBuku::findOrFail($id);
-        return view('kategori.edit', compact('kategori'));
+        $kategoriBuku = KategoriBuku::findOrFail($id);
+        return view('admin.kategoriBuku.edit', compact('kategoriBuku'));
     }
 
     public function update(Request $request, $id)
     {
-        $kategori = KategoriBuku::findOrFail($id);
+        $kategoriBuku = KategoriBuku::findOrFail($id);
+        
         $request->validate([
-            'nama_kategori' => 'required',
-            'deskripsi' => 'required',
+            'nama' => 'required|string|max:255',
+            'status' => 'required|in:0,1',
+        ]);
+        
+        $kategoriBuku->update([
+            'nama' => $request->nama,
+            'status' => $request->status,
         ]);
 
-        $kategori->update($request->all());
-        return redirect()->route('kategori.index')->with('success', 'Kategori berhasil diupdate!');
+        return redirect()->route('kategori-buku.index')->with('success', 'Kategori berhasil diupdate');
     }
 
     public function destroy($id)
     {
-        $kategori = KategoriBuku::findOrFail($id);
-        $kategori->delete();
-        return redirect()->route('kategori.index')->with('success', 'Kategori berhasil dihapus!');
+        KategoriBuku::destroy($id);
+        return redirect()->route('kategori-buku.index')->with('success', 'Kategori berhasil dihapus');
     }
 }

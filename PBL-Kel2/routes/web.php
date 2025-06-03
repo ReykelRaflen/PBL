@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AuthController as AdminAuth;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LaporanPenerbitanIndividuController;
 use App\Http\Controllers\Admin\LaporanPenerbitanKolaborasiController;
+use App\Http\Controllers\Admin\KategoriBukuController;
 
 // User Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -25,7 +26,18 @@ Route::prefix('admin')->group(function () {
     Route::middleware('auth:admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-        // Laporan Penerbitan Individu
+        
+        // Kategori Buku Routes
+        Route::prefix('kategori-buku')->name('kategori-buku.')->group(function () {
+            Route::get('/', [KategoriBukuController::class, 'index'])->name('index');
+            Route::get('/create', [KategoriBukuController::class, 'create'])->name('create');
+            Route::post('/', [KategoriBukuController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [KategoriBukuController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [KategoriBukuController::class, 'update'])->name('update');
+            Route::delete('/{id}', [KategoriBukuController::class, 'destroy'])->name('destroy');
+        });
+        
+     // Laporan Penerbitan Individu
         Route::prefix('dashboard/penerbitan-individu')->name('penerbitanIndividu.')->group(function () {
             Route::get('/', [LaporanPenerbitanIndividuController::class, 'index'])->name('index');
             Route::get('/create', [LaporanPenerbitanIndividuController::class, 'create'])->name('create');
