@@ -247,84 +247,259 @@
         </div>
     </div>
 </header>
+    
 
-<!-- Detail Naskah -->
+{{-- Bagian Edit --}}
+<style>
+/* Container styling */
+.max-w-6xl {
+    max-width: 72rem; /* 1152px */
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+    padding: 1.5rem 2rem;
+}
+
+.dark .max-w-6xl {
+    background-color: #1f2937; /* dark gray background */
+    color: #d1d5db; /* lighter text */
+}
+
+/* Heading */
+.max-w-6xl h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #1e40af; /* blue-800 */
+}
+
+.dark .max-w-6xl h2 {
+    color: #93c5fd; /* lighter blue */
+}
+
+/* Horizontal rule */
+hr {
+    border-color: #e5e7eb;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.dark hr {
+    border-color: #374151;
+}
+
+/* Grid layout for form fields */
+.grid.grid-cols-1.md\:grid-cols-2 {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .grid.grid-cols-1.md\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Form labels */
+label.block.text-sm.font-semibold {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151; /* gray-700 */
+}
+
+.dark label.block.text-sm.font-semibold {
+    color: #d1d5db; /* lighter gray */
+}
+
+/* Input fields, textarea and select */
+input.form-control,
+textarea.form-control,
+select.form-control {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid #d1d5db; /* gray-300 */
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #111827; /* gray-900 */
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+
+.dark input.form-control,
+.dark textarea.form-control,
+.dark select.form-control {
+    background-color: #374151; /* gray-700 */
+    color: #d1d5db;
+    border-color: #4b5563; /* gray-600 */
+}
+
+input.form-control:focus,
+textarea.form-control:focus,
+select.form-control:focus {
+    outline: none;
+    border-color: #2563eb; /* blue-600 */
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.5); /* blue-500 transparent shadow */
+    background-color: #fff;
+}
+
+.dark input.form-control:focus,
+.dark textarea.form-control:focus,
+.dark select.form-control:focus {
+    background-color: #4b5563; /* slightly lighter dark bg */
+}
+
+/* Paragraph text (file info) */
+p.text-sm.text-gray-500,
+p.text-sm.text-gray-500 a {
+    font-size: 0.875rem;
+    color: #6b7280; /* gray-500 */
+}
+
+.dark p.text-sm.text-gray-500,
+.dark p.text-sm.text-gray-500 a {
+    color: #9ca3af;
+}
+
+p.text-sm.text-gray-500 a:hover {
+    text-decoration: underline;
+}
+
+/* Buttons container */
+.mt-6.flex.justify-between {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Buttons styles */
+.btn {
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    border-width: 1.5px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    user-select: none;
+    text-align: center;
+    display: inline-block;
+    line-height: 1.25;
+}
+
+.btn-primary {
+    background-color: #2563eb; /* blue-600 */
+    color: white;
+    border-color: transparent;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #1e40af; /* blue-800 */
+    outline: none;
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    color: #374151; /* gray-700 */
+    border-color: #374151;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: #e5e7eb; /* gray-200 */
+    border-color: #2563eb;
+    color: #2563eb;
+    outline: none;
+}
+
+/* Responsive tweaks for smaller devices */
+@media (max-width: 768px) {
+    .mt-6.flex.justify-between {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+</style>
+
+<!-- Main Content --> 
 <div class="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-    <h2 class="text-2xl font-bold text-center mb-4">Detail Naskah</h2>
+    <h2 class="text-2xl font-bold text-center mb-4">Edit Naskah</h2>
     <hr class="my-4 border-gray-200 dark:border-gray-700">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-            <label class="block text-sm font-semibold">ID Naskah :</label>
-            <p class="text-gray-600 dark:text-gray-300">{{ $naskah->id }}</p>
-        </div>
-        <div>
-            <label class="block text-sm font-semibold">Judul Naskah :</label>
-            <p class="text-gray-600 dark:text-gray-300">{{ $naskah->judul ?? 'Judul tidak tersedia' }}</p>
+    <form action="{{ route('admin.naskah.update', $naskah->id) }}" method="POST" enctype="multipart/form-data" novalidate>
+        @csrf
+        @method('PUT') 
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Judul -->
+            <div>
+                <label for="judul" class="block text-sm font-semibold">Judul</label>
+                <input type="text" class="form-control" id="judul" name="judul" value="{{ old('judul', $naskah->judul) }}" required>
+            </div>
+
+            <!-- Pengarang -->
+            <div>
+                <label for="pengarang" class="block text-sm font-semibold">Pengarang</label>
+                <input type="text" class="form-control" id="pengarang" name="pengarang" value="{{ old('pengarang', $naskah->pengarang) }}" required>
+            </div>
+
+            <!-- Deskripsi Singkat -->
+            <div class="col-span-1 md:col-span-2">
+                <label for="deskripsi_singkat" class="block text-sm font-semibold">Deskripsi Singkat</label>
+                <textarea class="form-control" id="deskripsi_singkat" name="deskripsi_singkat" rows="5" required>{{ old('deskripsi_singkat', $naskah->deskripsi_singkat) }}</textarea>
+            </div>
+
+            <!-- Tanggal -->
+            <div>
+                <label for="tanggal" class="block text-sm font-semibold">Tanggal</label>
+                <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{ old('tanggal', $naskah->tanggal ? \Carbon\Carbon::parse($naskah->tanggal)->format('Y-m-d') : '') }}" required>
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label for="status" class="block text-sm font-semibold">Status</label>
+                <select class="form-control" id="status" name="status" required>
+                    <option value="" disabled {{ old('status', $naskah->status) ? '' : 'selected' }}>Pilih Status</option>
+                    <option value="Dalam Review" {{ old('status', $naskah->status) === 'Dalam Review' ? 'selected' : '' }}>Dalam Review</option>
+                    <option value="Siap Terbit" {{ old('status', $naskah->status) === 'Siap Terbit' ? 'selected' : '' }}>Siap Terbit</option>
+                    <option value="Ditolak" {{ old('status', $naskah->status) === 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                </select>
+            </div>
+
+            <!-- File (opsional, jika ada upload file) -->
+            <div class="col-span-1 md:col-span-2">
+                <label for="file" class="block text-sm font-semibold">File</label>
+                <input type="file" class="form-control" id="file" name="file" accept=".pdf,.doc,.docx,.txt">
+                @if($naskah->file_naskah)
+                    <p class="mt-2 text-sm text-gray-500">File saat ini: <a href="{{ asset('storage/' . $naskah->file_naskah) }}" target="_blank" class="text-blue-600 hover:underline">Lihat File</a></p>
+                @endif
+            </div>
         </div>
 
-        <div>
-            <label class="block text-sm font-semibold">Pengarang :</label>
-            <p class="text-gray-600 dark:text-gray-300">{{ $naskah->pengarang ?? 'Penulis tidak diketahui' }}</p>
+        <div class="mt-6 flex justify-between">
+            <a href="{{ route('admin.naskah') }}" class="btn btn-outline-secondary">Batal</a>
+            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         </div>
-        <div>
-            <label class="block text-sm font-semibold">Status :</label>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                @switch($naskah->status)
-                    @case('Dalam Review') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 @break
-                    @case('Siap Terbit') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 @break
-                    @case('Ditolak') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 @break
-                    @default bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
-                @endswitch">
-                {{ $naskah->status ?? 'Belum Ditentukan' }}
-            </span>
-        </div>
-
-        <div>
-            <label class="block text-sm font-semibold">Deskripsi Singkat :</label>
-            <p class="text-gray-600 dark:text-gray-300">{{ $naskah->deskripsi_singkat ?? 'Terserah' }}</p>
-        </div>
-        <div>
-            <label class="block text-sm font-semibold">Tanggal Dikirim :</label>
-            <p class="text-gray-600 dark:text-gray-300">
-                {{ $naskah->tanggal ? \Carbon\Carbon::parse($naskah->tanggal)->format('d/m/Y') : 'Tanggal tidak tersedia' }}
-            </p>
-        </div>
-        <div>
-    <label class="block text-sm font-semibold">File Naskah :</label>
-    @if($naskah->file_naskah)
-        <a href="{{ Storage::url($naskah->file_naskah) }}" 
-           class="inline-flex items-center text-blue-600 hover:text-blue-900" 
-           target="_blank" 
-           title="Download File">
-            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            {{ basename($naskah->file_naskah) }} - Unduh PDF
-        </a>
-    @else
-        <p class="text-gray-500">File tidak tersedia</p>
-    @endif
+    </form>
 </div>
 
-    </div>
-</div>
 
 
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('app', () => ({
-                dark: localStorage.getItem('theme') === 'dark',
-                openMenu: '',
-                init() {
-                    this.$watch('dark', value => {
-                        localStorage.setItem('theme', value ? 'dark' : 'light');
-                        document.documentElement.classList.toggle('dark', value);
-                    });
-                }
-            }));
-        });
+            <script>
         lucide.createIcons();
     </script>
 </body>

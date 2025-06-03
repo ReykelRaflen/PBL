@@ -42,7 +42,9 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/naskah', [NaskahController::class, 'index']) -> name('admin.naskah');
     Route::post('/naskah', [NaskahController::class, 'store']) -> name('admin.naskah.store');
     Route::get('/naskahs/{naskah}', [NaskahController::class, 'show']) -> name('admin.naskah.show');
-    Route::delete('/naskah/{naskah}', [NaskahController::class, 'destory']) -> name('admin.naskah.destory');
+    Route::get('/naskahs/{naskah}/edit', [NaskahController::class, 'edit']) -> name('admin.naskah.edit');
+    Route::put('/naskahs/{naskah}', [NaskahController::class, 'update']) -> name('admin.naskah.update');
+    Route::delete('/naskahs/{naskah}', [NaskahController::class, 'destroy']) -> name('admin.naskah.destroy');
 
     });
 });
