@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\BookController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Admin\LaporanPenjualanIndividuController;
 use App\Http\Controllers\Admin\LaporanPenjualanKolaborasiController;
 use App\Http\Controllers\Admin\LaporanPenerbitanIndividuController;
 
+
 // User Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -17,9 +19,15 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
-//buku routes 
-Route::get('/books', [BookController::class, 'index'])->name('books.index');
-Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
+// Route untuk detail buku
+Route::get('/buku/detail/{id}', [BookController::class, 'show'])->name('books.show');
+
+
+
+// Route untuk pemesanan
+Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
+Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
+
 // Verification routes
 Route::get('/email/verify', [App\Http\Controllers\Auth\RegisterController::class, 'showVerificationForm'])->name('verification.notice');
 Route::post('/email/verify', [App\Http\Controllers\Auth\RegisterController::class, 'verifyOtp'])->name('verification.verify');

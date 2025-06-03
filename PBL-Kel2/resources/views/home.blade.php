@@ -35,8 +35,7 @@
         </div>
     </div>
 
-    <!-- Buku Terbaru -->
-    <div class="container mt-5">
+       <div class="container mt-5">
         <h4 class="mb-4 fw-bold">Buku Terbaru Fanya Untukmu</h4>
         <div class="row">
             @foreach ($books as $book)
@@ -47,17 +46,17 @@
                          onmouseout="this.style.transform='translateY(0)'">
                         
                         <!-- Badge Diskon -->
-                        @if($book->discount_percentage > 0)
+                        @if($book->persentase_diskon > 0)
                             <div class="position-absolute top-0 end-0 m-1">
-                                <span class="badge bg-danger" style="font-size: 0.65em;">-{{ $book->discount_percentage }}%</span>
+                                <span class="badge bg-danger" style="font-size: 0.65em;">-{{ $book->persentase_diskon }}%</span>
                             </div>
                         @endif
                         
                         <!-- Cover Buku -->
-                        @if($book->cover)
-                            <img src="{{ asset('storage/covers/' . $book->cover) }}" 
+                        @if($book->sampul)
+                            <img src="{{ asset('storage/covers/' . $book->sampul) }}" 
                                  class="card-img-top" 
-                                 alt="{{ $book->title }}"
+                                 alt="{{ $book->judul_buku }}"
                                  style="height: 150px; object-fit: cover;">
                         @else
                             <div class="card-img-top d-flex align-items-center justify-content-center bg-light" 
@@ -72,18 +71,18 @@
                         <div class="card-body d-flex flex-column p-2">
                             <!-- Judul Buku -->
                             <h6 class="card-title fw-bold text-primary mb-1" style="line-height: 1.2; font-size: 0.85em;">
-                                {{ Str::limit($book->title, 25) }}
+                                {{ Str::limit($book->judul_buku, 25) }}
                             </h6>
                             
                             <!-- Penulis -->
                             <p class="text-muted mb-1" style="font-size: 0.7em;">
-                                <i class="fas fa-user-edit me-1"></i>{{ Str::limit($book->author, 15) }}
+                                <i class="fas fa-user-edit me-1"></i>{{ Str::limit($book->penulis, 15) }}
                             </p>
                             
                             <!-- Deskripsi Singkat -->
-                            @if($book->description)
+                            @if($book->deskripsi)
                                 <p class="text-muted mb-2" style="font-size: 0.65em; line-height: 1.2;">
-                                    {{ Str::limit($book->description, 40) }}
+                                    {{ Str::limit($book->deskripsi, 40) }}
                                 </p>
                             @endif
                             
@@ -95,13 +94,13 @@
                                         <i class="fas fa-book text-primary me-1" style="font-size: 0.6em;"></i>
                                         <span style="font-size: 0.65em; font-weight: 600;">Fisik</span>
                                     </div>
-                                    @if($book->original_price != $book->discount_price)
+                                    @if($book->harga_asli != $book->harga_diskon)
                                         <div class="text-muted text-decoration-line-through" style="font-size: 0.6em;">
-                                            {{ $book->formatted_original_price }}
+                                            {{ $book->harga_asli_format }}
                                         </div>
                                     @endif
                                     <div class="text-danger fw-bold" style="font-size: 0.75em;">
-                                        {{ $book->formatted_discount_price }}
+                                        {{ $book->harga_diskon_format }}
                                     </div>
                                 </div>
                                 
@@ -112,7 +111,7 @@
                                         <span style="font-size: 0.65em; font-weight: 600;">E-book</span>
                                     </div>
                                     <div class="text-success fw-bold" style="font-size: 0.75em;">
-                                        {{ $book->formatted_ebook_price }}
+                                        {{ $book->harga_ebook_format }}
                                     </div>
                                 </div>
                                 
@@ -126,14 +125,16 @@
                 </div>
             @endforeach
         </div>
+    </div>
+
         
-        <!-- Tampilkan lebih banyak buku -->
+        {{-- <!-- Tampilkan lebih banyak buku -->
         <div class="text-center mt-4">
             <a href="{{ route('books.index') }}" class="btn btn-outline-primary">
                 <i class="fas fa-books me-2"></i>Lihat Semua Buku
             </a>
         </div>
-    </div>
+    </div> --}}
 
 
 @endsection
