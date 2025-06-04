@@ -2,7 +2,7 @@
 <html lang="en" x-data="app" x-init="init()" :class="{ 'dark': dark }">
 <head>
     <meta charset="UTF-8">
-    <title>Daftar Naskah</title>
+    <title>Daftar Buku</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Google Fonts: Poppins -->
@@ -248,30 +248,63 @@
             </div>
         </header>
 
-<!-- Pagination (tetap sama) -->
-<div class="flex justify-between items-center">
-    <div class="text-sm text-gray-700">
-        Showing 1 to 25 of {{ $naskahs->total() }} entries
+        <!-- Main Content Area -->
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f9fafb; /* Light background */
+    }
+    .container {
+        max-width: 800px; /* Adjusted max width */
+        margin: 20px auto; /* Centered margin */
+        background: white; /* White background */
+        padding: 30px; /* More padding */
+        border-radius: 12px; /* More rounded corners */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Softer shadow */
+        display: flex; /* Flex layout for side by side */
+    }
+    .book-image {
+        flex: 1; /* Take up equal space */
+        margin-right: 20px; /* Space between image and form */
+    }
+    .book-details {
+        flex: 2; /* More space for details */
+    }
+    h1 {
+        margin-bottom: 20px;
+        text-align: center; /* Center title */
+        font-size: 24px; /* Larger title font */
+    }
+    .input-group {
+        margin-bottom: 15px; /* Space between input fields */
+        width: 100%; /* Full width for inputs */
+    }
+    /* Additional styles for buttons, etc. ... */
+</style>
+
+<div class="container">
+    <div class="book-image">
+        <img src="{{ asset('path/to/cover_image.jpg') }}" alt="Cover Book" style="width:100%; height:auto;">
     </div>
-    <div class="flex space-x-1">
-        <a href="{{ $naskahs->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 {{ $naskahs->onFirstPage() ? 'opacity-50 cursor-not-allowed' : '' }}">
-            Previous
-        </a>
-        @for ($i = 1; $i <= min($naskahs->lastPage(), 3); $i++)
-            <a href="{{ $naskahs->url($i) }}" class="px-4 py-2 text-sm font-medium {{ $naskahs->currentPage() == $i ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }} border border-gray-300 rounded-md">
-                {{ $i }}
-            </a>
-        @endfor
-        <a href="{{ $naskahs->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 {{ !$naskahs->hasMorePages() ? 'opacity-50 cursor-not-allowed' : '' }}">
-            Next
-        </a>
+    <div class="book-details">
+        <h1>{{ $book->judul_buku }}</h1>
+        <p><strong>Harga:</strong> Rp {{ number_format($book->harga, 0, ',', '.') }}</p>
+        <p><strong>Penulis:</strong> {{ $book->penulis }}</p>
+        <p><strong>Penerbit:</strong> {{ $book->penerbit }}</p>
+        <p><strong>ISBN:</strong> {{ $book->isbn }}</p>
+        <p><strong>Halaman:</strong> {{ $book->jumlah_halaman }} halaman</p>
+        <p><strong>Tanggal Terbit:</strong> {{ \Carbon\Carbon::parse($book->tanggal_terbit)->format('d F Y') }}</p>
+        <h3>Deskripsi</h3>
+        <p>{{ $book->deskripsi }}</p>
     </div>
 </div>
 
 
-            <script>
+
+
+
+        <script>
         lucide.createIcons();
     </script>
 </body>
 </html>
-

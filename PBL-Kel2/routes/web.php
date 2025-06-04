@@ -37,14 +37,21 @@ Route::middleware('auth:admin')->group(function () {
 
     // Route untuk mengelola buku
     Route::get('/publish_buku', [PublishBukuController::class, 'index']) -> name('admin.publish_buku');
+    Route::get('/publish_buku/create', [PublishBukuController::class, 'create']) -> name('admin.publish_buku.create');
+    Route::post('/publish_buku', [PublishBukuController::class, 'store']) -> name('admin.publish_buku.store');
+    Route::get('/publish_buku/{publish_books}', [PublishBukuController::class, 'show']) -> name('admin.publish_buku.show');  
+    Route::get('/publish_buku/{publish_books}/edit', [PublishBukuController::class, 'edit']) -> name('admin.publish_buku.edit');
+    Route::put('/publish_buku/{publish_books}', [PublishBukuController::class, 'update']) -> name('admin.publish_buku.update');
+    Route::delete('/publish_buku/{publish_books}', [PublishBukuController::class, 'destroy']) -> name('admin.publish_buku.destroy');
 
     // Route untuk mengelola naskah
-    Route::get('/naskah', [NaskahController::class, 'index']) -> name('admin.naskah');
+    Route::get('naskah', [NaskahController::class, 'index'])->name('admin.index');
     Route::post('/naskah', [NaskahController::class, 'store']) -> name('admin.naskah.store');
     Route::get('/naskahs/{naskah}', [NaskahController::class, 'show']) -> name('admin.naskah.show');
     Route::get('/naskahs/{naskah}/edit', [NaskahController::class, 'edit']) -> name('admin.naskah.edit');
     Route::put('/naskahs/{naskah}', [NaskahController::class, 'update']) -> name('admin.naskah.update');
     Route::delete('/naskahs/{naskah}', [NaskahController::class, 'destroy']) -> name('admin.naskah.destroy');
+
 
     });
 });

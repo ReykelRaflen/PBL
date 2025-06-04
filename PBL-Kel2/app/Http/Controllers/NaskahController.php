@@ -19,8 +19,9 @@ class NaskahController extends Controller
     // Ambil data naskah dengan pagination, urut berdasarkan created_at terbaru
     $naskahs = Naskah::orderBy('created_at', 'desc')->paginate(25);
 
-    // Kirim data ke view admin.naskah (sesuaikan dengan nama view Anda)
-    return view('admin.naskah', compact('naskahs', 'dalamReview', 'siapTerbit', 'ditolak', 'totalNaskah'));
+    
+       // Kirim data ke view admin.naskah.index (sesuaikan dengan nama view Anda)
+   return view('admin.naskah.index', compact('naskahs', 'dalamReview', 'siapTerbit', 'ditolak', 'totalNaskah'));
 }
 
 // Menampilkan detail naskah tertentu
@@ -76,11 +77,12 @@ public function show($naskahId)
         // Process file upload and save filename
         $path = $request->file('file')->store('files', 'public');
         $naskah->file_naskah = $path; // Get the file path
+        
     }
 
     $naskah->save();
 
-    return redirect()->route('admin.naskah')->with('success', 'Naskah updated successfully!');
+    return redirect()->route('admin.index')->with('success', 'Naskah updated successfully!');
 }
 
 

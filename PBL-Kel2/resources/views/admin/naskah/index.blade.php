@@ -133,7 +133,7 @@
                     </button>
                     <ul x-show="openMenu === 'editor'" x-transition class="pl-4 space-y-1">
                         <li>
-                            <a href="/admin/naskah" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                            <a href="/admin/index" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                                 <i data-lucide="file-text" class="w-4 h-4"></i> Naskah
                             </a>
                         </li>
@@ -319,21 +319,21 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @forelse($naskahs as $naskah)
+                @forelse($naskahs as $index)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $naskah->id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $index->id }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <span class="font-medium text-gray-900">{{ $naskah->judul ?? '-' }}</span>
+                                <span class="font-medium text-gray-900">{{ $index->judul ?? '-' }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $naskah->pengarang ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $index->pengarang ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                            {{ Str::limit($naskah->deskripsi_singkat ?? '-', 50) }}
+                            {{ Str::limit($index->deskripsi_singkat ?? '-', 50) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            @if($naskah->file_naskah)
-                                <a href="{{ Storage::url($naskah->file_naskah) }}" 
+                            @if($index->file_naskah)
+                                <a href="{{ Storage::url($index->file_naskah) }}" 
                                    class="text-blue-600 hover:text-blue-900 inline-flex items-center"
                                    target="_blank"
                                    title="Download File">
@@ -348,33 +348,33 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            @switch($naskah->status)
+                            @switch($index->status)
                                 @case('Dalam Review')
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                        {{ $naskah->status }}
+                                        {{ $index->status }}
                                     </span>
                                     @break
                                 @case('Siap Terbit')
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        {{ $naskah->status }}
+                                        {{ $index->status }}
                                     </span>
                                     @break
                                 @case('Ditolak')
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                        {{ $naskah->status }}
+                                        {{ $index->status }}
                                     </span>
                                     @break
                                 @default
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        {{ $naskah->status ?? 'Belum Ditentukan' }}
+                                        {{ $index->status ?? 'Belum Ditentukan' }}
                                     </span>
                             @endswitch
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $naskah->tanggal ? \Carbon\Carbon::parse($naskah->tanggal)->format('d/m/Y') : '-' }}
+                            {{ $index->tanggal ? \Carbon\Carbon::parse($index->tanggal)->format('d/m/Y') : '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('admin.naskah.show', $naskah) }}" 
+                            <a href="{{ route('admin.naskah.show', $index) }}" 
                                class="text-indigo-600 hover:text-indigo-900 inline-flex items-center"
                                title="Lihat Detail">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -384,7 +384,7 @@
                             </a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('admin.naskah.edit', $naskah) }}" 
+                            <a href="{{ route('admin.naskah.edit', $index) }}" 
                             class="text-green-600 hover:text-green-900 inline-flex items-center"
                             title="Edit Detail">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -393,7 +393,7 @@
                             </a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <form action="{{ route('admin.naskah.destroy', $naskah->id) }}" method="POST" class="inline-flex">
+                            <form action="{{ route('admin.naskah.destroy', $index->id) }}" method="POST" class="inline-flex">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900" title="Hapus">
@@ -451,4 +451,3 @@
     </script>
 </body>
 </html>
-

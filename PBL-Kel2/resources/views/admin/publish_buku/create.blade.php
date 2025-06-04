@@ -59,7 +59,7 @@
     </script>
 </head>
 
-<div class="bg-gray-100 dark:bg-gray-900 text-black dark:text-white flex">
+<body class="bg-gray-100 dark:bg-gray-900 text-black dark:text-white flex">
 
     <!-- Dark Mode Toggle -->
     <div class="absolute top-4 right-4 z-50">
@@ -248,121 +248,152 @@
             </div>
         </header>
 
-        <!-- Adding margin here -->
-        <div class="mb-6"></div>
+        <!-- Main Content Area -->
+                
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb; /* Light background */
+        }
+        .container {
+            max-width: 650px; /* Set max width for the form */
+            margin: 20px auto; /* Add margin at the top */
+            background: white; /* White background for form */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center; /* Center title */
+        }
+        .input-group {
+            margin-bottom: 15px; /* Space between input fields */
+        }
+        label {
+            display: block;
+            margin-bottom: 5px; /* Space between label and input */
+            font-weight: 600; /* Bold labels */
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s; /* Smooth border transition */
+        }
+        input:focus, textarea:focus {
+            border-color: #3b82f6; /* Highlight border on focus */
+            outline: none; /* Remove default outline */
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between; /* Align buttons side by side */
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s; /* Smooth background transition */
+        }
+        button[type="submit"] {
+            background-color: #3b82f6; /* Primary button color */
+            color: white;
+        }
+        button[type="button"] {
+            background-color: #f9fafb; /* Secondary button color */
+            color: #3b82f6; /* Text color */
+            border: 1px solid #3b82f6; /* Button border */
+        }
+        button:hover {
+            background-color: #2563eb; /* Darken button on hover */
+        }
+        button[type="button"]:hover {
+            background-color: #e5e7eb; /* Darken secondary button on hover */
+        }
+    </style>
 
-<!-- Daftar Buku Table -->
-<div class="bg-white rounded-lg shadow overflow-hidden mb-6 col-span-1 md:col-span-4">
-    <div class="p-6">
-        <h1 class="text-xl font-semibold text-gray-900">Daftar Buku</h1>
-        <a href="{{ route('admin.publish_buku.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-blue-700 float-right -mt-8">
-            <span class="text-xl font-bold">+</span> Tambah Buku
-        </a>
-    </div>
-    <div class="overflow-x-auto px-4">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-60">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul Buku</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penulis</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penerbit</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ISBN</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cover</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Terbit</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @forelse($publish_books as $publish_buku)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ $publish_buku->judul_buku }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->penulis }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->penerbit }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->isbn }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->jumlah_halaman }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-500 font-semibold">Rp {{ number_format($publish_buku->harga, 0, ',', '.') }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                            {{ Str::limit($publish_buku->deskripsi, 50) }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            @if($publish_buku->cover_buku)
-                                <img src="{{ asset('storage/' . $publish_buku->cover_buku) }}" alt="Cover Buku" class="w-12 h-16 object-cover rounded shadow">
-                            @else
-                                <span class="text-gray-400">No cover</span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $publish_buku->tanggal_terbit ? \Carbon\Carbon::parse($publish_buku->tanggal_terbit)->format('d/m/Y') : '-' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <a href="{{ route('admin.publish_buku.show', $publish_buku->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Lihat Detail">
-                                <svg class="h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                            </a>
-                            <a href="{{ route('admin.publish_buku.edit', $publish_buku->id) }}" class="text-green-600 hover:text-green-900" title="Edit Detail">
-                                <svg class="h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                                </svg>
-                            </a>
-                            <form action="{{ route('admin.publish_buku.destroy', $publish_buku->id) }}" method="POST" class="inline-flex" onsubmit="return confirm('Yakin hapus buku ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900" title="Hapus">
-                                    <svg class="h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m6 0l-1.5-1.5M15 12l-1.5 1.5M12 3h0a1 1 0 011 1v2m-1 0H9m3-2a1 1 0 00-1-1H9a1 1 0 00-1 1m5 17H9a2 2 0 01-2-2V5a2 2 0 012-2h6a2 2 0 012 2v14a2 2 0 01-2 2z"/>
-                                    </svg>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="11" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            <div class="flex flex-col items-center justify-center py-8">
-                                <svg class="h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                <p class="text-gray-500">Tidak ada data buku.</p>
-                            </div>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
+    <div class="text-black-800 dark:text-gray-200 container">
+        <h1>Tambah Buku</h1>
+        <for>
+            <div class="input-group">
+                <label for="judul">Judul Buku *</label>
+                <input type="text" id="judul" placeholder="Masukkan Judul Buku" required>
+            </div>
+            <div class="input-group">
+                <label for="harga">Harga (Rp) *</label>
+                <input type="number" id="harga" placeholder="Masukkan harga" required>
+            </div>
+            <div class="input-group">
+                <label for="penulis">Penulis *</label>
+                <input type="text" id="penulis" placeholder="Masukkan Nama Penulis" required>
+            </div>
+            <div class="input-group">
+                <label for="penerbit">Penerbit *</label>
+                <input type="text" id="penerbit" placeholder="Masukkan Nama Penerbit" required>
+            </div>
+            <div class="input-group">
+                <label for="isbn">ISBN *</label>
+                <input type="text" id="isbn" placeholder="Masukkan Nomor ISBN" required>
+            </div>
+            <div class="input-group">
+                <label for="halaman">Jumlah Halaman *</label>
+                <input type="number" id="halaman" placeholder="Masukkan Jumlah Halaman" required>
+            </div>
+            <div class="input-group">
+                <label for="tanggal">Tanggal Terbit *</label>
+                <input type="date" id="tanggal" required>
+            </div>
+            <div class="input-group">
+                <label for="deskripsi">Deskripsi *</label>
+                <textarea id="deskripsi" rows="4" placeholder="Masukkan deskripsi singkat buku" required></textarea>
+            </div>
+            <div class="col-span-1 md:col-span-2">
+                <label for="cover" class="block text-sm font-semibold">Cover Buku *</label>
+                
+                <input type="file" id="cover" name="cover" accept=".png,.jpg,.jpeg" required>
 
-<!-- Pagination -->
-<div class="flex justify-between items-center">
-    <div class="text-sm text-gray-700">
-        Showing {{ $publish_books->firstItem() }} to {{ $publish_books->lastItem() }} of {{ $publish_books->total() }} entries
-    </div>
-    <div class="flex space-x-1">
-        <a href="{{ $publish_books->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 {{ $publish_books->onFirstPage() ? 'opacity-50 cursor-not-allowed' : '' }}">
-            Previous
-        </a>
-        @for ($i = 1; $i <= min($publish_books->lastPage(), 3); $i++)
-            <a href="{{ $publish_books->url($i) }}" class="px-4 py-2 text-sm font-medium {{ $publish_books->currentPage() == $i ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }} border border-gray-300 rounded-md">
-                {{ $i }}
-            </a>
-        @endfor
-        <a href="{{ $publish_books->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 {{ !$publish_books->hasMorePages() ? 'opacity-50 cursor-not-allowed' : '' }}">
-            Next
-        </a>
-    </div>
-</div>
+                <p class="mt-1 text-sm text-gray-500">
+                    Format yang diizinkan: <strong>png, jpg, jpeg</strong>. Maksimal <strong>2MB</strong>.
+                </p>
+            </div>
 
-
-
-
+            <!-- Validasi file di sisi client -->
             <script>
+            document.getElementById('cover').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const allowedExtensions = ['png', 'jpg', 'jpeg'];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                if (!allowedExtensions.includes(fileExtension)) {
+                    alert('Hanya file dengan format PNG, JPG, atau JPEG yang diperbolehkan.');
+                    e.target.value = ''; // Reset input
+                    return;
+                }
+
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                if (file.size > maxSize) {
+                    alert('Ukuran file maksimal adalah 2MB.');
+                    e.target.value = ''; // Reset input
+                }
+            });
+            </script>
+            </for>
+
+        <div class="mt-6 flex justify-between">
+            <a href="{{ route('admin.publish_buku') }}" class="btn btn-outline-secondary">Batal</a>
+            <button type="submit" class="btn btn-primary">Simpan </button>
+        </div>
+    </div>
+    </div>
+
+
+
+
+        <script>
         lucide.createIcons();
     </script>
 </body>
