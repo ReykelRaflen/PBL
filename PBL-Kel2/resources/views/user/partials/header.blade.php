@@ -19,7 +19,7 @@
         <!-- Masuk | Daftar -->
         <div>
             @auth
-                <a href="/dashboard" class="btn btn-primary">Akun Saya</a>
+                <a href="{{route('akun.index')}}" class="btn btn-primary">Akun Saya</a>
         
                 <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                     @csrf

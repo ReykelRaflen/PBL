@@ -3,11 +3,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AkunController;
 use App\Http\Controllers\Admin\AuthController as AdminAuth;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LaporanPenjualanIndividuController;
 use App\Http\Controllers\Admin\LaporanPenjualanKolaborasiController;
 use App\Http\Controllers\Admin\LaporanPenerbitanIndividuController;
+
 
 // User Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -16,6 +18,13 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
+
+ //profile
+        Route::get('/akun', [AkunController::class, 'index'])->name('akun.index');
+        Route::post('/akun', [AkunController::class, 'updateFoto'])->name('akun.updateFoto');
+        Route::get('/akun/kolaborasi', [AkunController::class, 'kolaborasi'])->name('akun.kolaborasi');
+        Route::get('/akun/pembelian', [AkunController::class, 'pembelian'])->name('akun.pembelian');
+        Route::get('/akun/download', [AkunController::class, 'download'])->name('akun.download');
     
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuth::class, 'showLoginForm'])->name('admin.login');
@@ -54,5 +63,8 @@ Route::prefix('admin')->group(function () {
             Route::put('/{id}', [LaporanPenerbitanIndividuController::class, 'update'])->name('penerbitanIndividu.update');
             Route::delete('/{id}', [LaporanPenerbitanIndividuController::class, 'destroy'])->name('penerbitanIndividu.destroy');
         });
+
+       
+
     });
 });
