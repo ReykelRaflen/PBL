@@ -184,7 +184,7 @@
            </li>
 
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{ route('penerbitanKolaborasi.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-plus" class="w-4 h-4"></i> Buku Kolaborasi
               </a>
             </li>

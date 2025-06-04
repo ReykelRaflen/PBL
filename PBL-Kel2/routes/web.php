@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\LaporanPenjualanIndividuController;
 use App\Http\Controllers\Admin\LaporanPenjualanKolaborasiController;
 use App\Http\Controllers\Admin\LaporanPenerbitanIndividuController;
 use App\Http\Controllers\Admin\PromoController;
-
+use App\Http\Controllers\Admin\LaporanPenerbitanKolaborasiController;
 
 // User Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -29,7 +29,7 @@ Route::get('/password/reset/{email}', [App\Http\Controllers\Auth\ForgotPasswordC
 Route::post('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'reset'])->name('password.update');
 Route::post('/password/resend-otp', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'resendOtp'])->name('password.resend');
 
-    
+
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuth::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AdminAuth::class, 'login']);
@@ -38,45 +38,56 @@ Route::prefix('admin')->group(function () {
     Route::middleware('auth:admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-        // Laporan Penjualan Individu Routes
-        Route::prefix('dashboard/laporan-penjualan')->group(function () {
-            Route::get('/', [LaporanPenjualanIndividuController::class, 'index'])->name('penjualanIndividu.index');
-            Route::get('/create', [LaporanPenjualanIndividuController::class, 'create'])->name('penjualanIndividu.create');
-            Route::post('/', [LaporanPenjualanIndividuController::class, 'store'])->name('penjualanIndividu.store');
-            Route::get('/{id}/edit', [LaporanPenjualanIndividuController::class, 'edit'])->name('penjualanIndividu.edit');
-            Route::put('/{id}', [LaporanPenjualanIndividuController::class, 'update'])->name('penjualanIndividu.update');
-            Route::delete('/{id}', [LaporanPenjualanIndividuController::class, 'destroy'])->name('penjualanIndividu.destroy');
+        // Laporan Penerbitan Individu
+        Route::prefix('dashboard/penerbitan-individu')->name('penerbitanIndividu.')->group(function () {
+            Route::get('/', [LaporanPenerbitanIndividuController::class, 'index'])->name('index');
+            Route::get('/create', [LaporanPenerbitanIndividuController::class, 'create'])->name('create');
+            Route::post('/', [LaporanPenerbitanIndividuController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [LaporanPenerbitanIndividuController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [LaporanPenerbitanIndividuController::class, 'update'])->name('update');
+            Route::delete('/{id}', [LaporanPenerbitanIndividuController::class, 'destroy'])->name('destroy');
         });
 
-        // Laporan Penjualan Kolaborasi Routes
-        Route::prefix('dashboard/laporan-penjualan-kolaborasi')->group(function () {
-            Route::get('/', [LaporanPenjualanKolaborasiController::class, 'index'])->name('penjualanKolaborasi.index');
-            Route::get('/create', [LaporanPenjualanKolaborasiController::class, 'create'])->name('penjualanKolaborasi.create');
-            Route::post('/', [LaporanPenjualanKolaborasiController::class, 'store'])->name('penjualanKolaborasi.store');
-            Route::get('/{id}/edit', [LaporanPenjualanKolaborasiController::class, 'edit'])->name('penjualanKolaborasi.edit');
-            Route::put('/{id}', [LaporanPenjualanKolaborasiController::class, 'update'])->name('penjualanKolaborasi.update');
-            Route::delete('/{id}', [LaporanPenjualanKolaborasiController::class, 'destroy'])->name('penjualanKolaborasi.destroy');
+        // Laporan Penerbitan Kolaborasi
+        Route::prefix('dashboard/penerbitan-kolaborasi')->name('penerbitanKolaborasi.')->group(function () {
+            Route::get('/', [LaporanPenerbitanKolaborasiController::class, 'index'])->name('index');
+            Route::get('/create', [LaporanPenerbitanKolaborasiController::class, 'create'])->name('create');
+            Route::post('/', [LaporanPenerbitanKolaborasiController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [LaporanPenerbitanKolaborasiController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [LaporanPenerbitanKolaborasiController::class, 'update'])->name('update');
+            Route::delete('/{id}', [LaporanPenerbitanKolaborasiController::class, 'destroy'])->name('destroy');
         });
 
-        // Laporan Penerbitan Individu Routes
-        Route::prefix('dashboard/penerbitan-individu')->group(function () {
-            Route::get('/', [LaporanPenerbitanIndividuController::class, 'index'])->name('penerbitanIndividu.index');
-            Route::get('/create', [LaporanPenerbitanIndividuController::class, 'create'])->name('penerbitanIndividu.create');
-            Route::post('/', [LaporanPenerbitanIndividuController::class, 'store'])->name('penerbitanIndividu.store');
-            Route::get('/{id}/edit', [LaporanPenerbitanIndividuController::class, 'edit'])->name('penerbitanIndividu.edit');
-            Route::put('/{id}', [LaporanPenerbitanIndividuController::class, 'update'])->name('penerbitanIndividu.update');
-            Route::delete('/{id}', [LaporanPenerbitanIndividuController::class, 'destroy'])->name('penerbitanIndividu.destroy');
-        });
+            // Laporan Penjualan Individu Routes
+            Route::prefix('dashboard/laporan-penjualan')->group(function () {
+                Route::get('/', [LaporanPenjualanIndividuController::class, 'index'])->name('penjualanIndividu.index');
+                Route::get('/create', [LaporanPenjualanIndividuController::class, 'create'])->name('penjualanIndividu.create');
+                Route::post('/', [LaporanPenjualanIndividuController::class, 'store'])->name('penjualanIndividu.store');
+                Route::get('/{id}/edit', [LaporanPenjualanIndividuController::class, 'edit'])->name('penjualanIndividu.edit');
+                Route::put('/{id}', [LaporanPenjualanIndividuController::class, 'update'])->name('penjualanIndividu.update');
+                Route::delete('/{id}', [LaporanPenjualanIndividuController::class, 'destroy'])->name('penjualanIndividu.destroy');
+            });
 
-        // Promo Routes
-        Route::prefix('dashboard/promo')->group(function () {
-            Route::get('/', [PromoController::class, 'index'])->name('promos.index');
-            Route::get('/create', [PromoController::class, 'create'])->name('promos.create');
-            Route::post('/', [PromoController::class, 'store'])->name('promos.store');
-            Route::get('/{promo}', [PromoController::class, 'show'])->name('promos.show');
-            Route::get('/{promo}/edit', [PromoController::class, 'edit'])->name('promos.edit');
-            Route::put('/{promo}', [PromoController::class, 'update'])->name('promos.update');
-            Route::delete('/{promo}', [PromoController::class, 'destroy'])->name('promos.destroy');
+            // Laporan Penjualan Kolaborasi Routes
+            Route::prefix('dashboard/laporan-penjualan-kolaborasi')->group(function () {
+                Route::get('/', [LaporanPenjualanKolaborasiController::class, 'index'])->name('penjualanKolaborasi.index');
+                Route::get('/create', [LaporanPenjualanKolaborasiController::class, 'create'])->name('penjualanKolaborasi.create');
+                Route::post('/', [LaporanPenjualanKolaborasiController::class, 'store'])->name('penjualanKolaborasi.store');
+                Route::get('/{id}/edit', [LaporanPenjualanKolaborasiController::class, 'edit'])->name('penjualanKolaborasi.edit');
+                Route::put('/{id}', [LaporanPenjualanKolaborasiController::class, 'update'])->name('penjualanKolaborasi.update');
+                Route::delete('/{id}', [LaporanPenjualanKolaborasiController::class, 'destroy'])->name('penjualanKolaborasi.destroy');
+            });
+
+            // Promo Routes
+            Route::prefix('dashboard/promo')->group(function () {
+                Route::get('/', [PromoController::class, 'index'])->name('promos.index');
+                Route::get('/create', [PromoController::class, 'create'])->name('promos.create');
+                Route::post('/', [PromoController::class, 'store'])->name('promos.store');
+                Route::get('/{promo}', [PromoController::class, 'show'])->name('promos.show');
+                Route::get('/{promo}/edit', [PromoController::class, 'edit'])->name('promos.edit');
+                Route::put('/{promo}', [PromoController::class, 'update'])->name('promos.update');
+                Route::delete('/{promo}', [PromoController::class, 'destroy'])->name('promos.destroy');
+            });
         });
     });
-});
+
