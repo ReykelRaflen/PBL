@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('judul_buku');
             $table->string('penulis');
             $table->text('deskripsi')->nullable(); // deskripsi buku
+            $table->integer('stok_fisik'); // stok buku fisik
             $table->string('sampul')->nullable(); // path gambar
             $table->integer('harga_asli'); // harga asli buku fisik
             $table->integer('harga_diskon'); // harga diskon buku fisik

@@ -15,6 +15,7 @@ class Book extends Model
         'judul_buku',
         'penulis',
         'deskripsi',
+        'stok_fisik',
         'sampul',
         'harga_asli',
         'harga_diskon',

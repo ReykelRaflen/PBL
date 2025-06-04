@@ -102,7 +102,7 @@
                         </div>
                     </div>
 
-                    <!-- Harga Section -->
+                                                         <!-- Harga Section -->
                     <div class="mb-4">
                         <h5 class="fw-bold mb-3">Pilihan Pembelian</h5>
                         
@@ -118,6 +118,17 @@
                                             @endif
                                         </h6>
                                         <small class="text-muted">Buku cetak dengan kualitas premium</small>
+                                        <div class="mt-1">
+                                            @if($book->stok_fisik > 0)
+                                                <small class="text-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Stok tersedia: {{ $book->stok_fisik }} buku
+                                                </small>
+                                            @else
+                                                <small class="text-danger">
+                                                    <i class="fas fa-times-circle me-1"></i>Stok habis
+                                                </small>
+                                            @endif
+                                        </div>
                                     </div>
                                     <div class="text-end">
                                         @if($book->persentase_diskon > 0)
@@ -134,14 +145,39 @@
                                         @endif
                                     </div>
                                 </div>
-                                <form method="POST" action="{{ route('order.create') }}" class="mt-3">
-                                    @csrf
-                                    <input type="hidden" name="book_id" value="{{ $book->id }}">
-                                    <input type="hidden" name="order_type" value="fisik">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="fas fa-shopping-cart me-2"></i>Pesan Buku Fisik
-                                    </button>
-                                </form>
+                                
+                                @if($book->stok_fisik > 0)
+                                    <form method="POST" action="{{ route('order.create') }}" class="mt-3">
+                                        @csrf
+                                        <input type="hidden" name="book_id" value="{{ $book->id }}">
+                                        <input type="hidden" name="order_type" value="fisik">
+                                        
+                                        <!-- Quantity Selector -->
+                                        <div class="row align-items-center mb-3">
+                                            <div class="col-auto">
+                                                <label for="quantity_fisik" class="form-label mb-0">Jumlah:</label>
+                                            </div>
+                                            <div class="col-auto">
+                                                <div class="input-group" style="width: 120px;">
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity('quantity_fisik')">-</button>
+                                                    <input type="number" class="form-control form-control-sm text-center" 
+                                                           id="quantity_fisik" name="quantity" value="1" min="1" max="{{ $book->stok_fisik }}" required>
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('quantity_fisik', {{ $book->stok_fisik }})">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-shopping-cart me-2"></i>Pesan Buku Fisik
+                                        </button>
+                                    </form>
+                                @else
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-secondary w-100" disabled>
+                                            <i class="fas fa-times me-2"></i>Stok Habis
+                                        </button>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
@@ -186,6 +222,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function increaseQuantity(inputId, maxStock) {
+            const input = document.getElementById(inputId);
+            const currentValue = parseInt(input.value);
+            
+            if (currentValue < maxStock) {
+                input.value = currentValue + 1;
+            }
+        }
+
+        function decreaseQuantity(inputId) {
+            const input = document.getElementById(inputId);
+            const currentValue = parseInt(input.value);
+            const minValue = parseInt(input.getAttribute('min'));
+            
+            if (currentValue > minValue) {
+                input.value = currentValue - 1;
+            }
+        }
+    </script>
+
 
     <!-- Deskripsi Buku -->
     @if($book->deskripsi)
