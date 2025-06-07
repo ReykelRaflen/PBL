@@ -14,15 +14,25 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('phone')->nullable(); // Added phone field
+            $table->string('phone')->nullable(); // Nomor telepon
             $table->string('email')->unique();
+            $table->string('address')->nullable(); // Alamat
+            $table->date('birthdate')->nullable(); // Tanggal lahir
+            $table->enum('gender', ['Laki-laki', 'Perempuan'])->nullable(); // Jenis kelamin
+            $table->enum('agama', ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'])->nullable(); // Agama
+            $table->string('foto')->nullable(); // Foto profil (ganti dari 'image')
+            $table->string('role')->default('user'); // Role user
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('otp')->nullable(); // Added for email verification with OTP
-            $table->timestamp('otp_created_at')->nullable(); // Added for OTP expiration
-            $table->boolean('is_verified')->default(false); // Added to track verification status
+            $table->string('otp')->nullable(); // OTP untuk verifikasi email
+            $table->timestamp('otp_created_at')->nullable(); // Waktu pembuatan OTP
+            $table->boolean('is_verified')->default(false); // Status verifikasi
             $table->rememberToken();
             $table->timestamps();
+            
+            // Index untuk performa
+            $table->index(['email', 'is_verified']);
+            $table->index('role');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
