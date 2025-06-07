@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -19,15 +20,15 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 // Verification routes
-Route::get('/email/verify', [App\Http\Controllers\Auth\RegisterController::class, 'showVerificationForm'])->name('verification.notice');
-Route::post('/email/verify', [App\Http\Controllers\Auth\RegisterController::class, 'verifyOtp'])->name('verification.verify');
-Route::post('/email/resend', [App\Http\Controllers\Auth\RegisterController::class, 'resendOtp'])->name('verification.resend');
+Route::get('/email/verify', [RegisterController::class, 'showVerificationForm'])->name('verification.notice');
+Route::post('/email/verify', [RegisterController::class, 'verifyOtp'])->name('verification.verify');
+Route::post('/email/resend', [RegisterController::class, 'resendOtp'])->name('verification.resend');
 // Password Reset Routes
-Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('/password/reset/{email}', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'reset'])->name('password.update');
-Route::post('/password/resend-otp', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'resendOtp'])->name('password.resend');
+Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/password/reset/{email}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [ForgotPasswordController::class, 'reset'])->name('password.update');
+Route::post('/password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('password.resend');
 
 
 Route::prefix('admin')->group(function () {
