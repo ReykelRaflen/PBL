@@ -19,6 +19,10 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
+
+//buku routes 
+Route::get('/books', [BookController::class, 'index'])->name('books.index');
+Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
 // Verification routes
 Route::get('/email/verify', [RegisterController::class, 'showVerificationForm'])->name('verification.notice');
 Route::post('/email/verify', [RegisterController::class, 'verifyOtp'])->name('verification.verify');

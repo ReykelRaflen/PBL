@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('author');
+            $table->text('description')->nullable(); // deskripsi buku
             $table->string('cover')->nullable(); // path gambar
-            $table->integer('original_price');
-            $table->integer('discount_price');
+            $table->integer('original_price'); // harga asli buku fisik
+            $table->integer('discount_price'); // harga diskon buku fisik
+            $table->integer('ebook_price'); // harga e-book
             $table->timestamps();
         });
     }
