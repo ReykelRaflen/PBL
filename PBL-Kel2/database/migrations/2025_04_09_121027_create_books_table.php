@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('books', function (Blueprint $table) {
+        Schema::create('buku', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('author');
-            $table->text('description')->nullable(); // deskripsi buku
-            $table->string('cover')->nullable(); // path gambar
-            $table->integer('original_price'); // harga asli buku fisik
-            $table->integer('discount_price'); // harga diskon buku fisik
-            $table->integer('ebook_price'); // harga e-book
+            $table->string('judul_buku');
+            $table->string('penulis');
+            $table->text('deskripsi')->nullable(); // deskripsi buku
+            $table->integer('stok_fisik'); // stok buku fisik
+            $table->string('sampul')->nullable(); // path gambar
+            $table->integer('harga_asli'); // harga asli buku fisik
+            $table->integer('harga_diskon'); // harga diskon buku fisik
+            $table->integer('harga_ebook'); // harga e-book
             $table->timestamps();
         });
     }

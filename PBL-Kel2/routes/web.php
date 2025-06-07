@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\BookController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -20,9 +21,15 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
-//buku routes 
-Route::get('/books', [BookController::class, 'index'])->name('books.index');
-Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
+// Route untuk detail buku
+Route::get('/buku/detail/{id}', [BookController::class, 'show'])->name('books.show');
+
+
+
+// Route untuk pemesanan
+Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
+Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
+
 // Verification routes
 Route::get('/email/verify', [RegisterController::class, 'showVerificationForm'])->name('verification.notice');
 Route::post('/email/verify', [RegisterController::class, 'verifyOtp'])->name('verification.verify');
