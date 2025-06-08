@@ -14,8 +14,8 @@
         <!-- Gambar Buku -->
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm">
-                @if($book->sampul)
-                    <img src="{{ asset('storage/covers/' . $book->sampul) }}" 
+                @if($book->cover)
+                    <img src="{{ asset('storage/' . $book->cover) }}" 
                          class="card-img-top" 
                          alt="{{ $book->judul_buku }}"
                          style="height: 400px; object-fit: cover;">
@@ -79,22 +79,26 @@
                                         <td>{{ $book->isbn }}</td>
                                     </tr>
                                     @endif
-                                    @if($book->halaman)
-                                    <tr>
-                                        <td class="text-muted"><i class="fas fa-file-alt me-2"></i>Halaman</td>
-                                        <td>{{ $book->halaman }} halaman</td>
-                                    </tr>
-                                    @endif
                                     @if($book->kategori)
                                     <tr>
                                         <td class="text-muted"><i class="fas fa-tags me-2"></i>Kategori</td>
-                                        <td><span class="badge bg-secondary">{{ $book->kategori }}</span></td>
+                                        <td><span class="badge bg-secondary">{{ $book->kategori->nama }}</span></td>
                                     </tr>
                                     @endif
-                                    @if($book->bahasa)
                                     <tr>
-                                        <td class="text-muted"><i class="fas fa-language me-2"></i>Bahasa</td>
-                                        <td>{{ $book->bahasa }}</td>
+                                        <td class="text-muted"><i class="fas fa-boxes me-2"></i>Stok</td>
+                                        <td>
+                                            @if($book->stok > 0)
+                                                <span class="badge bg-success">{{ $book->stok }} tersedia</span>
+                                            @else
+                                                <span class="badge bg-danger">Stok habis</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @if($book->file_buku)
+                                    <tr>
+                                        <td class="text-muted"><i class="fas fa-file-pdf me-2"></i>E-book</td>
+                                        <td><span class="badge bg-info">Tersedia</span></td>
                                     </tr>
                                     @endif
                                 </table>
@@ -102,26 +106,30 @@
                         </div>
                     </div>
 
-                                                         <!-- Harga Section -->
+                    <!-- Harga Section -->
                     <div class="mb-4">
                         <h5 class="fw-bold mb-3">Pilihan Pembelian</h5>
                         
                         <!-- Buku Fisik -->
+                        @if($book->harga)
                         <div class="card mb-3 border-primary">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="card-title mb-1">
                                             <i class="fas fa-book text-primary me-2"></i>Buku Fisik
-                                            @if($book->persentase_diskon > 0)
-                                                <span class="badge bg-danger ms-2">-{{ $book->persentase_diskon }}%</span>
+                                            @if($book->promo && $book->promo->isActive() && $book->harga_promo && $book->harga_promo < $book->harga)
+                                                @php
+                                                    $diskonPersen = round((($book->harga - $book->harga_promo) / $book->harga) * 100);
+                                                @endphp
+                                                <span class="badge bg-danger ms-2">-{{ $diskonPersen }}%</span>
                                             @endif
                                         </h6>
                                         <small class="text-muted">Buku cetak dengan kualitas premium</small>
                                         <div class="mt-1">
-                                            @if($book->stok_fisik > 0)
+                                            @if($book->stok > 0)
                                                 <small class="text-success">
-                                                    <i class="fas fa-check-circle me-1"></i>Stok tersedia: {{ $book->stok_fisik }} buku
+                                                    <i class="fas fa-check-circle me-1"></i>Stok tersedia: {{ $book->stok }} buku
                                                 </small>
                                             @else
                                                 <small class="text-danger">
@@ -131,22 +139,22 @@
                                         </div>
                                     </div>
                                     <div class="text-end">
-                                        @if($book->persentase_diskon > 0)
+                                        @if($book->harga_promo && $book->harga_promo < $book->harga)
                                             <div class="text-muted text-decoration-line-through small">
-                                                {{ $book->harga_asli_format }}
+                                                Rp {{ number_format($book->harga, 0, ',', '.') }}
                                             </div>
                                             <div class="text-danger fw-bold h5 mb-0">
-                                                {{ $book->harga_diskon_format }}
+                                                Rp {{ number_format($book->harga_promo, 0, ',', '.') }}
                                             </div>
                                         @else
                                             <div class="text-primary fw-bold h5 mb-0">
-                                                {{ $book->harga_asli_format }}
+                                                Rp {{ number_format($book->harga, 0, ',', '.') }}
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                                 
-                                @if($book->stok_fisik > 0)
+                                @if($book->stok > 0)
                                     <form method="POST" action="{{ route('order.create') }}" class="mt-3">
                                         @csrf
                                         <input type="hidden" name="book_id" value="{{ $book->id }}">
@@ -161,8 +169,8 @@
                                                 <div class="input-group" style="width: 120px;">
                                                     <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity('quantity_fisik')">-</button>
                                                     <input type="number" class="form-control form-control-sm text-center" 
-                                                           id="quantity_fisik" name="quantity" value="1" min="1" max="{{ $book->stok_fisik }}" required>
-                                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('quantity_fisik', {{ $book->stok_fisik }})">+</button>
+                                                           id="quantity_fisik" name="quantity" value="1" min="1" max="{{ $book->stok }}" required>
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('quantity_fisik', {{ $book->stok }})">+</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -180,8 +188,10 @@
                                 @endif
                             </div>
                         </div>
+                        @endif
 
                         <!-- E-book -->
+                        {{-- @if($book->file_buku) --}}
                         <div class="card border-success">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -193,10 +203,15 @@
                                     </div>
                                     <div class="text-end">
                                         <div class="text-success fw-bold h5 mb-0">
-                                            {{ $book->harga_ebook_format }}
+                                            @php
+                                                // Harga e-book 60% dari harga fisik (atau harga promo jika ada)
+                                                $hargaEbook = $book->harga_promo ? ($book->harga_promo * 0.6) : ($book->harga * 0.6);
+                                            @endphp
+                                            Rp {{ number_format($hargaEbook, 0, ',', '.') }}
                                         </div>
                                     </div>
                                 </div>
+                                <!-- INI BUTTON PEMESANAN E-BOOK -->
                                 <form method="POST" action="{{ route('order.create') }}" class="mt-3">
                                     @csrf
                                     <input type="hidden" name="book_id" value="{{ $book->id }}">
@@ -207,6 +222,22 @@
                                 </form>
                             </div>
                         </div>
+                        {{-- @endif --}}
+
+
+                        <!-- Promo Info -->
+                        @if($book->promo && $book->promo->isActive())
+                        <div class="alert alert-warning mt-3" role="alert">
+                            <h6 class="alert-heading"><i class="fas fa-tag me-2"></i>Promo Aktif!</h6>
+                            <p class="mb-1"><strong>{{ $book->promo->kode_promo }}</strong> - {{ $book->promo->keterangan }}</p>
+                            <small class="text-muted">
+                                Berlaku hingga: {{ $book->promo->tanggal_selesai->format('d F Y') }}
+                                @if($book->promo->kuota)
+                                    | Kuota tersisa: {{ $book->promo->kuota_tersisa }}
+                                @endif
+                            </small>
+                        </div>
+                        @endif
                     </div>
 
                     <!-- Tombol Tambahan -->
@@ -244,7 +275,6 @@
         }
     </script>
 
-
     <!-- Deskripsi Buku -->
     @if($book->deskripsi)
     <div class="row mt-4">
@@ -263,99 +293,264 @@
     </div>
     @endif
 
-    <!-- Buku Terkait -->
+       <!-- Buku Terkait -->
     @if($relatedBooks->count() > 0)
     <div class="mt-5">
         <h4 class="mb-4 fw-bold">Buku Terkait</h4>
         <div class="row">
             @foreach($relatedBooks as $relatedBook)
-                <div class="col-6 col-lg-2 col-md-3 mb-3">
-                    <div class="card h-100 shadow-sm position-relative" style="cursor: pointer; transition: transform 0.2s;" 
-                         onclick="window.location.href='{{ route('books.show', $relatedBook->id) }}'"
-                         onmouseover="this.style.transform='translateY(-3px)'" 
-                         onmouseout="this.style.transform='translateY(0)'">
-                        
-                        <!-- Badge Diskon -->
-                        @if($relatedBook->persentase_diskon > 0)
-                            <div class="position-absolute top-0 end-0 m-1">
-                                <span class="badge bg-danger" style="font-size: 0.65em;">-{{ $relatedBook->persentase_diskon }}%</span>
+            <div class="col-6 col-md-3 mb-4">
+                <div class="card h-100 shadow-sm" style="cursor: pointer; transition: transform 0.2s;" 
+                     onclick="window.location.href='{{ route('books.show', $relatedBook->id) }}'"
+                     onmouseover="this.style.transform='translateY(-3px)'" 
+                     onmouseout="this.style.transform='translateY(0)'">
+                    
+                    <!-- Badge Diskon -->
+                    @if($relatedBook->promo && $relatedBook->promo->isActive() && $relatedBook->harga_promo && $relatedBook->harga_promo < $relatedBook->harga)
+                        @php
+                            $diskonPersen = round((($relatedBook->harga - $relatedBook->harga_promo) / $relatedBook->harga) * 100);
+                        @endphp
+                        <div class="position-absolute top-0 end-0 m-2" style="z-index: 1;">
+                            <span class="badge bg-danger">-{{ $diskonPersen }}%</span>
+                        </div>
+                    @endif
+                    
+                    <!-- Cover Buku -->
+                    @if($relatedBook->cover)
+                        <img src="{{ asset('storage/' . $relatedBook->cover) }}" 
+                             class="card-img-top" 
+                             alt="{{ $relatedBook->judul_buku }}"
+                             style="height: 200px; object-fit: cover;">
+                    @else
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" 
+                             style="height: 200px;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-book fa-2x mb-2"></i>
+                                <div style="font-size: 0.8em;">No Cover</div>
                             </div>
-                        @endif
+                        </div>
+                    @endif
+                    
+                    <div class="card-body d-flex flex-column">
+                        <!-- Judul Buku -->
+                        <h6 class="card-title fw-bold text-primary mb-2" style="line-height: 1.3;">
+                            {{ Str::limit($relatedBook->judul_buku, 40) }}
+                        </h6>
                         
-                        <!-- Cover Buku -->
-                        @if($relatedBook->sampul)
-                            <img src="{{ asset('storage/covers/' . $relatedBook->sampul) }}" 
-                                 class="card-img-top" 
-                                 alt="{{ $relatedBook->judul_buku }}"
-                                 style="height: 150px; object-fit: cover;">
-                        @else
-                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" 
-                                 style="height: 150px;">
-                                <div class="text-center text-muted">
-                                    <i class="fas fa-book fa-lg mb-1"></i>
-                                    <div style="font-size: 0.7em;">No Cover</div>
-                                </div>
-                            </div>
-                        @endif
+                        <!-- Penulis -->
+                        <p class="text-muted mb-2" style="font-size: 0.85em;">
+                            <i class="fas fa-user-edit me-1"></i>{{ Str::limit($relatedBook->penulis, 20) }}
+                        </p>
                         
-                        <div class="card-body d-flex flex-column p-2">
-                            <!-- Judul Buku -->
-                            <h6 class="card-title fw-bold text-primary mb-1" style="line-height: 1.2; font-size: 0.85em;">
-                                {{ Str::limit($relatedBook->judul_buku, 25) }}
-                            </h6>
-                            
-                            <!-- Penulis -->
-                            <p class="text-muted mb-1" style="font-size: 0.7em;">
-                                <i class="fas fa-user-edit me-1"></i>{{ Str::limit($relatedBook->penulis, 15) }}
+                        <!-- Kategori -->
+                        @if($relatedBook->kategori)
+                            <p class="text-muted mb-2" style="font-size: 0.8em;">
+                                <span class="badge bg-secondary">{{ $relatedBook->kategori->nama }}</span>
                             </p>
-                            
-                            <!-- Deskripsi Singkat -->
-                            @if($relatedBook->deskripsi)
-                                <p class="text-muted mb-2" style="font-size: 0.65em; line-height: 1.2;">
-                                    {{ Str::limit($relatedBook->deskripsi, 40) }}
-                                </p>
+                        @endif
+                        
+                        <!-- Harga -->
+                        <div class="mt-auto">
+                            @if($relatedBook->harga)
+                                @if($relatedBook->harga_promo && $relatedBook->harga_promo < $relatedBook->harga)
+                                    <div class="text-muted text-decoration-line-through" style="font-size: 0.8em;">
+                                        Rp {{ number_format($relatedBook->harga, 0, ',', '.') }}
+                                    </div>
+                                    <div class="text-danger fw-bold">
+                                        Rp {{ number_format($relatedBook->harga_promo, 0, ',', '.') }}
+                                    </div>
+                                @else
+                                    <div class="text-primary fw-bold">
+                                        Rp {{ number_format($relatedBook->harga, 0, ',', '.') }}
+                                    </div>
+                                @endif
                             @endif
                             
-                            <!-- Harga Section -->
-                            <div class="mt-auto">
-                                <!-- Harga Buku Fisik -->
-                                <div class="mb-1 p-1 bg-light rounded">
-                                    <div class="d-flex align-items-center mb-1">
-                                        <i class="fas fa-book text-primary me-1" style="font-size: 0.6em;"></i>
-                                        <span style="font-size: 0.65em; font-weight: 600;">Fisik</span>
-                                    </div>
-                                    @if($relatedBook->harga_asli != $relatedBook->harga_diskon)
-                                        <div class="text-muted text-decoration-line-through" style="font-size: 0.6em;">
-                                            {{ $relatedBook->harga_asli_format }}
-                                        </div>
-                                    @endif
-                                    <div class="text-danger fw-bold" style="font-size: 0.75em;">
-                                        {{ $relatedBook->harga_diskon_format }}
-                                    </div>
-                                </div>
+                            <!-- Stok Info -->
+                            <div class="mt-2">
+                                @if($relatedBook->stok > 0)
+                                    <span class="badge bg-success" style="font-size: 0.7em;">Tersedia</span>
+                                @else
+                                    <span class="badge bg-danger" style="font-size: 0.7em;">Habis</span>
+                                @endif
                                 
-                                <!-- Harga E-book -->
-                                <div class="mb-2 p-1 bg-success bg-opacity-10 rounded">
-                                    <div class="d-flex align-items-center mb-1">
-                                        <i class="fas fa-tablet-alt text-success me-1" style="font-size: 0.6em;"></i>
-                                        <span style="font-size: 0.65em; font-weight: 600;">E-book</span>
-                                    </div>
-                                    <div class="text-success fw-bold" style="font-size: 0.75em;">
-                                        {{ $relatedBook->harga_ebook_format }}
-                                    </div>
-                                </div>
-                                
-                                <!-- Button -->
-                                <button class="btn btn-primary btn-sm w-100" style="font-size: 0.65em; padding: 0.25rem 0.5rem;">
-                                    <i class="fas fa-eye me-1"></i>Detail
-                                </button>
+                                @if($relatedBook->file_buku)
+                                    <span class="badge bg-info ms-1" style="font-size: 0.7em;">E-book</span>
+                                @endif
                             </div>
+                            
+                            <!-- Button -->
+                            <button class="btn btn-outline-primary btn-sm w-100 mt-2" style="font-size: 0.8em;">
+                                <i class="fas fa-eye me-1"></i>Lihat Detail
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
+            @endforeach
+        </div>
+        
+        <!-- Link ke semua buku -->
+        <div class="text-center mt-4">
+            <a href="{{ route('home') }}" class="btn btn-outline-primary">
+                <i class="fas fa-book-open me-2"></i>Lihat Semua Buku
+            </a>
+        </div>
+    </div>
+    @endif
+
+    <!-- Rekomendasi Berdasarkan Kategori -->
+    @if($book->kategori)
+    <div class="mt-5">
+        <h4 class="mb-4 fw-bold">Buku Lain dalam Kategori "{{ $book->kategori->nama }}"</h4>
+        <div class="row">
+            @php
+                $categoryBooks = App\Models\Book::where('kategori_id', $book->kategori_id)
+                                                ->where('id', '!=', $book->id)
+                                                ->whereNotIn('id', $relatedBooks->pluck('id'))
+                                                ->limit(4)
+                                                ->get();
+            @endphp
+            
+            @foreach($categoryBooks as $categoryBook)
+            <div class="col-6 col-md-3 mb-4">
+                <div class="card h-100 shadow-sm" style="cursor: pointer; transition: transform 0.2s;" 
+                     onclick="window.location.href='{{ route('books.show', $categoryBook->id) }}'"
+                     onmouseover="this.style.transform='translateY(-3px)'" 
+                     onmouseout="this.style.transform='translateY(0)'">
+                    
+                    <!-- Badge Diskon -->
+                    @if($categoryBook->promo && $categoryBook->promo->isActive() && $categoryBook->harga_promo && $categoryBook->harga_promo < $categoryBook->harga)
+                        @php
+                            $diskonPersen = round((($categoryBook->harga - $categoryBook->harga_promo) / $categoryBook->harga) * 100);
+                        @endphp
+                        <div class="position-absolute top-0 end-0 m-2" style="z-index: 1;">
+                            <span class="badge bg-danger">-{{ $diskonPersen }}%</span>
+                        </div>
+                    @endif
+                    
+                    <!-- Cover Buku -->
+                    @if($categoryBook->cover)
+                        <img src="{{ asset('storage/' . $categoryBook->cover) }}" 
+                             class="card-img-top" 
+                             alt="{{ $categoryBook->judul_buku }}"
+                             style="height: 200px; object-fit: cover;">
+                    @else
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" 
+                             style="height: 200px;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-book fa-2x mb-2"></i>
+                                <div style="font-size: 0.8em;">No Cover</div>
+                            </div>
+                        </div>
+                    @endif
+                    
+                    <div class="card-body d-flex flex-column">
+                        <!-- Judul Buku -->
+                        <h6 class="card-title fw-bold text-primary mb-2" style="line-height: 1.3;">
+                            {{ Str::limit($categoryBook->judul_buku, 40) }}
+                        </h6>
+                        
+                        <!-- Penulis -->
+                        <p class="text-muted mb-2" style="font-size: 0.85em;">
+                            <i class="fas fa-user-edit me-1"></i>{{ Str::limit($categoryBook->penulis, 20) }}
+                        </p>
+                        
+                        <!-- Harga -->
+                        <div class="mt-auto">
+                            @if($categoryBook->harga)
+                                @if($categoryBook->harga_promo && $categoryBook->harga_promo < $categoryBook->harga)
+                                    <div class="text-muted text-decoration-line-through" style="font-size: 0.8em;">
+                                        Rp {{ number_format($categoryBook->harga, 0, ',', '.') }}
+                                    </div>
+                                    <div class="text-danger fw-bold">
+                                        Rp {{ number_format($categoryBook->harga_promo, 0, ',', '.') }}
+                                    </div>
+                                @else
+                                    <div class="text-primary fw-bold">
+                                        Rp {{ number_format($categoryBook->harga, 0, ',', '.') }}
+                                    </div>
+                                @endif
+                            @endif
+                            
+                            <!-- Stok Info -->
+                            <div class="mt-2">
+                                @if($categoryBook->stok > 0)
+                                    <span class="badge bg-success" style="font-size: 0.7em;">Tersedia</span>
+                                @else
+                                    <span class="badge bg-danger" style="font-size: 0.7em;">Habis</span>
+                                @endif
+                                
+                                @if($categoryBook->file_buku)
+                                    <span class="badge bg-info ms-1" style="font-size: 0.7em;">E-book</span>
+                                @endif
+                            </div>
+                            
+                            <!-- Button -->
+                            <button class="btn btn-outline-primary btn-sm w-100 mt-2" style="font-size: 0.8em;">
+                                <i class="fas fa-eye me-1"></i>Lihat Detail
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             @endforeach
         </div>
     </div>
     @endif
+
+    <!-- Back to Top Button -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1000;">
+        <button type="button" class="btn btn-primary rounded-circle" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Kembali ke atas">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </div>
 </div>
+
+@push('scripts')
+<script>
+// Smooth scroll untuk anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Auto-hide alert setelah 5 detik
+setTimeout(function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        if (alert.classList.contains('alert-warning')) {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0.7';
+        }
+    });
+}, 5000);
+
+// Lazy loading untuk gambar
+if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                imageObserver.unobserve(img);
+            }
+        });
+    });
+
+    document.querySelectorAll('img[data-src]').forEach(img => {
+        imageObserver.observe(img);
+    });
+}
+</script>
+@endpush
 @endsection

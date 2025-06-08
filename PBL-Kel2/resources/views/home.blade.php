@@ -35,7 +35,7 @@
         </div>
     </div>
 
-       <div class="container mt-5">
+      <div class="container mt-5">
         <h4 class="mb-4 fw-bold">Buku Terbaru Fanya Untukmu</h4>
         <div class="row">
             @foreach ($books as $book)
@@ -46,15 +46,18 @@
                          onmouseout="this.style.transform='translateY(0)'">
                         
                         <!-- Badge Diskon -->
-                        @if($book->persentase_diskon > 0)
+                        @if($book->promo && $book->promo->isActive() && $book->harga_promo && $book->harga_promo < $book->harga)
+                            @php
+                                $diskonPersen = round((($book->harga - $book->harga_promo) / $book->harga) * 100);
+                            @endphp
                             <div class="position-absolute top-0 end-0 m-1">
-                                <span class="badge bg-danger" style="font-size: 0.65em;">-{{ $book->persentase_diskon }}%</span>
+                                <span class="badge bg-danger" style="font-size: 0.65em;">-{{ $diskonPersen }}%</span>
                             </div>
                         @endif
                         
                         <!-- Cover Buku -->
-                        @if($book->sampul)
-                            <img src="{{ asset('storage/covers/' . $book->sampul) }}" 
+                        @if($book->cover)
+                            <img src="{{ asset('storage/' . $book->cover) }}" 
                                  class="card-img-top" 
                                  alt="{{ $book->judul_buku }}"
                                  style="height: 150px; object-fit: cover;">
@@ -79,6 +82,13 @@
                                 <i class="fas fa-user-edit me-1"></i>{{ Str::limit($book->penulis, 15) }}
                             </p>
                             
+                            <!-- Kategori -->
+                            @if($book->kategori)
+                                <p class="text-muted mb-1" style="font-size: 0.65em;">
+                                    <i class="fas fa-tag me-1"></i>{{ $book->kategori->nama }}
+                                </p>
+                            @endif
+                            
                             <!-- Deskripsi Singkat -->
                             @if($book->deskripsi)
                                 <p class="text-muted mb-2" style="font-size: 0.65em; line-height: 1.2;">
@@ -89,31 +99,60 @@
                             <!-- Harga Section -->
                             <div class="mt-auto">
                                 <!-- Harga Buku Fisik -->
+                                @if($book->harga)
                                 <div class="mb-1 p-1 bg-light rounded">
                                     <div class="d-flex align-items-center mb-1">
                                         <i class="fas fa-book text-primary me-1" style="font-size: 0.6em;"></i>
                                         <span style="font-size: 0.65em; font-weight: 600;">Fisik</span>
                                     </div>
-                                    @if($book->harga_asli != $book->harga_diskon)
+                                    
+                                    <!-- Tampilkan harga asli dan promo jika ada -->
+                                    @if($book->harga_promo && $book->harga_promo < $book->harga)
                                         <div class="text-muted text-decoration-line-through" style="font-size: 0.6em;">
-                                            {{ $book->harga_asli_format }}
+                                            Rp {{ number_format($book->harga, 0, ',', '.') }}
+                                        </div>
+                                        <div class="text-danger fw-bold" style="font-size: 0.75em;">
+                                            Rp {{ number_format($book->harga_promo, 0, ',', '.') }}
+                                        </div>
+                                    @else
+                                        <div class="text-danger fw-bold" style="font-size: 0.75em;">
+                                            Rp {{ number_format($book->harga, 0, ',', '.') }}
                                         </div>
                                     @endif
-                                    <div class="text-danger fw-bold" style="font-size: 0.75em;">
-                                        {{ $book->harga_diskon_format }}
-                                    </div>
                                 </div>
+                                @endif
                                 
-                                <!-- Harga E-book -->
+                                <!-- E-book (jika ada file_buku) -->
+                                @if($book->file_buku)
                                 <div class="mb-2 p-1 bg-success bg-opacity-10 rounded">
                                     <div class="d-flex align-items-center mb-1">
                                         <i class="fas fa-tablet-alt text-success me-1" style="font-size: 0.6em;"></i>
                                         <span style="font-size: 0.65em; font-weight: 600;">E-book</span>
                                     </div>
                                     <div class="text-success fw-bold" style="font-size: 0.75em;">
-                                        {{ $book->harga_ebook_format }}
+                                        @if($book->harga)
+                                            @php
+                                                // Harga e-book biasanya 60% dari harga fisik
+                                                $hargaEbook = $book->harga_promo ? ($book->harga_promo * 0.6) : ($book->harga * 0.6);
+                                            @endphp
+                                            Rp {{ number_format($hargaEbook, 0, ',', '.') }}
+                                        @else
+                                            Tersedia
+                                        @endif
                                     </div>
                                 </div>
+                                @endif
+                                
+                                <!-- Stok Info -->
+                                @if($book->stok <= 0)
+                                <div class="mb-2">
+                                    <span class="badge bg-danger" style="font-size: 0.6em;">Stok Habis</span>
+                                </div>
+                                @elseif($book->stok <= 5)
+                                <div class="mb-2">
+                                    <span class="badge bg-warning" style="font-size: 0.6em;">Stok Terbatas</span>
+                                </div>
+                                @endif
                                 
                                 <!-- Button -->
                                 <button class="btn btn-primary btn-sm w-100" style="font-size: 0.65em; padding: 0.25rem 0.5rem;">

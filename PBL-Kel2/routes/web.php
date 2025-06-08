@@ -45,8 +45,8 @@ Route::get('/buku/detail/{id}', [BookController::class, 'show'])->name('books.sh
 
 
 // Route untuk pemesanan
-// Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
-// Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
+Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
+Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
 
 // Verification routes
 Route::get('/email/verify', [RegisterController::class, 'showVerificationForm'])->name('verification.notice');
@@ -78,6 +78,17 @@ Route::prefix('admin')->group(function () {
             Route::put('/{id}', [KategoriBukuController::class, 'update'])->name('update');
             Route::delete('/{id}', [KategoriBukuController::class, 'destroy'])->name('destroy');
         });
+        // Manajemen Buku Routes
+        Route::prefix('books')->name('admin.books.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\BookManagementController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\BookManagementController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\BookManagementController::class, 'store'])->name('store');
+            Route::get('/{id}', [\App\Http\Controllers\Admin\BookManagementController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [\App\Http\Controllers\Admin\BookManagementController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [\App\Http\Controllers\Admin\BookManagementController::class, 'update'])->name('update');
+            Route::delete('/{id}', [\App\Http\Controllers\Admin\BookManagementController::class, 'destroy'])->name('destroy');
+        });
+
 
         // Laporan Penerbitan Individu
         Route::prefix('dashboard/penerbitan-individu')->name('penerbitanIndividu.')->group(function () {

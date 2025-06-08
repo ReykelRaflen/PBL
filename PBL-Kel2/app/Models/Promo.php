@@ -30,6 +30,12 @@ class Promo extends Model
         'kuota_terpakai' => 'integer',
     ];
 
+    // Relasi dengan books
+    public function books()
+    {
+        return $this->hasMany(Book::class, 'promo_id');
+    }
+
     public function getJangkaWaktuAttribute()
     {
         return $this->tanggal_mulai->format('d/m/Y') . ' - ' . $this->tanggal_selesai->format('d/m/Y');
@@ -60,5 +66,42 @@ class Promo extends Model
         return $this->status === 'Aktif' && 
                $today->between($this->tanggal_mulai, $this->tanggal_selesai) &&
                $hasQuota;
+    }
+
+    // Scope untuk promo aktif
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'Aktif')
+                    ->where('tanggal_mulai', '<=', now())
+                    ->where('tanggal_selesai', '>=', now())
+                    ->where(function($q) {
+                        $q->whereNull('kuota')
+                          ->orWhereRaw('kuota_terpakai < kuota');
+                    });
+    }
+
+    // Method untuk menggunakan promo (increment kuota_terpakai)
+    public function usePromo()
+    {
+        if ($this->kuota && $this->kuota_terpakai >= $this->kuota) {
+            return false;
+        }
+
+        $this->increment('kuota_terpakai');
+        return true;
+    }
+
+    // Method untuk menghitung diskon
+    public function calculateDiscount($price)
+    {
+        if (!$this->isActive()) {
+            return 0;
+        }
+
+        if ($this->tipe === 'Persentase') {
+            return ($price * $this->besaran) / 100;
+        } else {
+            return min($this->besaran, $price); // Tidak boleh lebih dari harga asli
+        }
     }
 }

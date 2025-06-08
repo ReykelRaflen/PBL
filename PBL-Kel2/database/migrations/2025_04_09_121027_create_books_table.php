@@ -6,31 +6,40 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
+    public function up(): void
     {
         Schema::create('buku', function (Blueprint $table) {
             $table->id();
             $table->string('judul_buku');
             $table->string('penulis');
-            $table->text('deskripsi')->nullable(); // deskripsi buku
-            $table->integer('stok_fisik'); // stok buku fisik
-            $table->string('sampul')->nullable(); // path gambar
-            $table->integer('harga_asli'); // harga asli buku fisik
-            $table->integer('harga_diskon'); // harga diskon buku fisik
-            $table->integer('harga_ebook'); // harga e-book
+            $table->string('penerbit')->nullable();
+            $table->year('tahun_terbit')->nullable();
+            $table->string('isbn')->nullable()->unique();
+            
+            // Kolom kategori_id dan promo_id (tanpa foreign key constraint dulu)
+            $table->unsignedBigInteger('kategori_id')->nullable();
+            $table->unsignedBigInteger('promo_id')->nullable();
+            
+            $table->decimal('harga', 10, 2)->nullable();
+            $table->integer('stok')->default(0);
+            $table->text('deskripsi')->nullable();
+            $table->string('cover')->nullable();
+            $table->string('file_buku')->nullable();
+            
+            // Tambahan untuk promo
+            $table->decimal('harga_promo', 10, 2)->nullable(); // Harga setelah promo
+            
             $table->timestamps();
+
+            // Index untuk performa
+            $table->index(['judul_buku', 'penulis']);
+            $table->index('kategori_id');
+            $table->index('promo_id');
         });
     }
-    
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('books');
+        Schema::dropIfExists('buku');
     }
 };

@@ -120,9 +120,10 @@
         <!-- Buku, Member, Editor -->
         <li class="mt-4 font-semibold text-gray-600 dark:text-gray-300">Buku, Member, Editor</li>
         <li>
-          <a href="#" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+            <a href="{{ route('admin.books.index') }}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
             <i data-lucide="book-open" class="w-4 h-4"></i> Buku
           </a>
+
         </li>
         <li>
           <a href="#" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
