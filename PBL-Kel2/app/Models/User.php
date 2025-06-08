@@ -2,26 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
-        'email',
-        'password',
         'phone',
+        'email',
         'address',
         'birthdate',
         'gender',
         'agama',
         'foto',
         'role',
+        'password',
         'otp',
         'otp_created_at',
         'is_verified',
@@ -33,36 +32,27 @@ class User extends Authenticatable implements MustVerifyEmail
         'otp',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'birthdate' => 'date',
+        'otp_created_at' => 'datetime',
+        'is_verified' => 'boolean',
+        'password' => 'hashed',
+    ];
+
+    // Helper methods
+    public function isAdmin()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'birthdate' => 'date',
-            'otp_created_at' => 'datetime',
-            'is_verified' => 'boolean',
-        ];
+        return $this->role === 'admin';
     }
 
-    /**
-     * Get user's profile photo URL
-     */
-    public function getFotoUrlAttribute()
+    public function isUser()
     {
-        if ($this->foto && file_exists(public_path('uploads/foto_profil/' . $this->foto))) {
-            return asset('uploads/foto_profil/' . $this->foto);
-        }
-        
-        // Default avatar dengan initial nama
-        $initial = strtoupper(substr($this->name, 0, 1));
-        return "https://via.placeholder.com/150x150/a5b4fc/ffffff?text={$initial}";
+        return $this->role === 'user';
     }
 
-    /**
-     * Check if user has profile photo
-     */
-    public function hasFoto()
+    public function isVerified()
     {
-        return !empty($this->foto) && file_exists(public_path('uploads/foto_profil/' . $this->foto));
+        return $this->is_verified;
     }
 }

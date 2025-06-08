@@ -45,8 +45,8 @@ Route::get('/buku/detail/{id}', [BookController::class, 'show'])->name('books.sh
 
 
 // Route untuk pemesanan
-Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
-Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
+// Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
+// Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
 
 // Verification routes
 Route::get('/email/verify', [RegisterController::class, 'showVerificationForm'])->name('verification.notice');
@@ -65,7 +65,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminAuth::class, 'login']);
     Route::post('/logout', [AdminAuth::class, 'logout'])->name('admin.logout');
 
-    Route::middleware('auth:admin')->group(function () {
+    Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
 
