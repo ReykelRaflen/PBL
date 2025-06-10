@@ -20,14 +20,20 @@ return new class extends Migration
             $table->unsignedBigInteger('kategori_id')->nullable();
             $table->unsignedBigInteger('promo_id')->nullable();
             
+            // Harga Buku Fisik
             $table->decimal('harga', 10, 2)->nullable();
             $table->integer('stok')->default(0);
+            
+            // Harga E-book (input manual)
+            $table->decimal('harga_ebook', 10, 2)->nullable(); // Harga e-book yang diinput manual
+            
             $table->text('deskripsi')->nullable();
             $table->string('cover')->nullable();
             $table->string('file_buku')->nullable();
             
             // Tambahan untuk promo
-            $table->decimal('harga_promo', 10, 2)->nullable(); // Harga setelah promo
+            $table->decimal('harga_promo', 10, 2)->nullable(); // Harga fisik setelah promo
+            $table->decimal('harga_ebook_promo', 10, 2)->nullable(); // Harga e-book setelah promo
             
             $table->timestamps();
 

@@ -11,7 +11,7 @@ class Book extends Model
 
     protected $table = 'buku';
 
-   protected $fillable = [
+    protected $fillable = [
         'judul_buku',
         'penulis',
         'penerbit',
@@ -19,17 +19,21 @@ class Book extends Model
         'isbn',
         'kategori_id',
         'harga',
+        'harga_ebook', // Harga e-book manual
         'stok',
         'deskripsi',
         'cover',
         'file_buku',
         'promo_id',
         'harga_promo',
+        'harga_ebook_promo', // Harga e-book setelah promo
     ];
 
     protected $casts = [
         'harga' => 'decimal:2',
+        'harga_ebook' => 'decimal:2',
         'harga_promo' => 'decimal:2',
+        'harga_ebook_promo' => 'decimal:2',
         'tahun_terbit' => 'integer',
         'stok' => 'integer',
     ];
@@ -39,194 +43,300 @@ class Book extends Model
     {
         return $this->belongsTo(\App\Models\KategoriBuku::class, 'kategori_id');
     }
-    
+
     // Relasi dengan promo
     public function promo()
     {
         return $this->belongsTo(\App\Models\Promo::class, 'promo_id');
     }
 
-    // Accessor untuk kompatibilitas dengan view yang menggunakan bahasa Inggris
-    public function getTitleAttribute()
+    // ========== HARGA BUKU FISIK ==========
+
+    /**
+     * Mendapatkan harga final fisik (dengan promo jika ada)
+     */
+    public function getHargaFinalAttribute()
     {
-        return $this->judul_buku;
+        return $this->harga_promo ?: $this->harga;
     }
 
-    public function getAuthorAttribute()
+    /**
+     * Format harga fisik
+     */
+    public function getHargaFormatAttribute()
     {
-        return $this->penulis;
+        return $this->harga ? 'Rp ' . number_format($this->harga, 0, ',', '.') : null;
     }
 
-    public function getDescriptionAttribute()
+    /**
+     * Format harga promo fisik
+     */
+    public function getHargaPromoFormatAttribute()
     {
-        return $this->deskripsi;
+        return $this->harga_promo ? 'Rp ' . number_format($this->harga_promo, 0, ',', '.') : null;
     }
 
-    public function getCoverAttribute()
+    /**
+     * Format harga final fisik
+     */
+    public function getHargaFinalFormatAttribute()
     {
-        return $this->sampul;
+        return 'Rp ' . number_format($this->harga_final, 0, ',', '.');
     }
 
-    public function getOriginalPriceAttribute()
+    // ========== HARGA E-BOOK ==========
+
+    /**
+     * Mendapatkan harga final e-book (dengan promo jika ada)
+     */
+    public function getHargaEbookFinalAttribute()
     {
-        return $this->harga_asli;
+        return $this->harga_ebook_promo ?: $this->harga_ebook;
     }
 
-    public function getDiscountPriceAttribute()
-    {
-        return $this->harga_diskon;
-    }
-
-    public function getEbookPriceAttribute()
-    {
-        return $this->harga_ebook;
-    }
-
-    // Format harga dalam bahasa Inggris (untuk kompatibilitas)
-    public function getFormattedOriginalPriceAttribute()
-    {
-        return 'Rp ' . number_format($this->harga_asli, 0, ',', '.');
-    }
-
-    public function getFormattedDiscountPriceAttribute()
-    {
-        return 'Rp ' . number_format($this->harga_diskon, 0, ',', '.');
-    }
-
-    public function getFormattedEbookPriceAttribute()
-    {
-        return 'Rp ' . number_format($this->harga_ebook, 0, ',', '.');
-    }
-
-    // Format harga dalam bahasa Indonesia
-    public function getHargaAsliFormatAttribute()
-    {
-        return 'Rp ' . number_format($this->harga_asli, 0, ',', '.');
-    }
-
-    public function getHargaDiskonFormatAttribute()
-    {
-        return 'Rp ' . number_format($this->harga_diskon, 0, ',', '.');
-    }
-
+    /**
+     * Format harga e-book
+     */
     public function getHargaEbookFormatAttribute()
     {
-        return 'Rp ' . number_format($this->harga_ebook, 0, ',', '.');
+        return $this->harga_ebook ? 'Rp ' . number_format($this->harga_ebook, 0, ',', '.') : null;
     }
 
-    // Persentase diskon dalam bahasa Inggris (untuk kompatibilitas)
-    public function getDiscountPercentageAttribute()
+    /**
+     * Format harga e-book promo
+     */
+    public function getHargaEbookPromoFormatAttribute()
     {
-        if ($this->harga_asli > 0 && $this->harga_diskon < $this->harga_asli) {
-            return round((($this->harga_asli - $this->harga_diskon) / $this->harga_asli) * 100);
+        return $this->harga_ebook_promo ? 'Rp ' . number_format($this->harga_ebook_promo, 0, ',', '.') : null;
+    }
+
+    /**
+     * Format harga final e-book
+     */
+    public function getHargaEbookFinalFormatAttribute()
+    {
+        return $this->harga_ebook_final ? 'Rp ' . number_format($this->harga_ebook_final, 0, ',', '.') : null;
+    }
+
+    // ========== DISKON & PROMO ==========
+
+    /**
+     * Cek apakah buku fisik memiliki diskon
+     */
+    public function hasDiscount()
+    {
+        return $this->harga_promo && $this->harga_promo < $this->harga;
+    }
+
+    /**
+     * Cek apakah e-book memiliki diskon
+     */
+    public function hasEbookDiscount()
+    {
+        return $this->harga_ebook_promo && $this->harga_ebook_promo < $this->harga_ebook;
+    }
+
+    /**
+     * Persentase diskon buku fisik
+     */
+    public function getDiscountPercentage()
+    {
+        if ($this->hasDiscount()) {
+            return round((($this->harga - $this->harga_promo) / $this->harga) * 100);
         }
         return 0;
     }
 
-    // Persentase diskon dalam bahasa Indonesia
-    public function getPersentaseDiskonAttribute()
+    /**
+     * Persentase diskon e-book
+     */
+    public function getEbookDiscountPercentage()
     {
-        if ($this->harga_asli > 0 && $this->harga_diskon < $this->harga_asli) {
-            return round((($this->harga_asli - $this->harga_diskon) / $this->harga_asli) * 100);
+        if ($this->hasEbookDiscount()) {
+            return round((($this->harga_ebook - $this->harga_ebook_promo) / $this->harga_ebook) * 100);
         }
         return 0;
     }
 
-    // URL sampul dalam bahasa Inggris (untuk kompatibilitas)
+    /**
+     * Penghematan buku fisik
+     */
+    public function getSavingsAmount()
+    {
+        if ($this->hasDiscount()) {
+            return $this->harga - $this->harga_promo;
+        }
+        return 0;
+    }
+
+    /**
+     * Penghematan e-book
+     */
+    public function getEbookSavingsAmount()
+    {
+        if ($this->hasEbookDiscount()) {
+            return $this->harga_ebook - $this->harga_ebook_promo;
+        }
+        return 0;
+    }
+
+    /**
+     * Format penghematan fisik
+     */
+    public function getSavingsFormatAttribute()
+    {
+        $savings = $this->getSavingsAmount();
+        return $savings > 0 ? 'Rp ' . number_format($savings, 0, ',', '.') : null;
+    }
+
+    /**
+     * Format penghematan e-book
+     */
+    public function getEbookSavingsFormatAttribute()
+    {
+        $savings = $this->getEbookSavingsAmount();
+        return $savings > 0 ? 'Rp ' . number_format($savings, 0, ',', '.') : null;
+    }
+
+    // ========== KETERSEDIAAN ==========
+
+    /**
+     * Cek apakah buku fisik tersedia
+     */
+    public function isAvailable()
+    {
+        return $this->stok > 0;
+    }
+
+    /**
+     * Cek apakah e-book tersedia
+     */
+    public function hasEbook()
+    {
+        return !empty($this->file_buku) && !empty($this->harga_ebook);
+    }
+
+    /**
+     * Cek apakah ada cover
+     */
+    public function hasCover()
+    {
+        return !empty($this->cover);
+    }
+
+    /**
+     * URL cover
+     */
     public function getCoverUrlAttribute()
     {
-        if ($this->sampul) {
-            return asset('storage/covers/' . $this->sampul);
+        if ($this->cover) {
+            return asset('storage/' . $this->cover);
         }
         return null;
     }
 
-    // URL sampul dalam bahasa Indonesia
-    public function getSampulUrlAttribute()
-    {
-        if ($this->sampul) {
-            return asset('storage/covers/' . $this->sampul);
-        }
-        return null;
-    }
-
-    // Method untuk menghitung harga dengan promo
-    public function getHargaWithPromoAttribute()
-    {
-        if (!$this->promo || !$this->promo->isActive()) {
-            return $this->harga_diskon ?: $this->harga_asli;
-        }
-
-        $basePrice = $this->harga_diskon ?: $this->harga_asli;
-        
-        if ($this->promo->tipe === 'Persentase') {
-            $diskon = ($basePrice * $this->promo->besaran) / 100;
-            return max(0, $basePrice - $diskon);
-        } else {
-            // Nominal
-            return max(0, $basePrice - $this->promo->besaran);
-        }
-    }
-
-    // Method untuk format harga dengan promo
-    public function getFormattedHargaWithPromoAttribute()
-    {
-        return 'Rp ' . number_format($this->harga_with_promo, 0, ',', '.');
-    }
-
-    // Method untuk cek apakah ada promo aktif
+    /**
+     * Cek apakah ada promo aktif
+     */
     public function hasActivePromo()
     {
         return $this->promo && $this->promo->isActive();
     }
 
-    // Method untuk mendapatkan penghematan dari promo
-    public function getPromoSavingsAttribute()
-    {
-        if (!$this->hasActivePromo()) {
-            return 0;
-        }
+    // ========== HELPER METHODS ==========
 
-        $basePrice = $this->harga_diskon ?: $this->harga_asli;
-        return $basePrice - $this->harga_with_promo;
+    /**
+     * Method untuk menghitung harga promo otomatis
+     */
+    public function calculatePromoPrice()
+    {
+        if ($this->promo && $this->promo->isActive()) {
+            $promo = $this->promo;
+            
+            // Hitung promo untuk buku fisik
+            if ($this->harga) {
+                if ($promo->tipe === 'Persentase') {
+                    $this->harga_promo = $this->harga * (1 - $promo->besaran / 100);
+                } else {
+                    $this->harga_promo = max(0, $this->harga - $promo->besaran);
+                }
+            }
+            
+            // Hitung promo untuk e-book
+            if ($this->harga_ebook) {
+                if ($promo->tipe === 'Persentase') {
+                    $this->harga_ebook_promo = $this->harga_ebook * (1 - $promo->besaran / 100);
+                } else {
+                    // Untuk promo nominal, berikan diskon proporsional untuk e-book
+                    $diskonProporsional = ($this->harga_ebook / $this->harga) * $promo->besaran;
+                    $this->harga_ebook_promo = max(0, $this->harga_ebook - $diskonProporsional);
+                }
+            }
+        } else {
+            $this->harga_promo = null;
+            $this->harga_ebook_promo = null;
+        }
     }
 
-    // Method untuk format penghematan promo
-    public function getFormattedPromoSavingsAttribute()
+    /**
+     * Method untuk mendapatkan informasi lengkap harga
+     */
+    public function getPriceInfo()
     {
-        $savings = $this->promo_savings;
-        if ($savings > 0) {
-            return 'Rp ' . number_format($savings, 0, ',', '.');
-        }
-        return null;
+        return [
+            'fisik' => [
+                'harga_asli' => $this->harga,
+                'harga_promo' => $this->harga_promo,
+                'harga_final' => $this->harga_final,
+                'formatted' => $this->harga_final_format,
+                'has_discount' => $this->hasDiscount(),
+                'discount_percentage' => $this->getDiscountPercentage(),
+                'savings' => $this->getSavingsAmount(),
+                'available' => $this->isAvailable(),
+            ],
+            'ebook' => [
+                'harga_asli' => $this->harga_ebook,
+                'harga_promo' => $this->harga_ebook_promo,
+                'harga_final' => $this->harga_ebook_final,
+                'formatted' => $this->harga_ebook_final_format,
+                'has_discount' => $this->hasEbookDiscount(),
+                'discount_percentage' => $this->getEbookDiscountPercentage(),
+                'savings' => $this->getEbookSavingsAmount(),
+                'available' => $this->hasEbook(),
+            ]
+        ];
     }
 
-    // Scope untuk pencarian berdasarkan judul atau penulis
+    // ========== SCOPES ==========
+
     public function scopeSearch($query, $keyword)
     {
         return $query->where('judul_buku', 'like', '%' . $keyword . '%')
                     ->orWhere('penulis', 'like', '%' . $keyword . '%');
     }
 
-    // Scope untuk mendapatkan buku yang memiliki diskon
     public function scopeWithDiscount($query)
     {
-        return $query->where('harga_diskon', '<', 'harga_asli');
+        return $query->where(function($q) {
+            $q->whereNotNull('harga_promo')->whereColumn('harga_promo', '<', 'harga')
+              ->orWhere(function($subQ) {
+                  $subQ->whereNotNull('harga_ebook_promo')
+                       ->whereColumn('harga_ebook_promo', '<', 'harga_ebook');
+              });
+        });
     }
 
-    // Scope untuk buku berdasarkan penulis
-    public function scopeByAuthor($query, $author)
+    public function scopeHasEbook($query)
     {
-        return $query->where('penulis', $author);
+        return $query->whereNotNull('file_buku')
+                    ->whereNotNull('harga_ebook');
     }
 
-    // Scope untuk buku dengan harga dalam rentang tertentu
-    public function scopePriceRange($query, $min, $max)
+    public function scopeAvailable($query)
     {
-        return $query->whereBetween('harga_diskon', [$min, $max]);
+        return $query->where('stok', '>', 0);
     }
 
-    // Scope untuk buku dengan promo aktif
     public function scopeWithActivePromo($query)
     {
         return $query->whereHas('promo', function($q) {
@@ -240,41 +350,15 @@ class Book extends Model
         });
     }
 
-    // Method untuk mengecek apakah buku memiliki diskon
-    public function hasDiscount()
-    {
-        return $this->harga_diskon < $this->harga_asli;
-    }
+    // ========== EVENTS ==========
 
-    // Method untuk mendapatkan jumlah penghematan
-    public function getSavingsAmount()
+    protected static function boot()
     {
-        if ($this->hasDiscount()) {
-            return $this->harga_asli - $this->harga_diskon;
-        }
-        return 0;
-    }
+        parent::boot();
 
-    // Method untuk mendapatkan format penghematan
-    public function getFormattedSavings()
-    {
-        $savings = $this->getSavingsAmount();
-        if ($savings > 0) {
-            return 'Rp ' . number_format($savings, 0, ',', '.');
-        }
-        return null;
-    }
-
-    // Method untuk mengecek apakah buku tersedia
-    public function isAvailable()
-    {
-        return $this->stok_fisik > 0;
-    }
-
-    // Method untuk mendapatkan rating rata-rata (jika ada sistem rating)
-    public function getAverageRating()
-    {
-        // Placeholder untuk sistem rating di masa depan
-        return 0;
+        // Auto calculate promo price when saving
+        static::saving(function ($book) {
+            $book->calculatePromoPrice();
+        });
     }
 }
