@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\Admin\ManajemenAkunController;
+use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\BookController;
 use Illuminate\Support\Facades\Route;
@@ -142,7 +143,7 @@ Route::prefix('admin')->group(function () {
             Route::delete('/{promo}', [PromoController::class, 'destroy'])->name('promos.destroy');
         });
 
-        // Manajemen Akun Routes (baris 146-156)
+        // Manajemen Akun Routes
         Route::prefix('dashboard/akun')->group(function () {
             Route::get('/', [ManajemenAkunController::class, 'index'])->name('account.index');
             Route::get('/create', [ManajemenAkunController::class, 'create'])->name('account.create');
@@ -154,6 +155,20 @@ Route::prefix('admin')->group(function () {
             Route::post('/{account}/toggle-status', [ManajemenAkunController::class, 'toggleStatus'])->name('account.toggle-status');
             Route::post('/{account}/reset-password', [ManajemenAkunController::class, 'resetPassword'])->name('account.reset-password');
         });
+
+                // Template Routes
+        Route::prefix('dashboard/template')->group(function () {
+            Route::get('/', [TemplateController::class, 'index'])->name('template.index');
+            Route::get('/create', [TemplateController::class, 'create'])->name('template.create');
+            Route::post('/', [TemplateController::class, 'store'])->name('template.store');
+            Route::get('/{template}', [TemplateController::class, 'show'])->name('template.show');
+            Route::get('/{template}/edit', [TemplateController::class, 'edit'])->name('template.edit');
+            Route::put('/{template}', [TemplateController::class, 'update'])->name('template.update');
+            Route::delete('/{template}', [TemplateController::class, 'destroy'])->name('template.destroy');
+            Route::post('/{template}/toggle-status', [TemplateController::class, 'toggleStatus'])->name('template.toggle-status');
+            Route::get('/{template}/download', [TemplateController::class, 'download'])->name('template.download');
+        });
+
 
 
     });

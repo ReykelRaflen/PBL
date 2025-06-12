@@ -202,7 +202,7 @@
   
         <!-- Download -->
         <li class="mt-4">
-          <a href="#" class="flex items-center gap-2 py-2 px-2 text-red-500 font-semibold rounded hover:bg-red-100 dark:hover:bg-red-800">
+          <a href="{{route('template.index')}}" class="flex items-center gap-2 py-2 px-2 text-red-500 font-semibold rounded hover:bg-red-100 dark:hover:bg-red-800">
             <i data-lucide="download" class="w-4 h-4"></i> Download
           </a>
         </li>
