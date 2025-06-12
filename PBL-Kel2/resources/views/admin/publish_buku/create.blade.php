@@ -166,7 +166,7 @@
                         </li>
                     </ul>
                 </li>
-  
+    
                 <!-- Laporan Penerbitan -->
                 <li>
                     <button @click="openMenu === 'penerbitan' ? openMenu = '' : openMenu = 'penerbitan'" class="w-full flex items-center gap-2 text-left py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
