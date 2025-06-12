@@ -2,104 +2,132 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Publish_buku;
 use Illuminate\Http\Request;
-use App\Models\Book;
+use App\Models\Publish_Buku;
 
 class PublishBukuController extends Controller
 {
+    // Menampilkan daftar buku terbitan dengan pagination
     public function index()
     {
-        // Mengambil data buku dari database
-        $publish_books = Publish_buku::latest()->paginate(25);
-        return view('admin.publish_buku', compact('publish_books')); // Perbaiki 'books' menjadi 'publish_books'
+        $publish_books = Publish_Buku::orderBy('created_at', 'desc')->paginate(25);
+        return view('admin.publish_buku.index', compact('publish_books'));
     }
 
+    // Menampilkan form untuk membuat buku baru
     public function create()
     {
-        // Menampilkan form untuk membuat buku baru
         return view('admin.publish_buku.create');
     }
-    
+
+    // Menyimpan data buku baru ke database
     public function store(Request $request)
-    {
-        // Validasi input sesuai kolom tabel
-        $request->validate([
-            'judul_buku'      => 'required|string|max:255',
-            'harga'           => 'required|integer',
-            'penulis'         => 'required|string|max:255',
-            'penerbit'        => 'required|string|max:255',
-            'isbn'            => 'required|numeric',
-            'jumlah_halaman'  => 'required|integer',
-            'tanggal_terbit'  => 'required|date',
-            'deskripsi'       => 'required|string|max:500',
-            'cover_buku'      => 'nullable|string|max:255',
-        ]);
+{
+    // Validasi input dari pengguna
+    $request->validate([
+        'judul_buku'      => 'required|string|max:255',
+        'penulis'         => 'required|string|max:255',
+        'penerbit'        => 'required|string|max:255',
+        'isbn'            => 'required|numeric',
+        'jumlah_halaman'  => 'required|integer',
+        'harga'           => 'required|numeric',
+        'diskon'          => 'required|numeric',
+        'deskripsi'       => 'nullable|string|max:500',
+        'cover_buku'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'tanggal_terbit'  => 'required|date',
+    ]);
 
-        // Membuat buku baru
-        Book::create([
-            'judul_buku'      => $request->judul_buku,
-            'harga'           => $request->harga,
-            'penulis'         => $request->penulis,
-            'penerbit'        => $request->penerbit,
-            'isbn'            => $request->isbn,
-            'jumlah_halaman'  => $request->jumlah_halaman,
-            'tanggal_terbit'  => $request->tanggal_terbit,
-            'deskripsi'       => $request->deskripsi,
-            'cover_buku'      => $request->cover_buku,
-        ]);
+    // Membuat instance model Publish_Buku
+    $book = new Publish_Buku();
+    $book->judul_buku = $request->judul_buku;
+    $book->penulis = $request->penulis;
+    $book->penerbit = $request->penerbit;
+    $book->isbn = $request->isbn;
+    $book->jumlah_halaman = $request->jumlah_halaman;
+    $book->harga = $request->harga;
+    $book->diskon = $request->diskon;
+    $book->deskripsi = $request->deskripsi;
+    $book->tanggal_terbit = $request->tanggal_terbit;
 
-        // Redirect ke halaman index dengan pesan sukses
-        return redirect()->route('admin.publish_buku')->with('success', 'Buku berhasil diterbitkan.');
+    // Menyimpan file cover jika ada
+    if ($request->hasFile('cover_buku')) {
+        $coverPath = $request->file('cover_buku')->store('covers', 'public');
+        $book->cover_buku = $coverPath;
     }
 
+    // Simpan data buku ke database
+    $book->save();
+
+    // Arahkan kembali dengan pesan sukses
+    return redirect()->route('admin.index.publish_buku')->with('success', 'Buku berhasil diterbitkan.');
+}
+
+
+    // Menampilkan detail buku
     public function show($id)
     {
-        $book = Book::findOrFail($id);
-        return view('admin.publish_buku.show', compact('book'));
+        $publish_book = Publish_Buku::findOrFail($id);
+        return view('admin.publish_buku.show', compact('publish_book'));
     }
 
+    // Form edit buku
     public function edit($id)
     {
-        $book = Book::findOrFail($id);
-        return view('admin.publish_buku.edit', compact('book'));
+        $publish_book = Publish_Buku::findOrFail($id);
+        return view('admin.publish_buku.edit', compact('publish_book'));
     }
 
-    public function update(Request $request, $id)
-    {
-        // Validasi input sesuai kolom tabel
-        $request->validate([
-            'judul_buku'      => 'required|string|max:255',
-            'harga'           => 'required|integer',
-            'penulis'         => 'required|string|max:255',
-            'penerbit'        => 'required|string|max:255',
-            'isbn'            => 'required|numeric',
-            'jumlah_halaman'  => 'required|integer',
-            'tanggal_terbit'  => 'required|date',
-            'deskripsi'       => 'required|string|max:500',
-            'cover_buku'      => 'nullable|string|max:255',
-        ]);
+    // Update data buku
+   public function update(Request $request, $id)
+{
+    // Validate the incoming request
+    $request->validate([
+        'judul_buku' => 'required|string|max:255',
+        'harga' => 'required|numeric',
+        'diskon' => 'nullable|numeric|min:0|max:100',
+        'penulis' => 'required|string|max:255',
+        'penerbit' => 'required|string|max:255',
+        'isbn' => 'nullable|string|max:13',
+        'jumlah_halaman' => 'nullable|numeric',
+        'tanggal_terbit' => 'nullable|date',
+        'cover_buku' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'deskripsi' => 'required|string',
+    ]);
 
-        $book = Book::findOrFail($id);
-        $book->update([
-            'judul_buku'      => $request->judul_buku,
-            'harga'           => $request->harga,
-            'penulis'         => $request->penulis,
-            'penerbit'        => $request->penerbit,
-            'isbn'            => $request->isbn,
-            'jumlah_halaman'  => $request->jumlah_halaman,
-            'tanggal_terbit'  => $request->tanggal_terbit,
-            'deskripsi'       => $request->deskripsi,
-            'cover_buku'      => $request->cover_buku,
-        ]);
-
-        return redirect()->route('admin.publish_buku')->with('success', 'Buku berhasil diperbarui.');
+    // Find the book by ID
+    $publish_book = Publish_Buku::findOrFail($id);
+    
+    // Update the book details
+    $publish_book->judul_buku = $request->judul_buku;
+    $publish_book->harga = $request->harga;
+    $publish_book->diskon = $request->diskon;
+    $publish_book->penulis = $request->penulis;
+    $publish_book->penerbit = $request->penerbit;
+    $publish_book->isbn = $request->isbn;
+    $publish_book->jumlah_halaman = $request->jumlah_halaman;
+    $publish_book->tanggal_terbit = $request->tanggal_terbit;
+    $publish_book->deskripsi = $request->deskripsi;
+    
+    // Handle cover upload if provided
+    if ($request->hasFile('cover_buku')) {
+        $path = $request->file('cover_buku')->store('covers', 'public');
+        $publish_book->cover_buku = $path;
     }
 
+    // Save the changes
+    $publish_book->save();
+
+    // Redirect to the admin.index.publish_buku route
+    return redirect()->route('admin.index.publish_buku')->with('success', 'Buku berhasil diperbarui!');
+}
+
+
+    // Menghapus buku
     public function destroy($id)
     {
-        $book = Book::findOrFail($id);
-        $book->delete();
-        return redirect()->route('admin.publish_buku')->with('success', 'Buku berhasil dihapus.');
+        $publish_book = Publish_Buku::findOrFail($id);
+        $publish_book->delete();
+
+        return redirect()->route('admin.publish_buku.index')->with('success', 'Buku berhasil dihapus.');
     }
 }

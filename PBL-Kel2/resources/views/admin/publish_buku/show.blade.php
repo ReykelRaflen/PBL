@@ -59,7 +59,7 @@
     </script>
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-black dark:text-white flex">
+<b class="bg-gray-100 dark:bg-gray-900 text-black dark:text-white flex">
 
     <!-- Dark Mode Toggle -->
     <div class="absolute top-4 right-4 z-50">
@@ -235,69 +235,211 @@
         </nav>
     </aside>
   
-    <!-- Main Content -->
-    <div class="ml-64 w-full">
-        <!-- Header for User Profile -->
-        <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <img src="/images/admin/user-avatar.png" alt="Avatar" class="w-10 h-10 rounded-full border">
-                <div class="text-right">
-                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Halo, Admin 👋</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+ <!-- Main Content -->
+<div class="ml-64 w-full">
+    <!-- Header for User Profile -->
+    <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img src="/images/admin/user-avatar.png" alt="Avatar" class="w-10 h-10 rounded-full border">
+            <div class="text-right">
+                <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Halo, Admin 👋</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+            </div>
+        </div>
+    </header>
+
+<!-- Main Content Area -->
+<div class="mt-6"> <!-- Added margin-top here -->
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        /* Container Styles */
+        .background {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 800px; /* Set a max-width for better alignment */
+            margin: auto; /* Centered alignment */
+        }
+
+        /* Cover Container */
+        .cover-container {
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 256px;
+            width: 192px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        /* Cover Image */
+        .cover-image {
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        /* Title Styles */
+        .book-title {
+            font-size: 28px; /* Increased font size for title */
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        /* Price Styles */
+        .discounted-price {
+            font-size: 28px; /* Increased font size for price */
+            font-weight: bold;
+            color: #5c6bc0; /* Adjusted color for the discounted price */
+        }
+
+        .original-price {
+            font-size: 18px; /* Adjusted size for original price */
+            color: #999; /* Lightened for the original price */
+            text-decoration: line-through;
+            margin-left: 10px; /* Added space for clarity */
+        }
+
+        .discount-badge {
+            background-color: #ffebee;
+            color: #f44336;
+            font-size: 14px;
+            padding: 4px 8px; /* Increased padding */
+            border-radius: 4px;
+            margin-left: 10px; /* Consistent spacing */
+        }
+
+        /* Additional styling for text */
+        p {
+            font-size: 16px;
+            color: #666;
+            margin: 4px 0; /* Ruled space between paragraphs */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .cover-container {
+                width: 100%; /* Full width for smaller devices */
+                height: auto; /* Adjust height for responsiveness */
+            }
+        }
+    </style>
+
+    <!-- Detail Buku -->
+    <div class="background">
+        <h2 class="text-2xl font-bold text-center mb-4">Detail Buku</h2>
+        <hr class="my-4 border-gray-200">
+
+        <div class="flex flex-col lg:flex-row">
+            <!-- Cover Buku -->
+            <div class="flex justify-center">
+                <div class="cover-container">
+                    @if($publish_book->cover_buku)
+                        <img src="{{ Storage::url($publish_book->cover_buku) }}" 
+                             alt="Cover {{ $publish_book->judul_buku }}"
+                             class="cover-image">
+                    @else
+                        <svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    @endif
                 </div>
             </div>
-        </header>
 
-        <!-- Main Content Area -->
-<style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f9fafb; /* Light background */
-    }
-    .container {
-        max-width: 800px; /* Adjusted max width */
-        margin: 20px auto; /* Centered margin */
-        background: white; /* White background */
-        padding: 30px; /* More padding */
-        border-radius: 12px; /* More rounded corners */
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Softer shadow */
-        display: flex; /* Flex layout for side by side */
-    }
-    .book-image {
-        flex: 1; /* Take up equal space */
-        margin-right: 20px; /* Space between image and form */
-    }
-    .book-details {
-        flex: 2; /* More space for details */
-    }
-    h1 {
-        margin-bottom: 20px;
-        text-align: center; /* Center title */
-        font-size: 24px; /* Larger title font */
-    }
-    .input-group {
-        margin-bottom: 15px; /* Space between input fields */
-        width: 100%; /* Full width for inputs */
-    }
-    /* Additional styles for buttons, etc. ... */
-</style>
+            <!-- Detail Informasi -->
+            <div class="flex flex-col justify-center lg:pl-6">
+                <div class="space-y-6">
+                    <!-- Judul dan Harga -->
+                    <div class="flex flex-col justify-center">
+                        <h1 class="book-title dark:text-white mb-2">
+                            {{ $publish_book->judul_buku }}
+                        </h1>
+                        <div class="flex flex-col items-start">
+                            @if($publish_book->diskon && $publish_book->diskon > 0)
+                                @php
+                                    $hargaAsli = $publish_book->harga;
+                                    $hargaDiskon = $publish_book->harga * (1 - $publish_book->diskon / 100);
+                                @endphp
+                                <span class="discounted-price">
+                                    Rp {{ number_format($hargaDiskon, 0, ',', '.') }}   
+                                </span>
+                                <div>
+                                    <span class="original-price">
+                                        Rp {{ number_format($hargaAsli, 0, ',', '.') }} 
+                                    </span>
+                                    <span class="discount-badge">
+                                        -{{ number_format($publish_book->diskon, 0) }}%
+                                    </span>
+                                </div>
 
-<div class="container">
-    <div class="book-image">
-        <img src="{{ asset('path/to/cover_image.jpg') }}" alt="Cover Book" style="width:100%; height:auto;">
-    </div>
-    <div class="book-details">
-        <h1>{{ $book->judul_buku }}</h1>
-        <p><strong>Harga:</strong> Rp {{ number_format($book->harga, 0, ',', '.') }}</p>
-        <p><strong>Penulis:</strong> {{ $book->penulis }}</p>
-        <p><strong>Penerbit:</strong> {{ $book->penerbit }}</p>
-        <p><strong>ISBN:</strong> {{ $book->isbn }}</p>
-        <p><strong>Halaman:</strong> {{ $book->jumlah_halaman }} halaman</p>
-        <p><strong>Tanggal Terbit:</strong> {{ \Carbon\Carbon::parse($book->tanggal_terbit)->format('d F Y') }}</p>
-        <h3>Deskripsi</h3>
-        <p>{{ $book->deskripsi }}</p>
+
+
+                            @else
+                                <span class="discounted-price">
+                                    Rp {{ number_format($publish_book->harga, 0, ',', '.') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+
+
+                    <!-- Other details... -->
+                    <div class="space-y-2">
+                        <div class="flex">
+                            <span class="font-medium w-32">Penulis</span>
+                            <span class="mx-3"></span>
+                            <span>{{ $publish_book->penulis }}</span>
+                        </div>
+                        
+                        <div class="flex">
+                            <span class="font-medium w-32">Penerbit</span>
+                            <span class="mx-3"></span>
+                            <span>{{ $publish_book->penerbit }}</span>
+                        </div>
+                        
+                        <div class="flex">
+                            <span class="font-medium w-32">ISBN</span>
+                            <span class="mx-3"></span>
+                            <span>{{ $publish_book->isbn }}</span>
+                        </div>
+                        
+                        <div class="flex">
+                            <span class="font-medium w-32">Halaman</span>
+                            <span class="mx-3"></span>
+                            <span>{{ $publish_book->jumlah_halaman }} Halaman</span>
+                        </div>
+                        
+                        <div class="flex">
+                            <span class="font-medium w-32">Tanggal Terbit</span>
+                            <span class="mx-3"></span>
+                            <span>{{ $publish_book->tanggal_terbit ? \Carbon\Carbon::parse($publish_book->tanggal_terbit)->format('d M Y') : 'Tanggal tidak tersedia' }}</span>
+                        </div>
+                    </div>
+
+                        <div class="mt-6">
+                            <h3 class="font-medium text-lg mb-2">Deskripsi</h3>
+                            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                {{ $publish_book->deskripsi }}
+                            </p>
+                        </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+
+
 
 
 

@@ -483,7 +483,7 @@ p.text-sm.text-gray-500 a:hover {
         <div class="col-span-1 md:col-span-2">
             <label for="file" class="block text-sm font-semibold">File</label>
             
-            <input type="file" name="file" accept=".pdf,.doc,.docx,.txt">
+            <input type="file" name="file" accept=".pdf,.doc,.docx,">
 
 
             <p class="mt-1 text-sm text-gray-500">
@@ -530,7 +530,7 @@ p.text-sm.text-gray-500 a:hover {
 
 
         <div class="mt-6 flex justify-between">
-            <a href="{{ route('admin.naskah') }}" class="btn btn-outline-secondary">Batal</a>
+            <a> </a>
             <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         </div>
     </form>

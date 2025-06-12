@@ -287,7 +287,7 @@
         <div>
             <label class="block text-sm font-semibold">Tanggal Dikirim :</label>
             <p class="text-gray-600 dark:text-gray-300">
-                {{ $naskah->tanggal ? \Carbon\Carbon::parse($naskah->tanggal)->format('d/m/Y') : 'Tanggal tidak tersedia' }}
+                {{ $naskah->tanggal ? \Carbon\Carbon::parse($naskah->tanggal)->format('d M Y') : 'Tanggal tidak tersedia' }}
             </p>
         </div>
         <div>

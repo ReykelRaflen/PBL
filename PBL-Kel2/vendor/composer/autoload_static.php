@@ -575,7 +575,6 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         'App\\Models\\Book' => __DIR__ . '/../..' . '/app/Models/Book.php',
         'App\\Models\\Katalog' => __DIR__ . '/../..' . '/app/Models/Katalog.php',
         'App\\Models\\Naskah' => __DIR__ . '/../..' . '/app/Models/Naskah.php',
-        'App\\Models\\Publish_buku' => __DIR__ . '/../..' . '/app/Models/Publish_buku.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\Users' => __DIR__ . '/../..' . '/app/Models/Users.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',

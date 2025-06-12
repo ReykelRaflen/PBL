@@ -36,7 +36,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/dashboard', [DashboardController::class, 'dashboard']);
 
     // Route untuk mengelola buku
-    Route::get('/publish_buku', [PublishBukuController::class, 'index']) -> name('admin.publish_buku');
+    Route::get('/publish_buku', [PublishBukuController::class, 'index']) -> name('admin.index.publish_buku');
     Route::get('/publish_buku/create', [PublishBukuController::class, 'create']) -> name('admin.publish_buku.create');
     Route::post('/publish_buku', [PublishBukuController::class, 'store']) -> name('admin.publish_buku.store');
     Route::get('/publish_buku/{publish_books}', [PublishBukuController::class, 'show']) -> name('admin.publish_buku.show');  

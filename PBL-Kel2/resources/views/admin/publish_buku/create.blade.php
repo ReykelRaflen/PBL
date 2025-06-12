@@ -133,7 +133,7 @@
                     </button>
                     <ul x-show="openMenu === 'editor'" x-transition class="pl-4 space-y-1">
                         <li>
-                            <a href="/admin/naskah" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                            <a href="/admin/index" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                                 <i data-lucide="file-text" class="w-4 h-4"></i> Naskah
                             </a>
                         </li>
@@ -316,79 +316,99 @@
 
     <div class="text-black-800 dark:text-gray-200 container">
         <h1>Tambah Buku</h1>
+        
+        <form action="{{ route('admin.publish_buku.store') }}" method="POST" enctype="multipart/form-data">
         <for>
-            <div class="input-group">
-                <label for="judul">Judul Buku *</label>
-                <input type="text" id="judul" placeholder="Masukkan Judul Buku" required>
-            </div>
-            <div class="input-group">
-                <label for="harga">Harga (Rp) *</label>
-                <input type="number" id="harga" placeholder="Masukkan harga" required>
-            </div>
-            <div class="input-group">
-                <label for="penulis">Penulis *</label>
-                <input type="text" id="penulis" placeholder="Masukkan Nama Penulis" required>
-            </div>
-            <div class="input-group">
-                <label for="penerbit">Penerbit *</label>
-                <input type="text" id="penerbit" placeholder="Masukkan Nama Penerbit" required>
-            </div>
-            <div class="input-group">
-                <label for="isbn">ISBN *</label>
-                <input type="text" id="isbn" placeholder="Masukkan Nomor ISBN" required>
-            </div>
-            <div class="input-group">
-                <label for="halaman">Jumlah Halaman *</label>
-                <input type="number" id="halaman" placeholder="Masukkan Jumlah Halaman" required>
-            </div>
-            <div class="input-group">
-                <label for="tanggal">Tanggal Terbit *</label>
-                <input type="date" id="tanggal" required>
-            </div>
-            <div class="input-group">
-                <label for="deskripsi">Deskripsi *</label>
-                <textarea id="deskripsi" rows="4" placeholder="Masukkan deskripsi singkat buku" required></textarea>
-            </div>
-            <div class="col-span-1 md:col-span-2">
-                <label for="cover" class="block text-sm font-semibold">Cover Buku *</label>
-                
-                <input type="file" id="cover" name="cover" accept=".png,.jpg,.jpeg" required>
+        @csrf
 
-                <p class="mt-1 text-sm text-gray-500">
-                    Format yang diizinkan: <strong>png, jpg, jpeg</strong>. Maksimal <strong>2MB</strong>.
-                </p>
-            </div>
+        <div class="form-group">
+            <label for="judul_buku">Judul Buku:</label>
+            <input type="text" class="form-control" id="judul_buku" name="judul_buku" placeholder="Masukkan Judul Buku" required>
+        </div>
 
-            <!-- Validasi file di sisi client -->
-            <script>
-            document.getElementById('cover').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
+        <div class="form-group">
+            <label for="penulis">Penulis:</label>
+            <input type="text" class="form-control" id="penulis" name="penulis" placeholder="Masukkan Nama Penulis" required>
+        </div>
 
-                const allowedExtensions = ['png', 'jpg', 'jpeg'];
-                const fileExtension = file.name.split('.').pop().toLowerCase();
+        <div class="form-group">
+            <label for="penerbit">Penerbit:</label>
+            <input type="text" class="form-control" id="penerbit" name="penerbit" placeholder="Masukkan Nama Penerbit" required>
+        </div>
 
-                if (!allowedExtensions.includes(fileExtension)) {
-                    alert('Hanya file dengan format PNG, JPG, atau JPEG yang diperbolehkan.');
-                    e.target.value = ''; // Reset input
-                    return;
-                }
+        <div class="form-group">
+            <label for="isbn">ISBN:</label>
+            <input type="text" class="form-control" id="isbn" name="isbn" placeholder="Masukkan Nomor ISBN" required>
+        </div>
 
-                const maxSize = 2 * 1024 * 1024; // 2MB
-                if (file.size > maxSize) {
-                    alert('Ukuran file maksimal adalah 2MB.');
-                    e.target.value = ''; // Reset input
-                }
-            });
-            </script>
-            </for>
+        <div class="form-group">
+            <label for="jumlah_halaman">Jumlah Halaman:</label>
+            <input type="number" class="form-control" id="jumlah_halaman" name="jumlah_halaman" placeholder="Masukkan Jumlah Halaman" required>
+        </div>
+
+        <div class="form-group">
+            <label for="harga">Harga (Rp):</label>
+            <input type="number" class="form-control" id="harga" name="harga" placeholder="Masukkan harga" required>
+        </div>
+
+        <div class="form-group">
+            <label for="diskon">Diskon:</label>
+            <input type="number" class="form-control" id="diskon" name="diskon" placeholder="Masukkan Diskon" required>
+        </div>
+
+        <div class="form-group">
+            <label for="deskripsi">Deskripsi:</label>
+            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" placeholder="Masukkan deskripsi singkat buku" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="cover_buku">Cover Buku:</label>
+            <input type="file" class="form-control-file" id="cover_buku" name="cover_buku" accept=".png,.jpg,.jpeg" required>
+            <small class="form-text text-muted">
+                Format yang diizinkan: <strong>PNG, JPG, JPEG</strong>. Maksimal <strong>2MB</strong>.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="tanggal_terbit">Tanggal Terbit:</label>
+            <input type="date" class="form-control" id="tanggal_terbit" name="tanggal_terbit" required>
+        </div>
 
         <div class="mt-6 flex justify-between">
-            <a href="{{ route('admin.publish_buku') }}" class="btn btn-outline-secondary">Batal</a>
+            <a> </a>
             <button type="submit" class="btn btn-primary">Simpan </button>
         </div>
+    </form>
+</div>
+
+<!-- Client-side validation for file upload -->
+<script>
+    document.getElementById('cover_buku').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const allowedExtensions = ['png', 'jpg', 'jpeg'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(fileExtension)) {
+            alert('Hanya file dengan format PNG, JPG, atau JPEG yang diperbolehkan.');
+            e.target.value = ''; // Reset input
+            return;
+        }
+
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (file.size > maxSize) {
+            alert('Ukuran file maksimal adalah 2MB.');
+            e.target.value = ''; // Reset input
+        }
+    });
+</script>
+            </for>
+
     </div>
     </div>
+        </form>
+        
 
 
 

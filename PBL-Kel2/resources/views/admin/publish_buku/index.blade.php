@@ -270,6 +270,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ISBN</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Halaman</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diskon</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cover</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Terbit</th>
@@ -277,41 +278,60 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @forelse($publish_books as $publish_buku)
+                @php
+                    // Sorting books to show book with ID 1 at the top
+                    $sorted_books = $publish_books->sortBy(function($book) {
+                        return $book->id === 1 ? 0 : $book->id;
+                    });
+                @endphp
+
+                @forelse($sorted_books as $index)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ $publish_buku->judul_buku }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->penulis }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->penerbit }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->isbn }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $publish_buku->jumlah_halaman }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-500 font-semibold">Rp {{ number_format($publish_buku->harga, 0, ',', '.') }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                            {{ Str::limit($publish_buku->deskripsi, 50) }}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $index->id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ $index->judul_buku }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $index->penulis }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $index->penerbit }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $index->isbn }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $index->jumlah_halaman }} Halaman</td>
+                        <td>
+                            <span class="line-through text-gray-400">
+                                Rp {{ number_format($index->harga, 0, ',', '.') }}
+                            </span>
+                            <br>
+                            <span class="text-purple-500 font-semibold">Rp</span>
+                            <span class="text-purple-500 font-semibold">
+                                {{ number_format($index->harga * (1 - ($index->diskon / 100)), 0, ',', '.') }}
+                            </span>
                         </td>
+                        <td>
+                            <div class="ml-8">
+                                <span class="text-green-500 font-semibold">{{ $index->diskon }}%</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ Str::limit($index->deskripsi, 50) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            @if($publish_buku->cover_buku)
-                                <img src="{{ asset('storage/' . $publish_buku->cover_buku) }}" alt="Cover Buku" class="w-12 h-16 object-cover rounded shadow">
+                            @if($index->cover_buku)
+                                <img src="{{ asset('storage/' . $index->cover_buku) }}" alt="Cover Buku" class="w-12 h-16 object-cover rounded shadow">
                             @else
                                 <span class="text-gray-400">No cover</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $publish_buku->tanggal_terbit ? \Carbon\Carbon::parse($publish_buku->tanggal_terbit)->format('d/m/Y') : '-' }}
+                            {{ $index->tanggal_terbit ? \Carbon\Carbon::parse($index->tanggal_terbit)->format('d M Y') : '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <a href="{{ route('admin.publish_buku.show', $publish_buku->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Lihat Detail">
+                            <a href="{{ route('admin.publish_buku.show', $index->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Lihat Detail">
                                 <svg class="h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
                             </a>
-                            <a href="{{ route('admin.publish_buku.edit', $publish_buku->id) }}" class="text-green-600 hover:text-green-900" title="Edit Detail">
+                            <a href="{{ route('admin.publish_buku.edit', $index->id) }}" class="text-green-600 hover:text-green-900" title="Edit Detail">
                                 <svg class="h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                                 </svg>
                             </a>
-                            <form action="{{ route('admin.publish_buku.destroy', $publish_buku->id) }}" method="POST" class="inline-flex" onsubmit="return confirm('Yakin hapus buku ini?')">
+                            <form action="{{ route('admin.publish_buku.destroy', $index->id) }}" method="POST" class="inline-flex" onsubmit="return confirm('Yakin hapus buku ini?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900" title="Hapus">
@@ -324,7 +344,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td colspan="12" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                             <div class="flex flex-col items-center justify-center py-8">
                                 <svg class="h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -339,10 +359,11 @@
     </div>
 </div>
 
-<!-- Pagination -->
+
+<!-- Pagination (tetap sama) -->
 <div class="flex justify-between items-center">
     <div class="text-sm text-gray-700">
-        Showing {{ $publish_books->firstItem() }} to {{ $publish_books->lastItem() }} of {{ $publish_books->total() }} entries
+        Showing 1 to 25 of {{ $publish_books->total() }} entries
     </div>
     <div class="flex space-x-1">
         <a href="{{ $publish_books->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 {{ $publish_books->onFirstPage() ? 'opacity-50 cursor-not-allowed' : '' }}">
@@ -358,7 +379,6 @@
         </a>
     </div>
 </div>
-
 
 
 

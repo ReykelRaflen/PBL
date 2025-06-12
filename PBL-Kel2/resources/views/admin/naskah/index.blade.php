@@ -371,7 +371,7 @@
                             @endswitch
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $index->tanggal ? \Carbon\Carbon::parse($index->tanggal)->format('d/m/Y') : '-' }}
+                            {{ $index->tanggal ? \Carbon\Carbon::parse($index->tanggal)->format('d M Y') : '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <a href="{{ route('admin.naskah.show', $index) }}" 

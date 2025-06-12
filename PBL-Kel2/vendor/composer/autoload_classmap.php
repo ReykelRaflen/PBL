@@ -18,7 +18,6 @@ return array(
     'App\\Models\\Book' => $baseDir . '/app/Models/Book.php',
     'App\\Models\\Katalog' => $baseDir . '/app/Models/Katalog.php',
     'App\\Models\\Naskah' => $baseDir . '/app/Models/Naskah.php',
-    'App\\Models\\Publish_buku' => $baseDir . '/app/Models/Publish_buku.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Models\\Users' => $baseDir . '/app/Models/Users.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
