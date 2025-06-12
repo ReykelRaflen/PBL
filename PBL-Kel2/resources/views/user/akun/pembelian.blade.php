@@ -1,4 +1,4 @@
-@extends('akun.layouts')
+@extends('user.akun.layouts')
 
 @section('content')
 <h4>Pembelian</h4>

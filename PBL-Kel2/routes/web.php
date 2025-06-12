@@ -16,6 +16,8 @@ use App\Http\Controllers\Admin\LaporanPenerbitanIndividuController;
 use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\LaporanPenerbitanKolaborasiController;
 use App\Http\Controllers\Admin\KategoriBukuController;
+use App\Http\Controllers\User\TemplateController as UserTemplateController;
+
 
 // User Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -38,6 +40,11 @@ Route::middleware(['auth'])->prefix('akun')->name('akun.')->group(function () {
     Route::get('/pembelian', [AkunController::class, 'pembelian'])->name('pembelian');
     Route::get('/download', [AkunController::class, 'download'])->name('download');
     Route::put('/password', [AkunController::class, 'changePassword'])->name('password.update');
+    
+    // Template routes
+    Route::get('/templates', [UserTemplateController::class, 'index'])->name('templates.index');
+    Route::get('/templates/{id}', [UserTemplateController::class, 'show'])->name('templates.show');
+    Route::get('/templates/{id}/download', [UserTemplateController::class, 'download'])->name('templates.download');
 });
 
 

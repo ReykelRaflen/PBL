@@ -1,4 +1,4 @@
-@extends('akun.layouts')
+@extends('user.akun.layouts')
 
 @section('content')
 <div class="content-area">

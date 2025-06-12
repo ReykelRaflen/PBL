@@ -316,10 +316,11 @@
                             class="nav-link {{ request()->routeIs('akun.pembelian') ? 'active' : '' }}">
                             <i class="fas fa-shopping-cart me-3"></i>Pembelian
                         </a>
-                        <a href="{{ route('akun.download') }}"
-                            class="nav-link {{ request()->routeIs('akun.download') ? 'active' : '' }}">
-                            <i class="fas fa-download me-3"></i>Download
+                        <a href="{{ route('akun.templates.index') }}"
+                            class="nav-link {{ request()->routeIs('akun.templates.*') ? 'active' : '' }}">
+                            <i class="fas fa-download me-3"></i>Template Penulisan
                         </a>
+
                         <hr class="my-3 mx-3">
                         <a href="{{ route('logout') }}" class="nav-link text-danger"
                             onclick="event.preventDefault(); confirmLogout();">

@@ -19,28 +19,28 @@ class AkunController extends Controller
     public function index()
     {
         $user = Auth::user();
-        return view('akun.profil', compact('user'));
+        return view('user.akun.profil', compact('user'));
     }
 
     public function profil()
     {
         $user = Auth::user();
-        return view('akun.profil', compact('user'));
+        return view('user.akun.profil', compact('user'));
     }
 
     public function kolaborasi()
     {
-        return view('akun.kolaborasi');
+        return view('user.akun.kolaborasi');
     }
 
     public function pembelian()
     {
-        return view('akun.pembelian');
+        return view('user.akun.pembelian');
     }
 
     public function download()
     {
-        return view('akun.download');
+        return view('user.akun.download');
     }
 
     public function updateProfil(Request $request)
