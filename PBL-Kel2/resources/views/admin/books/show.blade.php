@@ -290,6 +290,7 @@
                             </a>
                             @endif
 
+    
 
                             <form action="{{ route('admin.books.destroy', $book->id) }}" method="POST" class="inline" onsubmit="return confirmDelete()">
                                 @csrf

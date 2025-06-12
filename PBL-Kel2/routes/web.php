@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\Admin\ManajemenAkunController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\BookController;
 use Illuminate\Support\Facades\Route;
@@ -140,6 +141,21 @@ Route::prefix('admin')->group(function () {
             Route::put('/{promo}', [PromoController::class, 'update'])->name('promos.update');
             Route::delete('/{promo}', [PromoController::class, 'destroy'])->name('promos.destroy');
         });
+
+        // Manajemen Akun Routes (baris 146-156)
+        Route::prefix('dashboard/akun')->group(function () {
+            Route::get('/', [ManajemenAkunController::class, 'index'])->name('account.index');
+            Route::get('/create', [ManajemenAkunController::class, 'create'])->name('account.create');
+            Route::post('/', [ManajemenAkunController::class, 'store'])->name('account.store');
+            Route::get('/{account}', [ManajemenAkunController::class, 'show'])->name('account.show');
+            Route::get('/{account}/edit', [ManajemenAkunController::class, 'edit'])->name('account.edit');
+            Route::put('/{account}', [ManajemenAkunController::class, 'update'])->name('account.update');
+            Route::delete('/{account}', [ManajemenAkunController::class, 'destroy'])->name('account.destroy');
+            Route::post('/{account}/toggle-status', [ManajemenAkunController::class, 'toggleStatus'])->name('account.toggle-status');
+            Route::post('/{account}/reset-password', [ManajemenAkunController::class, 'resetPassword'])->name('account.reset-password');
+        });
+
+
     });
 });
 

@@ -216,8 +216,8 @@
           </button>
           <ul x-show="openMenu === 'settingAdmin'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
-                <i data-lucide="user-cog" class="w-4 h-4"></i> Manajemen Admin
+              <a href="{{route('account.index')}}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                <i data-lucide="user-cog" class="w-4 h-4"></i> Manajemen akun
               </a>
             </li>
             <li>
@@ -245,15 +245,16 @@
   <!-- Main Content -->
   <div class="ml-64 w-full">
     <!-- Header for User Profile - MOVED TO TOP -->
-    <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
+       <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
       <div class="flex items-center gap-3">
         <img src="/images/admin/user-avatar.png" alt="Avatar" class="w-10 h-10 rounded-full border">
         <div class="text-right">
-          <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Halo, Admin 👋</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+          <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Halo, {{ Auth::user()->name ?? 'Admin' }} 👋</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ Auth::user()->role ?? 'Administrator' }}</p>
         </div>
       </div>
     </header>
+
     
     <div class="p-8">
       <main class="bg-gray-100 dark:bg-gray-900 min-h-screen">
