@@ -256,8 +256,47 @@
       </div>
     </header>
 
-  <script>
-    lucide.createIcons();
-  </script>
-</body>
-</html>
+<!-- Edit Rekening -->
+<div class="flex justify-center items-start bg-gray-100 mt-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-4">Edit Buku</h2>
+        <hr class="my-4 border-gray-200">
+
+        <form action="{{ route('admin.rekening.update', $rekening->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="space-y-4">
+                <!-- Bank -->
+                <div class="form-group">
+                    <label class="font-medium mb-1" for="bank">Nama Bank</label>
+                    <input type="text" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" id="bank" name="bank" placeholder="Masukkan Nama Bank" value="{{ $rekening->bank }}" required>
+                </div>
+
+                <!-- Nomor Rekening -->
+                <div class="form-group">
+                    <label class="font-medium mb-1" for="nomor_rekening">Nomor Rekening</label>
+                    <input type="text" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" id="nomor_rekening" name="nomor_rekening" placeholder="Masukkan nomor rekening" value="{{ $rekening->nomor_rekening }}" required>
+                </div>
+
+                <!-- Nama Pemilik -->
+                <div class="form-group">
+                    <label class="font-medium mb-1" for="nama_pemilik">Nama Pemilik</label>
+                    <input type="text" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" id="nama_pemilik" name="nama_pemilik" placeholder="Masukkan nama pemilik rekening" value="{{ $rekening->nama_pemilik }}" required>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+   
+
+
+
+            <script>
+        lucide.createIcons();
+    </script>

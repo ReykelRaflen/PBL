@@ -256,8 +256,123 @@
       </div>
     </header>
 
-  <script>
-    lucide.createIcons();
-  </script>
+        <!-- Main Content Area -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb; /* Light background */
+        }
+        .container {
+            max-width: 650px; /* Set max width for the form */
+            margin: 20px auto; /* Add margin at the top */
+            background: white; /* White background for form */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center; /* Center title */
+        }
+        .input-group {
+            margin-bottom: 15px; /* Space between input fields */
+        }
+        label {
+            display: block;
+            margin-bottom: 5px; /* Space between label and input */
+            font-weight: 600; /* Bold labels */
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s; /* Smooth border transition */
+        }
+        input:focus, textarea:focus {
+            border-color: #3b82f6; /* Highlight border on focus */
+            outline: none; /* Remove default outline */
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between; /* Align buttons side by side */
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s; /* Smooth background transition */
+        }
+        button[type="submit"] {
+            background-color: #3b82f6; /* Primary button color */
+            color: white;
+        }
+        button[type="button"] {
+            background-color: #f9fafb; /* Secondary button color */
+            color: #3b82f6; /* Text color */
+            border: 1px solid #3b82f6; /* Button border */
+        }
+        button:hover {
+            background-color: #2563eb; /* Darken button on hover */
+        }
+        button[type="button"]:hover {
+            background-color: #e5e7eb; /* Darken secondary button on hover */
+        }
+    </style>
+
+
+    <!-- Main Content Area -->
+    <div class="container" role="main">
+        <h1>Tambah Rekening</h1>
+        <form action="{{ route('admin.rekening.store') }}" method="POST" novalidate>
+    @csrf
+    <div class="form-group">
+        <label for="bank">Bank</label>
+        <input
+            type="text"
+            class="form-control"
+            id="bank"
+            name="bank"
+            autocomplete="off"
+            required
+            aria-required="true"
+        />
+    </div>
+    <div class="form-group">
+        <label for="nomor_rekening">Nomor Rekening</label>
+        <input
+            type="text"
+            class="form-control"
+            id="nomor_rekening"
+            name="nomor_rekening"
+            autocomplete="off"
+            required
+            aria-required="true"
+        />
+    </div>
+    <div class="form-group">
+        <label for="nama_pemilik">Nama Pemilik</label>
+        <input
+            type="text"
+            class="form-control"
+            id="nama_pemilik"
+            name="nama_pemilik"
+            autocomplete="off"
+            required
+            aria-required="true"
+        />
+    </div>
+    <div class="mt-6 flex justify-between">
+        <a></a>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+    </div>
+</form>
+
+    </div>  
+
+                <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

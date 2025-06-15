@@ -59,7 +59,7 @@ class PublishBukuController extends Controller
     $book->save();
 
     // Arahkan kembali dengan pesan sukses
-    return redirect()->route('admin.index.publish_buku')->with('success', 'Buku berhasil diterbitkan.');
+    return redirect()->route('admin.publish_buku.index')->with('success', 'Buku berhasil diterbitkan!');
 }
 
 
@@ -118,7 +118,7 @@ class PublishBukuController extends Controller
     $publish_book->save();
 
     // Redirect to the admin.index.publish_buku route
-    return redirect()->route('admin.index.publish_buku')->with('success', 'Buku berhasil diperbarui!');
+    return redirect()->route('admin.publish_buku.index')->with('success', 'Buku berhasil diperbarui!');
 }
 
 

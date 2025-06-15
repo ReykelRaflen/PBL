@@ -256,8 +256,90 @@
       </div>
     </header>
 
-  <script>
-    lucide.createIcons();
-  </script>
-</body>
-</html>
+   <!-- Detail Rekening -->
+    <div class="mt-6"> <!-- Added margin-top here -->
+<style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        strong {
+            color: #000;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+    
+    <div class="container">
+        <h2 class="text-2xl font-bold text-center mb-4">Detail Rekening</h2>
+      <div class="flex">
+        <span class="font-medium w-40">Bank</span>
+        <span class="mx-3"></span>
+        <span>{{ $rekening->bank  }}</span>
+      </div>
+                        
+      <div class="flex">
+        <span class="font-medium w-40">Nomor Rekening</span>
+        <span class="mx-3"></span>
+        <span>{{ $rekening->nomor_rekening }}</span>
+      </div>
+                        
+      <div class="flex">
+        <span class="font-medium w-40">Nama Pemilik</span>
+        <span class="mx-3"></span>
+        <span>{{ $rekening->nama_pemilik }}</span>
+      </div>
+                        
+              
+    </div>
+</div>
+
+
+            <script>
+        lucide.createIcons();
+    </script>

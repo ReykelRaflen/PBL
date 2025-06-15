@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublishBukuController;
 use App\Http\Controllers\NaskahController;
+use App\Http\Controllers\RekeningController;
 
 // User Routes
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -36,7 +37,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/dashboard', [DashboardController::class, 'dashboard']);
 
     // Route untuk mengelola buku
-    Route::get('/publish_buku', [PublishBukuController::class, 'index']) -> name('admin.index.publish_buku');
+    Route::get('/publish_buku', [PublishBukuController::class, 'index']) -> name('admin.publish_buku.index');
     Route::get('/publish_buku/create', [PublishBukuController::class, 'create']) -> name('admin.publish_buku.create');
     Route::post('/publish_buku', [PublishBukuController::class, 'store']) -> name('admin.publish_buku.store');
     Route::get('/publish_buku/{publish_books}', [PublishBukuController::class, 'show']) -> name('admin.publish_buku.show');  
@@ -51,6 +52,16 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/naskahs/{naskah}/edit', [NaskahController::class, 'edit']) -> name('admin.naskah.edit');
     Route::put('/naskahs/{naskah}', [NaskahController::class, 'update']) -> name('admin.naskah.update');
     Route::delete('/naskahs/{naskah}', [NaskahController::class, 'destroy']) -> name('admin.naskah.destroy');
+
+    // Route untuk mengelola rekening
+    Route::get('/rekening', [RekeningController::class, 'index'])->name('admin.rekening.index');
+    Route::get('/rekening/create', [RekeningController::class, 'create'])->name('admin.rekening.create');
+    Route::post('/rekening', [RekeningController::class, 'store'])->name('admin.rekening.store');
+    Route::get('/rekening/{rekenings}', [RekeningController::class, 'show'])->name('admin.rekening.show');
+    Route::get('/rekening/{rekenings}/edit', [RekeningController::class, 'edit'])->name('admin.rekening.edit');
+    Route::put('/rekening/{rekenings}', [RekeningController::class, 'update'])->name('admin.rekening.update');
+    Route::delete('/rekening/{rekenings}', [RekeningController::class, 'destroy'])->name('admin.rekening.destroy');
+
 
 
     });

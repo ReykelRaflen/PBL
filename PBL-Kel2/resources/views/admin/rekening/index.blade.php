@@ -256,8 +256,106 @@
       </div>
     </header>
 
-  <script>
-    lucide.createIcons();
-  </script>
+   <!-- Main Content Area -->
+<div class="mb-6"></div>
+
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+    <div class="p-6 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Daftar Rekening</h1>
+        <a href="{{ route('admin.rekening.create') }}"
+           class="bg-[#7B3FF2] hover:bg-[#6c2edb] text-white px-5 py-2 rounded-lg flex items-center gap-2 font-medium transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Tambah Rekening
+        </a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-white border-b border-gray-100">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-white border-b border-gray-100">Bank</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-white border-b border-gray-100">Nomor Rekening</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-white border-b border-gray-100">Nama Pemilik</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider bg-white border-b border-gray-100">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white">
+                @forelse($rekening as $index)
+                <tr class="border-b border-gray-100">
+                    <td class="px-6 py-4 text-base text-gray-800 font-medium">{{ $index->id }}</td>
+                    <td class="px-6 py-4 text-base text-gray-800 font-medium">{{ $index->bank }}</td>
+                    <td class="px-6 py-4 text-base text-gray-800 font-medium">{{ $index->nomor_rekening }}</td>
+                    <td class="px-6 py-4 text-base text-gray-800 font-medium">{{ $index->nama_pemilik }}</td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-3">
+                            <!-- Lihat -->
+                            <a href="{{ route('admin.rekening.show', $index->id) }}" class="text-[#7B3FF2] hover:text-[#5f2bb6]" title="Lihat Detail">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </a>
+                            <!-- Edit -->
+                            <a href="{{ route('admin.rekening.edit', $index->id) }}" class="text-[#16C784] hover:text-[#0d8f5c]" title="Edit">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 21h16M4 17.5V21m16-3.5V21M16.5 3.5a2.121 2.121 0 113 3L7 19.5H4v-3L16.5 3.5z"/>
+                                </svg>
+                            </a>
+                            <!-- Hapus -->
+                            <form action="{{ route('admin.rekening.destroy', $index->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin hapus rekening ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-[#FF4D4F] hover:text-[#d9363e]" title="Hapus">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 19a2 2 0 002 2h8a2 2 0 002-2V7H6v12zm2-9v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-400">Tidak ada data rekening</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+   
+<!-- Pagination -->
+<div class="bg-[#F7F8FA] px-4 py-4 rounded-lg flex flex-col md:flex-row justify-between items-center gap-2">
+    <div class="text-sm text-gray-700"> 
+        Showing 1 to 25 of {{ $rekening->total() }} entries
+    </div>
+    <div class="flex items-center gap-1">
+        <a href="{{ $rekening->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-400 bg-white border border-gray-200 rounded-md {{ $rekening->onFirstPage() ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-gray-100 hover:text-gray-600' }}">
+            Previous
+        </a>
+        @for ($i = 1; $i <= $rekening->lastPage(); $i++)
+            <a href="{{ $rekening->url($i) }}" class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-md
+                {{ $rekening->currentPage() == $i 
+                    ? 'bg-[#7B3FF2] text-white' 
+                    : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+                {{ $i }}
+            </a>
+        @endfor
+        <a href="{{ $rekening->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-400 bg-white border border-gray-200 rounded-md {{ !$rekening->hasMorePages() ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-gray-100 hover:text-gray-600' }}">
+            Next
+        </a>
+    </div>
+</div>
+
+
+
+
+            <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
+
+

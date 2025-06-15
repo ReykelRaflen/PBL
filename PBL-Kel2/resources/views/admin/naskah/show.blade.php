@@ -255,10 +255,6 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-            <label class="block text-sm font-semibold">ID Naskah :</label>
-            <p class="text-gray-600 dark:text-gray-300">{{ $naskah->id }}</p>
-        </div>
-        <div>
             <label class="block text-sm font-semibold">Judul Naskah :</label>
             <p class="text-gray-600 dark:text-gray-300">{{ $naskah->judul ?? 'Judul tidak tersedia' }}</p>
         </div>
