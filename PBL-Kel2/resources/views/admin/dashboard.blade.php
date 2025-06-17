@@ -230,8 +230,8 @@
                 @forelse($popularBooks ?? [] as $book)
                 <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div class="flex-shrink-0">
-                        @if($book->cover_image)
-                            <img src="{{ Storage::url($book->cover_image) }}" alt="{{ $book->judul_buku }}" class="w-12 h-16 object-cover rounded">
+                        @if($book->cover)
+                            <img src="{{ Storage::url($book->cover) }}" alt="{{ $book->judul_buku }}" class="w-12 h-16 object-cover rounded">
                         @else
                             <div class="w-12 h-16 bg-gray-300 dark:bg-gray-600 rounded flex items-center justify-center">
                                 <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +245,7 @@
                             {{ $book->judul_buku }}
                         </p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                            {{ $book->penulis }} • {{ $book->orders_count ?? 0 }} pesanan
+                            {{ $book->penulis }} • {{ $pembayaran->pesanan->quantity ?? 0 }} pesanan
                         </p>
                     </div>
                     <div class="text-right">

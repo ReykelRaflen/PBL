@@ -130,15 +130,11 @@
                                         <span style="font-size: 0.65em; font-weight: 600;">E-book</span>
                                     </div>
                                     <div class="text-success fw-bold" style="font-size: 0.75em;">
-                                        @if($book->harga)
-                                            @php
-                                                // Harga e-book biasanya 60% dari harga fisik
-                                                $hargaEbook = $book->harga_promo ? ($book->harga_promo * 0.6) : ($book->harga * 0.6);
-                                            @endphp
-                                            Rp {{ number_format($hargaEbook, 0, ',', '.') }}
-                                        @else
-                                            Tersedia
-                                        @endif
+                                       @if($book->harga_ebook)
+                                        Rp {{ number_format($book->harga_ebook, 0, ',', '.') }}
+                                    @else
+                                        Tersedia
+                                    @endif
                                     </div>
                                 </div>
                                 @endif
