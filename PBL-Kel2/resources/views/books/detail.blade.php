@@ -155,11 +155,11 @@
                                 </div>
                                 
                                 @if($book->stok > 0)
-                                    <form method="POST" action="{{ route('order.create') }}" class="mt-3">
-                                        @csrf
-                                        <input type="hidden" name="book_id" value="{{ $book->id }}">
-                                        <input type="hidden" name="order_type" value="fisik">
-                                        
+                                    @auth
+                                    <form method="GET" action="{{ route('user.pesanan.create') }}" class="mt-3">
+                                        <input type="hidden" name="buku_id" value="{{ $book->id }}">
+                                        <input type="hidden" name="tipe_buku" value="fisik">
+
                                         <!-- Quantity Selector -->
                                         <div class="row align-items-center mb-3">
                                             <div class="col-auto">
@@ -167,18 +167,29 @@
                                             </div>
                                             <div class="col-auto">
                                                 <div class="input-group" style="width: 120px;">
-                                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity('quantity_fisik')">-</button>
-                                                    <input type="number" class="form-control form-control-sm text-center" 
-                                                           id="quantity_fisik" name="quantity" value="1" min="1" max="{{ $book->stok }}" required>
-                                                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('quantity_fisik', {{ $book->stok }})">+</button>
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button"
+                                                        onclick="decreaseQuantity('quantity_fisik')">-</button>
+                                                    <input type="number" class="form-control form-control-sm text-center"
+                                                        id="quantity_fisik" name="quantity" value="1" min="1"
+                                                        max="{{ $book->stok }}" required>
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button"
+                                                        onclick="increaseQuantity('quantity_fisik', {{ $book->stok }})">+</button>
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <button type="submit" class="btn btn-primary w-100">
                                             <i class="fas fa-shopping-cart me-2"></i>Pesan Buku Fisik
                                         </button>
                                     </form>
+                                @else
+                                    <div class="mt-3">
+                                        <a href="{{ route('login') }}" class="btn btn-primary w-100">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Login untuk Memesan
+                                        </a>
+                                    </div>
+                                @endauth
+
                                 @else
                                     <div class="mt-3">
                                         <button type="button" class="btn btn-secondary w-100" disabled>
@@ -191,39 +202,68 @@
                         @endif
 
                         <!-- E-book -->
-                        {{-- @if($book->file_buku) --}}
+                        @if($book->harga_ebook || $book->file_buku)
                         <div class="card border-success">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="card-title mb-1">
                                             <i class="fas fa-tablet-alt text-success me-2"></i>E-book
+                                            @if($book->promo && $book->promo->isActive() && $book->harga_ebook_promo && $book->harga_ebook_promo < $book->harga_ebook)
+                                                @php
+                                                    $diskonPersenEbook = round((($book->harga_ebook - $book->harga_ebook_promo) / $book->harga_ebook) * 100);
+                                                @endphp
+                                                <span class="badge bg-danger ms-2">-{{ $diskonPersenEbook }}%</span>
+                                            @endif
                                         </h6>
-                                        <small class="text-muted">Download langsung setelah pembelian</small>
+                                        <small class="text-muted">Download langsung setelah pembayaran</small>
                                     </div>
                                     <div class="text-end">
-                                        <div class="text-success fw-bold h5 mb-0">
-                                            @php
-                                                // Harga e-book 60% dari harga fisik (atau harga promo jika ada)
-                                                $hargaEbook = $book->harga_promo ? ($book->harga_promo * 0.6) : ($book->harga * 0.6);
-                                            @endphp
-                                            Rp {{ number_format($hargaEbook, 0, ',', '.') }}
-                                        </div>
+                                        @if($book->harga_ebook)
+                                            @if($book->harga_ebook_promo && $book->harga_ebook_promo < $book->harga_ebook)
+                                                <div class="text-muted text-decoration-line-through small">
+                                                    Rp {{ number_format($book->harga_ebook, 0, ',', '.') }}
+                                                </div>
+                                                <div class="text-success fw-bold h5 mb-0">
+                                                    Rp {{ number_format($book->harga_ebook_promo, 0, ',', '.') }}
+                                                </div>
+                                            @else
+                                                <div class="text-success fw-bold h5 mb-0">
+                                                    Rp {{ number_format($book->harga_ebook, 0, ',', '.') }}
+                                                </div>
+                                            @endif
+                                        @else
+                                            <!-- Fallback: 60% dari harga fisik -->
+                                            <div class="text-success fw-bold h5 mb-0">
+                                                @php
+                                                    $hargaEbook = $book->harga_promo ? ($book->harga_promo * 0.6) : ($book->harga * 0.6);
+                                                @endphp
+                                                Rp {{ number_format($hargaEbook, 0, ',', '.') }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
-                                <!-- INI BUTTON PEMESANAN E-BOOK -->
-                                <form method="POST" action="{{ route('order.create') }}" class="mt-3">
-                                    @csrf
-                                    <input type="hidden" name="book_id" value="{{ $book->id }}">
-                                    <input type="hidden" name="order_type" value="ebook">
+                                
+                               @auth
+                                <form method="GET" action="{{ route('user.pesanan.create') }}" class="mt-3">
+                                    <input type="hidden" name="buku_id" value="{{ $book->id }}">
+                                    <input type="hidden" name="tipe_buku" value="ebook">
+                                    <input type="hidden" name="quantity" value="1">
                                     <button type="submit" class="btn btn-success w-100">
                                         <i class="fas fa-download me-2"></i>Pesan E-book
                                     </button>
                                 </form>
+                            @else
+                                <div class="mt-3">
+                                    <a href="{{ route('login') }}" class="btn btn-success w-100">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Login untuk Memesan
+                                    </a>
+                                </div>
+                            @endauth
+
                             </div>
                         </div>
-                        {{-- @endif --}}
-
+                        @endif
 
                         <!-- Promo Info -->
                         @if($book->promo && $book->promo->isActive())
@@ -233,19 +273,19 @@
                             <small class="text-muted">
                                 Berlaku hingga: {{ $book->promo->tanggal_selesai->format('d F Y') }}
                                 @if($book->promo->kuota)
-                                    | Kuota tersisa: {{ $book->promo->kuota_tersisa }}
+                                    | Kuota tersisa: {{ $book->promo->kuota - $book->promo->kuota_terpakai }}
                                 @endif
                             </small>
                         </div>
                         @endif
                     </div>
 
-                    <!-- Tombol Tambahan -->
+                                      <!-- Tombol Tambahan -->
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button class="btn btn-outline-secondary" type="button">
+                        <button class="btn btn-outline-secondary" type="button" onclick="addToWishlist()">
                             <i class="fas fa-heart me-2"></i>Tambah ke Wishlist
                         </button>
-                        <button class="btn btn-outline-info" type="button">
+                        <button class="btn btn-outline-info" type="button" onclick="shareBook()">
                             <i class="fas fa-share-alt me-2"></i>Bagikan
                         </button>
                     </div>
@@ -254,7 +294,9 @@
         </div>
     </div>
 
+    <!-- JavaScript untuk Quantity Control dan Pemesanan -->
     <script>
+        // Quantity Control Functions
         function increaseQuantity(inputId, maxStock) {
             const input = document.getElementById(inputId);
             const currentValue = parseInt(input.value);
@@ -273,6 +315,169 @@
                 input.value = currentValue - 1;
             }
         }
+
+        // Loading state untuk button
+        function showLoadingState(button, originalText) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+            
+            // Re-enable setelah 3 detik jika masih disabled
+            setTimeout(() => {
+                if (button.disabled) {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }
+            }, 3000);
+        }
+
+        // Function untuk pesan buku fisik
+        function pesanBukuFisik() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            showLoadingState(button, originalText);
+            
+            const quantity = document.getElementById('quantity_fisik').value;
+            const bookId = {{ $book->id }};
+            const maxStock = {{ $book->stok }};
+            
+            // Validasi quantity
+            if (quantity < 1 || quantity > maxStock) {
+                alert(`Jumlah tidak valid. Maksimal stok: ${maxStock}`);
+                button.disabled = false;
+                button.innerHTML = originalText;
+                return;
+            }
+            
+            // Redirect ke halaman pemesanan dengan parameter
+            const url = `{{ route('user.pesanan.create') }}?buku_id=${bookId}&tipe_buku=fisik&quantity=${quantity}`;
+            window.location.href = url;
+        }
+
+        // Function untuk pesan e-book
+        function pesanEbook() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            showLoadingState(button, originalText);
+            
+            const bookId = {{ $book->id }};
+            
+            // Redirect ke halaman pemesanan dengan parameter
+            const url = `{{ route('user.pesanan.create') }}?buku_id=${bookId}&tipe_buku=ebook&quantity=1`;
+            window.location.href = url;
+        }
+
+        // Toast notification function
+        function showToast(type, message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type} position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Add to wishlist functionality (placeholder)
+        function addToWishlist() {
+            const bookId = {{ $book->id }};
+            
+            // TODO: Implement wishlist functionality
+            showToast('info', 'Fitur wishlist akan segera tersedia!');
+        }
+
+        // Share functionality
+        function shareBook() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '{{ $book->judul_buku }}',
+                    text: 'Lihat buku menarik ini: {{ $book->judul_buku }} oleh {{ $book->penulis }}',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showToast('success', 'Link berhasil disalin ke clipboard!');
+                });
+            }
+        }
+
+        // Validasi real-time untuk quantity input
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.getElementById('quantity_fisik');
+            if (quantityInput) {
+                quantityInput.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    const max = parseInt(this.getAttribute('max'));
+                    const min = parseInt(this.getAttribute('min'));
+                    
+                    if (value > max) {
+                        this.value = max;
+                        showToast('warning', `Maksimal quantity adalah ${max}`);
+                    } else if (value < min) {
+                        this.value = min;
+                        showToast('warning', `Minimal quantity adalah ${min}`);
+                    }
+                });
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + B untuk pesan buku fisik (jika tersedia)
+            if (e.ctrlKey && e.key === 'b' && document.getElementById('quantity_fisik')) {
+                e.preventDefault();
+                pesanBukuFisik();
+            }
+            
+            // Ctrl + E untuk pesan e-book (jika tersedia)
+            if (e.ctrlKey && e.key === 'e' && {{ ($book->harga_ebook || $book->file_buku) ? 'true' : 'false' }}) {
+                e.preventDefault();
+                pesanEbook();
+            }
+        });
+
+        // Price comparison tooltip
+        function showPriceComparison() {
+            const fisikPrice = {{ $book->harga_promo ?? $book->harga ?? 0 }};
+            @if($book->harga_ebook)
+                const ebookPrice = {{ $book->harga_ebook_promo ?? $book->harga_ebook }};
+            @else
+                const ebookPrice = {{ ($book->harga_promo ?? $book->harga ?? 0) * 0.6 }};
+            @endif
+            
+            if (fisikPrice > 0 && ebookPrice > 0) {
+                const savings = fisikPrice - ebookPrice;
+                const percentage = Math.round((savings / fisikPrice) * 100);
+                
+                if (savings > 0) {
+                    showToast('info', `Hemat Rp ${new Intl.NumberFormat('id-ID').format(savings)} (${percentage}%) dengan memilih e-book!`);
+                }
+            }
+        }
+
+        // Auto-show price comparison after 5 seconds (only if both options available)
+        @if($book->harga && ($book->harga_ebook || $book->file_buku))
+        setTimeout(() => {
+            showPriceComparison();
+        }, 5000);
+        @endif
     </script>
 
     <!-- Deskripsi Buku -->
@@ -293,7 +498,7 @@
     </div>
     @endif
 
-       <!-- Buku Terkait -->
+    <!-- Buku Terkait -->
     @if($relatedBooks->count() > 0)
     <div class="mt-5">
         <h4 class="mb-4 fw-bold">Buku Terkait</h4>
@@ -374,7 +579,7 @@
                                     <span class="badge bg-danger" style="font-size: 0.7em;">Habis</span>
                                 @endif
                                 
-                                @if($relatedBook->file_buku)
+                                @if($relatedBook->harga_ebook || $relatedBook->file_buku)
                                     <span class="badge bg-info ms-1" style="font-size: 0.7em;">E-book</span>
                                 @endif
                             </div>
@@ -412,7 +617,7 @@
                                                 ->get();
             @endphp
             
-            @foreach($categoryBooks as $categoryBook)
+                      @foreach($categoryBooks as $categoryBook)
             <div class="col-6 col-md-3 mb-4">
                 <div class="card h-100 shadow-sm" style="cursor: pointer; transition: transform 0.2s;" 
                      onclick="window.location.href='{{ route('books.show', $categoryBook->id) }}'"
@@ -481,7 +686,7 @@
                                     <span class="badge bg-danger" style="font-size: 0.7em;">Habis</span>
                                 @endif
                                 
-                                @if($categoryBook->file_buku)
+                                @if($categoryBook->harga_ebook || $categoryBook->file_buku)
                                     <span class="badge bg-info ms-1" style="font-size: 0.7em;">E-book</span>
                                 @endif
                             </div>
@@ -501,7 +706,9 @@
 
     <!-- Back to Top Button -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1000;">
-        <button type="button" class="btn btn-primary rounded-circle" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Kembali ke atas">
+        <button type="button" class="btn btn-primary rounded-circle" 
+                onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
+                title="Kembali ke atas">
             <i class="fas fa-arrow-up"></i>
         </button>
     </div>
@@ -509,6 +716,8 @@
 
 @push('scripts')
 <script>
+// Additional scripts for enhanced functionality
+
 // Smooth scroll untuk anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -540,9 +749,11 @@ if ('IntersectionObserver' in window) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const img = entry.target;
-                img.src = img.dataset.src;
-                img.classList.remove('lazy');
-                imageObserver.unobserve(img);
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy');
+                    imageObserver.unobserve(img);
+                }
             }
         });
     });
@@ -551,6 +762,140 @@ if ('IntersectionObserver' in window) {
         imageObserver.observe(img);
     });
 }
+
+// Enhanced form validation
+document.addEventListener('DOMContentLoaded', function() {
+    // Real-time stock validation
+    const quantityInput = document.getElementById('quantity_fisik');
+    if (quantityInput) {
+        quantityInput.addEventListener('change', function() {
+            const quantity = parseInt(this.value);
+            const maxStock = parseInt(this.getAttribute('max'));
+            
+            if (quantity > maxStock) {
+                this.value = maxStock;
+                showToast('warning', `Stok maksimal adalah ${maxStock} buku`);
+            }
+        });
+    }
+    
+    // Add loading animation to images
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('load', function() {
+            this.style.opacity = '1';
+        });
+        
+        img.addEventListener('error', function() {
+            this.src = '/images/no-image.png'; // Fallback image
+        });
+    });
+});
+
+// Price calculator for bulk orders
+function calculateBulkPrice(quantity, unitPrice) {
+    let total = quantity * unitPrice;
+    
+    // Apply bulk discount if quantity >= 5
+    if (quantity >= 5) {
+        const discount = total * 0.05; // 5% discount
+        total = total - discount;
+        showToast('success', `Diskon bulk 5% diterapkan! Hemat Rp ${new Intl.NumberFormat('id-ID').format(discount)}`);
+    }
+    
+    return total;
+}
+
+// Enhanced quantity change with price update
+function updateQuantityAndPrice(inputId) {
+    const input = document.getElementById(inputId);
+    const quantity = parseInt(input.value);
+    const unitPrice = {{ $book->harga_promo ?? $book->harga ?? 0 }};
+    
+    if (quantity > 0 && unitPrice > 0) {
+        const total = calculateBulkPrice(quantity, unitPrice);
+        
+        // Update price display if exists
+        const priceDisplay = document.getElementById('total-price-fisik');
+        if (priceDisplay) {
+            priceDisplay.textContent = `Total: Rp ${new Intl.NumberFormat('id-ID').format(total)}`;
+        }
+    }
+}
+
+// Add event listeners for quantity changes
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('quantity_fisik');
+    if (quantityInput) {
+        quantityInput.addEventListener('input', function() {
+            updateQuantityAndPrice('quantity_fisik');
+        });
+    }
+});
+
+// Enhanced error handling
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.error);
+    // Don't show error to user unless in development
+    @if(config('app.debug'))
+        showToast('danger', 'Terjadi kesalahan JavaScript. Silakan refresh halaman.');
+    @endif
+});
+
+// Performance monitoring
+window.addEventListener('load', function() {
+    const loadTime = performance.now();
+    if (loadTime > 3000) { // If page takes more than 3 seconds
+        console.warn('Page load time is slow:', loadTime + 'ms');
+    }
+});
+
+// Add to cart animation
+function addCartAnimation(button) {
+    button.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        button.style.transform = 'scale(1)';
+    }, 150);
+}
+
+// Enhanced button click handlers
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.btn-primary, .btn-success')) {
+        addCartAnimation(e.target);
+    }
+});
+
+// Keyboard accessibility
+document.addEventListener('keydown', function(e) {
+    // Alt + 1 untuk fokus ke buku fisik
+    if (e.altKey && e.key === '1') {
+        e.preventDefault();
+        const fisikButton = document.querySelector('button[onclick="pesanBukuFisik()"]');
+        if (fisikButton) fisikButton.focus();
+    }
+    
+    // Alt + 2 untuk fokus ke e-book
+    if (e.altKey && e.key === '2') {
+        e.preventDefault();
+        const ebookButton = document.querySelector('button[onclick="pesanEbook()"]');
+        if (ebookButton) ebookButton.focus();
+    }
+});
+
+// Add accessibility hints
+document.addEventListener('DOMContentLoaded', function() {
+    const fisikButton = document.querySelector('button[onclick="pesanBukuFisik()"]');
+    const ebookButton = document.querySelector('button[onclick="pesanEbook()"]');
+    
+    if (fisikButton) {
+        fisikButton.setAttribute('title', 'Tekan Alt+1 untuk shortcut');
+    }
+    
+    if (ebookButton) {
+        ebookButton.setAttribute('title', 'Tekan Alt+2 untuk shortcut');
+    }
+});
 </script>
 @endpush
 @endsection
+
+

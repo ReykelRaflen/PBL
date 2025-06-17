@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" x-data="app" x-init="init()" :class="{ 'dark': dark }">
 <head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta charset="UTF-8">
   <title>Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -195,7 +196,7 @@
   
         <!-- Bukti Pembayaran -->
         <li>
-          <a href="#" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+          <a href="{{ route('pembayaran.index') }}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
             <i data-lucide="check-circle" class="w-4 h-4"></i> Bukti Pembayaran
           </a>
         </li>
@@ -263,6 +264,9 @@
     </div>
   </div>
 
+ <!-- Scripts -->
+    @stack('scripts')
+    @stack('styles')
   <script>
     lucide.createIcons();
   </script>

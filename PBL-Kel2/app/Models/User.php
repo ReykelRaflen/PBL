@@ -55,4 +55,14 @@ class User extends Authenticatable
     {
         return $this->is_verified;
     }
+
+    public function pesanans()
+    {
+        return $this->hasMany(Pesanan::class);
+    }
+
+    public function pembayarans()
+    {
+        return $this->hasManyThrough(Pembayaran::class, Pesanan::class);
+    }
 }

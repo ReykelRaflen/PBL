@@ -54,7 +54,7 @@ class ManajemenAkunController extends Controller
             return redirect('/admin/login')->withErrors(['access' => 'Akses ditolak.']);
         }
 
-        return view('admin.accounts.create');
+        return view('admin.account.create');
     }
 
     public function store(Request $request)

@@ -1,8 +1,10 @@
 <?php
 use App\Http\Controllers\Admin\ManajemenAkunController;
+use App\Http\Controllers\Admin\PembayaranController;
 use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\User\PesananController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\Admin\KategoriBukuController;
 use App\Http\Controllers\User\TemplateController as UserTemplateController;
 
 
+
 // User Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -28,6 +31,10 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 
+
+// API Routes untuk promo
+Route::post('/api/check-promo', [\App\Http\Controllers\Api\PromoController::class, 'checkPromo'])->name('api.check-promo');
+Route::get('/api/active-promos', [\App\Http\Controllers\Api\PromoController::class, 'getActivePromos'])->name('api.active-promos');
 
 // Semua route akun menggunakan middleware auth
 Route::middleware(['auth'])->prefix('akun')->name('akun.')->group(function () {
@@ -40,12 +47,30 @@ Route::middleware(['auth'])->prefix('akun')->name('akun.')->group(function () {
     Route::get('/pembelian', [AkunController::class, 'pembelian'])->name('pembelian');
     Route::get('/download', [AkunController::class, 'download'])->name('download');
     Route::put('/password', [AkunController::class, 'changePassword'])->name('password.update');
-    
+
     // Template routes
     Route::get('/templates', [UserTemplateController::class, 'index'])->name('templates.index');
     Route::get('/templates/{id}', [UserTemplateController::class, 'show'])->name('templates.show');
     Route::get('/templates/{id}/download', [UserTemplateController::class, 'download'])->name('templates.download');
+
 });
+
+// User Pesanan Routes
+Route::middleware(['auth'])->group(function () {
+    // GET route untuk menampilkan form pemesanan
+    Route::get('/user/pesanan/create', [App\Http\Controllers\User\PesananController::class, 'showCreateForm'])->name('user.pesanan.create');
+
+    // POST route untuk memproses pemesanan
+    Route::post('/user/pesanan/store', [App\Http\Controllers\User\PesananController::class, 'store'])->name('user.pesanan.store');
+
+    Route::get('/user/pesanan', [App\Http\Controllers\User\PesananController::class, 'index'])->name('user.pesanan.index');
+    Route::get('/user/pesanan/{pesanan}', [App\Http\Controllers\User\PesananController::class, 'show'])->name('user.pesanan.show');
+    Route::get('/user/pesanan/{pesanan}/payment', [App\Http\Controllers\User\PesananController::class, 'payment'])->name('user.pesanan.payment');
+    Route::post('/user/pesanan/{pesanan}/upload-payment', [App\Http\Controllers\User\PesananController::class, 'uploadPayment'])->name('user.pesanan.uploadPayment');
+    Route::get('/user/pesanan/{pesanan}/download-ebook', [App\Http\Controllers\User\PesananController::class, 'downloadEbook'])->name('user.pesanan.downloadEbook');
+    Route::post('/user/pesanan/{pesanan}/cancel', [App\Http\Controllers\User\PesananController::class, 'cancel'])->name('user.pesanan.cancel');
+});
+
 
 
 // Route untuk detail buku
@@ -54,8 +79,8 @@ Route::get('/buku/detail/{id}', [BookController::class, 'show'])->name('books.sh
 
 
 // Route untuk pemesanan
-Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
-Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
+// Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
+// Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
 
 // Verification routes
 Route::get('/email/verify', [RegisterController::class, 'showVerificationForm'])->name('verification.notice');
@@ -163,7 +188,7 @@ Route::prefix('admin')->group(function () {
             Route::post('/{account}/reset-password', [ManajemenAkunController::class, 'resetPassword'])->name('account.reset-password');
         });
 
-                // Template Routes
+        // Template Routes
         Route::prefix('dashboard/template')->group(function () {
             Route::get('/', [TemplateController::class, 'index'])->name('template.index');
             Route::get('/create', [TemplateController::class, 'create'])->name('template.create');
@@ -176,8 +201,60 @@ Route::prefix('admin')->group(function () {
             Route::get('/{template}/download', [TemplateController::class, 'download'])->name('template.download');
         });
 
+        // Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
+        //     Route::get('/', [PembayaranController::class, 'index'])->name('index');
+        //     Route::get('/{pembayaran}', [PembayaranController::class, 'show'])->name('show');
+        //     Route::patch('/{pembayaran}/status', [PembayaranController::class, 'updateStatus'])->name('updateStatus');
+        //     Route::post('/{pembayaran}/quick-approve', [PembayaranController::class, 'quickApprove'])->name('quickApprove');
+        //     Route::post('/{pembayaran}/quick-reject', [PembayaranController::class, 'quickReject'])->name('quickReject');
+        //     Route::post('/bulk-action', [PembayaranController::class, 'bulkAction'])->name('bulkAction');
+        //     Route::get('/{pembayaran}/download-bukti', [PembayaranController::class, 'downloadBukti'])->name('downloadBukti');
+        //     Route::get('/{pembayaran}/invoice', [PembayaranController::class, 'generateInvoice'])->name('generateInvoice');
+        //     Route::get('/stats/data', [PembayaranController::class, 'getStats'])->name('getStats');
+        //     Route::get('/export/csv', [PembayaranController::class, 'export'])->name('export');
+        // });
 
+        Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
+            Route::get('/', [PembayaranController::class, 'index'])->name('index');
+            Route::get('/stats', [PembayaranController::class, 'getStats'])->name('getStats');
+            Route::get('/dashboard', [PembayaranController::class, 'dashboard'])->name('dashboard');
+            Route::get('/export', [PembayaranController::class, 'export'])->name('export');
 
+            Route::get('/{pembayaran}', [PembayaranController::class, 'show'])->name('show');
+            Route::post('/{pembayaran}/update-status', [PembayaranController::class, 'updateStatus'])->name('updateStatus');
+            Route::post('/{pembayaran}/quick-approve', [PembayaranController::class, 'quickApprove'])->name('quickApprove');
+            Route::post('/{pembayaran}/quick-reject', [PembayaranController::class, 'quickReject'])->name('quickReject');
+            Route::post('/{pembayaran}/mark-processed', [PembayaranController::class, 'markAsProcessed'])->name('markAsProcessed');
+            Route::get('/{pembayaran}/validate', [PembayaranController::class, 'validatePayment'])->name('validatePayment');
+
+            Route::get('/{pembayaran}/download-bukti', [PembayaranController::class, 'downloadBukti'])->name('downloadBukti');
+            Route::get('/{pembayaran}/invoice', [PembayaranController::class, 'generateInvoice'])->name('generateInvoice');
+
+            Route::post('/bulk-action', [PembayaranController::class, 'bulkAction'])->name('bulkAction');
+
+            Route::get('/user/{userId}/history', [PembayaranController::class, 'getPaymentHistory'])->name('userHistory');
+        });
     });
+
+    
+
+
+
+    // // Admin Pembayaran Routes
+    // Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    //     // Pembayaran Management
+
+    // });
+
+    // // User Pembayaran Routes (jika diperlukan)
+    // Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+    //     Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
+    //         Route::get('/history', [UserPembayaranController::class, 'history'])->name('history');
+    //         Route::get('/{pembayaran}', [UserPembayaranController::class, 'show'])->name('show');
+    //     });
+    // });
+
+
 });
 
