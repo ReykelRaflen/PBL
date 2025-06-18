@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\LaporanPenjualanKolaborasi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Models\LaporanPenjualanKolaborasi;
 
 class LaporanPenjualanKolaborasiController extends Controller
 {
@@ -21,31 +22,35 @@ class LaporanPenjualanKolaborasiController extends Controller
 
     public function store(Request $request)
     {
-     
-    
-        $data = $request->validate([
-            'penulis' => 'required|string|max:100',
-            'judul_buku' => 'required|string|max:255',
-            'jumlah_terjual' => 'required|integer|min:1',
-            'total_harga' => 'required|numeric',
-            'tanggal_penjualan' => 'required|date',
-            'status_pembayaran' => 'required|in:Valid,Tidak Valid',
+        $validated = $request->validate([
+            'judul' => 'required|string|max:1000',
+            'penulis' => 'required|string|max:255',
+            'bab' => 'required|string|max:255',
+            'bukti_pembayaran' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'status_pembayaran' => 'required|in:sukses,tidak sesuai',
         ]);
-    
-        LaporanPenjualanKolaborasi::create([
-           'penulis' => $data['penulis'],
-            'judul_buku' => $data['judul_buku'],
-            'jumlah_terjual' => $data['jumlah_terjual'],
-            'total_harga' => $data['total_harga'],
-            'tanggal_penjualan' => $data['tanggal_penjualan'],
-            'status_pembayaran' => $data['status_pembayaran'],
-        ]);
-    
-        return redirect()->route('penjualanKolaborasi.index')
-            ->with('success', 'Data berhasil ditambahkan.');
-    }
-    
 
+        if ($request->hasFile('bukti_pembayaran')) {
+            $file = $request->file('bukti_pembayaran');
+            $filename = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
+            $file->storeAs('public/bukti', $filename);
+            $validated['bukti_pembayaran'] = $filename;
+        }
+
+        $validated['tanggal'] = now()->toDateString();
+        $validated['invoice'] = random_int(100000, 999999);
+
+        LaporanPenjualanKolaborasi::create($validated);
+
+        return redirect()->route('penjualanKolaborasi.index')
+            ->with('success', 'Laporan berhasil ditambahkan.');
+    }
+
+    public function show($id)
+    {
+        $laporan = LaporanPenjualanKolaborasi::findOrFail($id);
+        return view('admin.penjualanKolaborasi.show', compact('laporan'));
+    }
 
     public function edit($id)
     {
@@ -56,27 +61,40 @@ class LaporanPenjualanKolaborasiController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'penulis' => 'required|string|max:100',
-            'judul_buku' => 'required|string|max:255',
-            'jumlah_terjual' => 'required|integer|min:1',
-            'total_harga' => 'required|numeric',
-            'tanggal_penjualan' => 'required|date',
-            'status_pembayaran' => 'required|in:valid,tidak valid',
+            'judul' => 'required|string|max:1000',
+            'penulis' => 'required|string|max:255',
+            'bab' => 'required|string|max:255',
+            'bukti_pembayaran' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'status_pembayaran' => 'required|in:sukses,tidak sesuai',
         ]);
 
         $laporan = LaporanPenjualanKolaborasi::findOrFail($id);
+
+        if ($request->hasFile('bukti_pembayaran')) {
+            if ($laporan->bukti_pembayaran && Storage::exists('public/bukti/'.$laporan->bukti_pembayaran)) {
+                Storage::delete('public/bukti/'.$laporan->bukti_pembayaran);
+            }
+            $file = $request->file('bukti_pembayaran');
+            $filename = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
+            $file->storeAs('public/bukti', $filename);
+            $validated['bukti_pembayaran'] = $filename;
+        }
+
         $laporan->update($validated);
 
         return redirect()->route('penjualanKolaborasi.index')
-            ->with('success', 'Data berhasil diperbarui.');
+            ->with('success', 'Laporan berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         $laporan = LaporanPenjualanKolaborasi::findOrFail($id);
+        if ($laporan->bukti_pembayaran && Storage::exists('public/bukti/'.$laporan->bukti_pembayaran)) {
+            Storage::delete('public/bukti/'.$laporan->bukti_pembayaran);
+        }
         $laporan->delete();
 
         return redirect()->route('penjualanKolaborasi.index')
-            ->with('success', 'Data berhasil dihapus.');
+            ->with('success', 'Laporan berhasil dihapus.');
     }
 }

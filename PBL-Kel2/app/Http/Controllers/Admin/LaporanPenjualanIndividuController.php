@@ -3,13 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\LaporanPenjualanIndividu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log; 
-use App\Models\LaporanPenjualanIndividu;
-
-
-
 
 class LaporanPenjualanIndividuController extends Controller
 {
@@ -24,44 +20,32 @@ class LaporanPenjualanIndividuController extends Controller
         return view('admin.penjualanIndividu.create');
     }
 
-   public function store(Request $request)
-{
-    $validated = $request->validate([
-        'judul' => 'required|string|max:255',
-        'penulis' => 'required|string|max:255',
-        'paket' => 'required|in:silver,gold,diamond',
-        'bukti_pembayaran' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        'status_pembayaran' => 'required|in:sukses,tidak sesuai'
-    ]);
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'penulis' => 'required|string|max:255',
+            'paket' => 'required|in:silver,gold,diamond',
+            'bukti_pembayaran' => 'nullable|image|mimes:jpg,jpeg,png',
+            'status_pembayaran' => 'required|in:sukses,tidak sesuai'
+        ]);
 
-    //  Log awal
-    Log::info('Mulai simpan laporan penjualan');
+        if ($request->hasFile('bukti_pembayaran')) {
+            Storage::makeDirectory('public/bukti');
+            $file = $request->file('bukti_pembayaran');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $file->storeAs('public/bukti', $filename);
+            $validated['bukti_pembayaran'] = $filename;
+        }
 
-    if ($request->hasFile('bukti_pembayaran')) {
-        Log::info('📸 File ditemukan');
+        $validated['tanggal'] = now()->toDateString();
+        $validated['invoice'] = random_int(100000, 999999);
 
-        $file = $request->file('bukti_pembayaran');
-        $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+        LaporanPenjualanIndividu::create($validated);
 
-        // 🧱 Pastikan folder tujuan ada
-        Storage::makeDirectory('public/bukti');
-
-        $file->storeAs('public/bukti', $filename);
-        $validated['bukti_pembayaran'] = $filename;
-
-        Log::info('✅ File berhasil disimpan', ['nama_file' => $filename]);
-    } else {
-        Log::warning('⚠️ Tidak ada file yang diupload');
+        return redirect()->route('penjualanIndividu.index')
+            ->with('success', 'Laporan berhasil ditambahkan.');
     }
-
-    $validated['tanggal'] = now()->toDateString();
-    $validated['invoice'] = random_int(100000, 999999);
-
-    LaporanPenjualanIndividu::create($validated);
-
-    return redirect()->route('penjualanIndividu.index')
-        ->with('success', 'Laporan berhasil ditambahkan.');
-}
 
     public function show($id)
     {
