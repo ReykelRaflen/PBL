@@ -54,8 +54,8 @@ Route::get('/buku/detail/{id}', [BookController::class, 'show'])->name('books.sh
 
 
 // Route untuk pemesanan
-Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
-Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
+// Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
+// Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('order.confirm');
 
 // Verification routes
 Route::get('/email/verify', [RegisterController::class, 'showVerificationForm'])->name('verification.notice');
@@ -124,6 +124,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/', [LaporanPenjualanIndividuController::class, 'index'])->name('penjualanIndividu.index');
             Route::get('/create', [LaporanPenjualanIndividuController::class, 'create'])->name('penjualanIndividu.create');
             Route::post('/', [LaporanPenjualanIndividuController::class, 'store'])->name('penjualanIndividu.store');
+            Route::get('/{id}', [LaporanPenjualanIndividuController::class, 'show'])->name('penjualanIndividu.show');
             Route::get('/{id}/edit', [LaporanPenjualanIndividuController::class, 'edit'])->name('penjualanIndividu.edit');
             Route::put('/{id}', [LaporanPenjualanIndividuController::class, 'update'])->name('penjualanIndividu.update');
             Route::delete('/{id}', [LaporanPenjualanIndividuController::class, 'destroy'])->name('penjualanIndividu.destroy');

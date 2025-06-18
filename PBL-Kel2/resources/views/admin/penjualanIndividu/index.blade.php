@@ -1,55 +1,79 @@
+
 @extends('admin.layouts.app')
 
 @section('main')
-<div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4 text-center text-blue-700">Laporan Penjualan Buku Individu</h1>
+<div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+    <div class="p-6">
+        <h1 class="text-2xl font-bold mb-6">Laporan Penjualan Buku Individu</h1>
 
-    <div class="flex justify-end mb-4">
-        <a href="{{ route('penjualanIndividu.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            + Tambah Data
-        </a>
-    </div>
+        <div class="mb-4">
+            <a href="{{ route('penjualanIndividu.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:border-blue-800 focus:ring ring-blue-300 disabled:opacity-25 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Tambah Laporan
+            </a>
+        </div>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border rounded shadow">
-            <thead class="bg-blue-100 text-blue-800">
-                <tr>
-                    <th class="py-2 px-4 border">No</th>
-                    <th class="py-2 px-4 border">Nama Buku</th>
-                    <th class="py-2 px-4 border">Penulis</th>
-                    <th class="py-2 px-4 border">Jumlah Terjual</th>
-                    <th class="py-2 px-4 border">Total Harga</th>
-                    <th class="py-2 px-4 border">Tanggal Penjualan</th>
-                    <th class="py-2 px-4 border">Status Pembayaran</th>
-                    <th class="py-2 px-4 border">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($laporan as $item)
-                <tr>
-                    <td class="py-2 px-4 border">{{ $loop->iteration }}</td>
-                    <td class="py-2 px-4 border">{{ $item->judul_buku }}</td>
-                    <td class="py-2 px-4 border">{{ $item->penulis }}</td>
-                    <td class="py-2 px-4 border">{{ $item->jumlah_terjual }}</td>
-                    <td class="py-2 px-4 border">Rp{{ number_format($item->total_harga, 0, ',', '.') }}</td>
-                    <td class="py-2 px-4 border">{{ $item->tanggal_penjualan }}</td>
-                    <td class="py-2 px-4 border">{{ ucfirst($item->status_pembayaran) }}</td>
-                    <td class="py-2 px-4 border flex gap-2">
-                        <a href="{{ route('penjualanIndividu.edit', $item->id) }}" class="text-blue-600 hover:underline">Edit</a>
-                        <form action="{{ route('penjualanIndividu.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:underline">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="8" class="py-4 px-4 text-center text-gray-500">Data belum tersedia.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+        @if(session('success'))
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 dark:bg-green-800 dark:text-green-100" role="alert">
+            <p>{{ session('success') }}</p>
+        </div>
+        @endif
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Judul</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Penulis</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Paket</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tanggal</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Invoice</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                    @forelse($laporan as $item)
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $item->judul }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $item->penulis }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ ucfirst($item->paket) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $item->tanggal }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ ucfirst($item->status_pembayaran) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">#{{ $item->invoice }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3">
+                            <a href="{{ route('penjualanIndividu.show', $item->id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 3a7 7 0 00-7 7 7 7 0 0014 0 7 7 0 00-7-7zm0 12a5 5 0 110-10 5 5 0 010 10z" />
+                                    <path d="M10 7a3 3 0 100 6 3 3 0 000-6z" />
+                                </svg>
+                            </a>
+                            <a href="{{ route('penjualanIndividu.edit', $item->id) }}" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                            </a>
+                            <form action="{{ route('penjualanIndividu.destroy', $item->id) }}" method="POST" class="inline-block">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" onclick="return confirm('Yakin ingin menghapus?')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-gray-400">Belum ada data laporan.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endsection
