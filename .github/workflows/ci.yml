@@ -2,20 +2,33 @@ name: Laravel CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [testing]
   pull_request:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-      - run: composer install --no-progress --prefer-dist
-      - run: php artisan test
-      - run: |
+
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist
+
+      - name: Run Tests
+        run: php artisan test
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Deploy via SSH
+        run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-          "cd /path/to/app && git pull && composer install && php artisan migrate --force"
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          "cd /path/to/app && git pull && composer install --no-dev && php artisan migrate --force"
