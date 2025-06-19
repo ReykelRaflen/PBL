@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class ManajemenAkunController extends Controller
 {
@@ -28,7 +29,7 @@ class ManajemenAkunController extends Controller
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('email', 'like', '%' . $request->search . '%')
-                    ->orWhere('nomor_telepon', 'like', '%' . $request->search . '%');
+                    ->orWhere('phone', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -39,7 +40,7 @@ class ManajemenAkunController extends Controller
 
         // Filter berdasarkan status
         if ($request->has('status') && $request->status !== '') {
-            $query->where('is_active', $request->status);
+            $query->where('is_verified', $request->status);
         }
 
         $users = $query->latest()->paginate(10);
@@ -64,6 +65,7 @@ class ManajemenAkunController extends Controller
             return redirect('/admin/login')->withErrors(['access' => 'Akses ditolak.']);
         }
 
+        // Validasi sesuai dengan field di view dan database
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -72,7 +74,8 @@ class ManajemenAkunController extends Controller
             'nomor_telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'tanggal_lahir' => 'nullable|date',
-            'jenis_kelamin' => 'nullable|in:L,P',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'agama' => 'nullable|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean'
         ], [
@@ -85,39 +88,68 @@ class ManajemenAkunController extends Controller
             'role.required' => 'Role wajib dipilih.',
             'foto_profil.image' => 'File harus berupa gambar.',
             'foto_profil.max' => 'Ukuran foto maksimal 2MB.',
+            'jenis_kelamin.in' => 'Jenis kelamin tidak valid.',
+            'agama.in' => 'Agama tidak valid.',
         ]);
 
         try {
             DB::beginTransaction();
 
             // Handle upload foto profil
+            $fotoPath = null;
             if ($request->hasFile('foto_profil')) {
-                $validated['foto_profil'] = $request->file('foto_profil')->store('profile-photos', 'public');
+                $file = $request->file('foto_profil');
+                $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+                
+                // Pastikan folder profile_photos ada
+                $uploadPath = public_path('profile_photos');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                // Pindahkan file ke public/profile_photos
+                $file->move($uploadPath, $filename);
+                $fotoPath = $filename;
             }
 
             // Hash password
-            $validated['password'] = Hash::make($validated['password']);
-            $validated['is_active'] = $request->has('is_active');
+            $hashedPassword = Hash::make($validated['password']);
+            
+            // Mapping field view ke database sesuai migration
+            $userData = [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $hashedPassword,
+                'role' => $validated['role'],
+                'phone' => $validated['nomor_telepon'] ?? null,
+                'address' => $validated['alamat'] ?? null,
+                'birthdate' => $validated['tanggal_lahir'] ?? null,
+                'gender' => $validated['jenis_kelamin'] ?? null,
+                'agama' => $validated['agama'] ?? null,
+                'foto' => $fotoPath, // Field 'foto' sesuai migration
+                'is_verified' => $request->has('is_active') ? true : false,
+            ];
 
             // Buat user baru
-            $user = User::create($validated);
+            $user = User::create($userData);
 
             DB::commit();
 
-            return redirect()->route('admin.accounts.index')
+            return redirect()->route('admin.account.index')
                 ->with('success', 'Akun berhasil ditambahkan.');
 
         } catch (\Exception $e) {
             DB::rollback();
 
             // Hapus file yang sudah diupload jika ada error
-            if (isset($validated['foto_profil'])) {
-                Storage::disk('public')->delete($validated['foto_profil']);
+            if ($fotoPath && file_exists(public_path('profile_photos/' . $fotoPath))) {
+                unlink(public_path('profile_photos/' . $fotoPath));
             }
 
             Log::error('Error creating account: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat membuat akun.'])
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat membuat akun: ' . $e->getMessage()])
                 ->withInput();
         }
     }
@@ -157,7 +189,8 @@ class ManajemenAkunController extends Controller
             'nomor_telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'tanggal_lahir' => 'nullable|date',
-            'jenis_kelamin' => 'nullable|in:L,P',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'agama' => 'nullable|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean'
         ], [
@@ -174,46 +207,72 @@ class ManajemenAkunController extends Controller
         try {
             DB::beginTransaction();
 
-            $oldPhoto = $account->foto_profil;
+            $oldPhoto = $account->foto; // Field 'foto' dari database
 
             // Handle upload foto profil
+            $fotoPath = $oldPhoto; // Keep old photo by default
             if ($request->hasFile('foto_profil')) {
-                $validated['foto_profil'] = $request->file('foto_profil')->store('profile-photos', 'public');
+                $file = $request->file('foto_profil');
+                $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+                
+                // Pastikan folder profile_photos ada
+                $uploadPath = public_path('profile_photos');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                // Pindahkan file ke public/profile_photos
+                $file->move($uploadPath, $filename);
+                $fotoPath = $filename;
             }
+
+            // Mapping field view ke database
+            $updateData = [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role' => $validated['role'],
+                'phone' => $validated['nomor_telepon'] ?? null,
+                'address' => $validated['alamat'] ?? null,
+                'birthdate' => $validated['tanggal_lahir'] ?? null,
+                'gender' => $validated['jenis_kelamin'] ?? null,
+                'agama' => $validated['agama'] ?? null,
+                'foto' => $fotoPath, // Field 'foto' sesuai migration
+                'is_verified' => $request->has('is_active'),
+            ];
 
             // Hash password jika diisi
             if (!empty($validated['password'])) {
-                $validated['password'] = Hash::make($validated['password']);
-            } else {
-                unset($validated['password']);
+                $updateData['password'] = Hash::make($validated['password']);
             }
 
-            $validated['is_active'] = $request->has('is_active');
-
             // Update user
-            $account->update($validated);
+            $account->update($updateData);
 
             // Hapus foto lama setelah update berhasil
-            if ($request->hasFile('foto_profil') && $oldPhoto) {
-                Storage::disk('public')->delete($oldPhoto);
+            if ($request->hasFile('foto_profil') && $oldPhoto && $oldPhoto !== $fotoPath) {
+                if (file_exists(public_path('profile_photos/' . $oldPhoto))) {
+                    unlink(public_path('profile_photos/' . $oldPhoto));
+                }
             }
 
             DB::commit();
 
-            return redirect()->route('account.index')
+            return redirect()->route('admin.account.index')
                 ->with('success', 'Akun berhasil diperbarui.');
 
         } catch (\Exception $e) {
             DB::rollback();
 
             // Hapus file baru yang sudah diupload jika ada error
-            if ($request->hasFile('foto_profil') && isset($validated['foto_profil'])) {
-                Storage::disk('public')->delete($validated['foto_profil']);
+            if ($request->hasFile('foto_profil') && isset($fotoPath) && $fotoPath !== $oldPhoto) {
+                if (file_exists(public_path('profile_photos/' . $fotoPath))) {
+                    unlink(public_path('profile_photos/' . $fotoPath));
+                }
             }
 
             Log::error('Error updating account: ' . $e->getMessage());
 
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui akun.'])
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui akun: ' . $e->getMessage()])
                 ->withInput();
         }
     }
@@ -234,19 +293,19 @@ class ManajemenAkunController extends Controller
             DB::beginTransaction();
 
             // Simpan path foto untuk dihapus
-            $photoPath = $account->foto_profil;
+            $photoPath = $account->foto;
 
             // Hapus user dari database
             $account->delete();
 
-            // Hapus foto profil
-            if ($photoPath) {
-                Storage::disk('public')->delete($photoPath);
+            // Hapus foto profil dari public/profile_photos
+            if ($photoPath && file_exists(public_path('profile_photos/' . $photoPath))) {
+                unlink(public_path('profile_photos/' . $photoPath));
             }
 
             DB::commit();
 
-            return redirect()->route('account.index')
+            return redirect()->route('admin.account.index')
                 ->with('success', 'Akun berhasil dihapus.');
 
         } catch (\Exception $e) {
@@ -270,13 +329,14 @@ class ManajemenAkunController extends Controller
                 return response()->json(['error' => 'Tidak dapat mengubah status akun sendiri.'], 400);
             }
 
-            $account->is_active = !$account->is_active;
+            // Toggle status is_verified
+            $account->is_verified = !$account->is_verified;
             $account->save();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Status akun berhasil diubah.',
-                'is_active' => $account->is_active
+                'is_verified' => $account->is_verified
             ]);
 
         } catch (\Exception $e) {
@@ -304,7 +364,7 @@ class ManajemenAkunController extends Controller
                 'new_password' => $newPassword
             ]);
 
-        } catch (\Exception $e) {
+                } catch (\Exception $e) {
             Log::error('Error resetting password: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan.'], 500);
         }

@@ -24,6 +24,7 @@ class User extends Authenticatable
         'otp',
         'otp_created_at',
         'is_verified',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -38,6 +39,7 @@ class User extends Authenticatable
         'otp_created_at' => 'datetime',
         'is_verified' => 'boolean',
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
 
     // Helper methods

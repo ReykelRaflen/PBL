@@ -7,63 +7,64 @@ use App\Models\Book;
 use App\Models\KategoriBuku;
 use App\Models\User;
 use App\Models\Pembayaran;
-use App\Models\Kategori;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Statistik Utama
-        $totalBooks = Book::count();
-        $totalUsers = User::where('role', 'user')->count();
-        $totalPayments = Pembayaran::count();
-        $totalCategories = KategoriBuku::count();
+        return view('admin.dashboard', array_merge(
+            $this->getSummaryStats(),
+            $this->getPaymentStats(),
+            $this->getRevenueStats(),
+            $this->getBookStats(),
+            $this->getRevenueChart(),
+            ['recentActivities' => $this->getRecentActivities()]
+        ));
+    }
 
-        // Statistik Pembayaran
-        $pendingPayments = Pembayaran::where('status', 'menunggu_verifikasi')->count();
-        $verifiedPayments = Pembayaran::where('status', 'terverifikasi')->count();
-        $rejectedPayments = Pembayaran::where('status', 'ditolak')->count();
+    private function getSummaryStats()
+    {
+        return [
+            'totalBooks' => Book::count(),
+            'totalUsers' => User::where('role', 'user')->count(),
+            'totalPayments' => Pembayaran::count(),
+            'totalCategories' => KategoriBuku::count(),
+        ];
+    }
 
-        // Pendapatan
-        $totalRevenue = Pembayaran::where('status', 'terverifikasi')->sum('jumlah_transfer');
-        $revenueThisMonth = Pembayaran::where('status', 'terverifikasi')
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->sum('jumlah_transfer');
+    private function getPaymentStats()
+    {
+        return [
+            'pendingPayments' => Pembayaran::where('status', 'menunggu_verifikasi')->count(),
+            'verifiedPayments' => Pembayaran::where('status', 'terverifikasi')->count(),
+            'rejectedPayments' => Pembayaran::where('status', 'ditolak')->count(),
+        ];
+    }
 
-        // Data bulan ini
-        $booksThisMonth = Book::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
+    private function getRevenueStats()
+    {
+        return [
+            'totalRevenue' => $this->verifiedPayments()->sum('jumlah_transfer'),
+            'revenueThisMonth' => $this->thisMonth($this->verifiedPayments())->sum('jumlah_transfer'),
+        ];
+    }
 
-        // User aktif - cek apakah model Pesanan ada
+    private function getBookStats()
+    {
         $activeUsers = 0;
         if (class_exists('App\Models\Pesanan')) {
             try {
                 $activeUsers = User::where('role', 'user')
-                    ->whereHas('pesanans', function($query) {
+                    ->whereHas('pesanans', function ($query) {
                         $query->where('created_at', '>=', now()->subDays(30));
                     })
                     ->count();
             } catch (\Exception $e) {
-                // Jika terjadi error, set ke 0
                 $activeUsers = 0;
             }
         }
 
-        // Stok menipis (kurang dari 10)
-        $lowStockBooks = Book::where('stok', '<', 10)->count();
-
-        // Pembayaran terbaru
-        $recentPayments = Pembayaran::with(['pesanan.user', 'pesanan.buku'])
-            ->latest()
-            ->limit(5)
-            ->get();
-
-        // Buku terpopuler - cek apakah relasi ada
         $popularBooks = collect();
         try {
             $popularBooks = Book::withCount(['pesanans as orders_count'])
@@ -71,137 +72,106 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get();
         } catch (\Exception $e) {
-            // Jika error, ambil buku tanpa count
             $popularBooks = Book::latest()->limit(5)->get();
         }
 
-        // Grafik pendapatan 7 hari terakhir
+        return [
+            'booksThisMonth' => $this->thisMonth(Book::query())->count(),
+            'activeUsers' => $activeUsers,
+            'lowStockBooks' => Book::where('stok', '<', 10)->count(),
+            'popularBooks' => $popularBooks,
+            'recentPayments' => Pembayaran::with(['pesanan.user', 'pesanan.buku'])->latest()->limit(5)->get(),
+        ];
+    }
+
+    private function getRevenueChart()
+    {
         $revenueChart = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
-            $revenue = Pembayaran::where('status', 'terverifikasi')
+            $revenueChart[$date->format('D')] = $this->verifiedPayments()
                 ->whereDate('created_at', $date)
                 ->sum('jumlah_transfer');
-            
-            $revenueChart[$date->format('D')] = $revenue;
         }
 
-        // Aktivitas terbaru
-        $recentActivities = $this->getRecentActivities();
-
-        return view('admin.dashboard', compact(
-            'totalBooks',
-            'totalUsers', 
-            'totalPayments',
-            'totalCategories',
-            'pendingPayments',
-            'verifiedPayments',
-            'rejectedPayments',
-            'totalRevenue',
-            'revenueThisMonth',
-            'booksThisMonth',
-            'activeUsers',
-            'lowStockBooks',
-            'recentPayments',
-            'popularBooks',
-            'revenueChart',
-            'recentActivities'
-        ));
+        return ['revenueChart' => $revenueChart];
     }
 
     private function getRecentActivities()
     {
         $activities = [];
 
+        // Pembayaran terbaru
         try {
-            // Pembayaran terbaru
-            $recentPayments = Pembayaran::with(['pesanan.user'])
-                ->latest()
-                ->limit(3)
-                ->get();
-
+            $recentPayments = Pembayaran::with(['pesanan.user'])->latest()->limit(3)->get();
             foreach ($recentPayments as $payment) {
                 $userName = $payment->pesanan->user->name ?? 'Unknown User';
                 $activities[] = [
                     'type' => 'payment',
-                    'description' => '<strong>' . $userName . '</strong> melakukan pembayaran <strong>' . $payment->invoice_number . '</strong>',
+                    'description' => "<strong>{$userName}</strong> melakukan pembayaran <strong>{$payment->invoice_number}</strong>",
                     'time' => $payment->created_at->toISOString(),
-                    'time_human' => $payment->created_at->diffForHumans()
+                    'time_human' => $payment->created_at->diffForHumans(),
                 ];
             }
         } catch (\Exception $e) {
-            // Skip jika error
         }
 
+        // User baru
         try {
-            // User baru
-            $newUsers = User::where('role', 'user')
-                ->latest()
-                ->limit(2)
-                ->get();
-
+            $newUsers = User::where('role', 'user')->latest()->limit(2)->get();
             foreach ($newUsers as $user) {
                 $activities[] = [
                     'type' => 'user',
-                    'description' => 'User baru <strong>' . $user->name . '</strong> mendaftar',
+                    'description' => "User baru <strong>{$user->name}</strong> mendaftar",
                     'time' => $user->created_at->toISOString(),
-                    'time_human' => $user->created_at->diffForHumans()
+                    'time_human' => $user->created_at->diffForHumans(),
                 ];
             }
         } catch (\Exception $e) {
-            // Skip jika error
         }
 
-        // Cek apakah model Pesanan ada sebelum menggunakannya
+        // Pesanan terbaru
         if (class_exists('App\Models\Pesanan')) {
             try {
-                $pesananClass = new \App\Models\Pesanan();
-                $recentOrders = $pesananClass::with(['user', 'buku'])
-                    ->latest()
-                    ->limit(2)
-                    ->get();
-
+                $recentOrders = \App\Models\Pesanan::with(['user', 'buku'])->latest()->limit(2)->get();
                 foreach ($recentOrders as $order) {
                     $userName = $order->user->name ?? 'Unknown User';
                     $bookTitle = $order->buku->judul_buku ?? 'Unknown Book';
                     $activities[] = [
                         'type' => 'order',
-                        'description' => '<strong>' . $userName . '</strong> memesan buku <strong>' . $bookTitle . '</strong>',
+                        'description' => "<strong>{$userName}</strong> memesan buku <strong>{$bookTitle}</strong>",
                         'time' => $order->created_at->toISOString(),
-                        'time_human' => $order->created_at->diffForHumans()
+                        'time_human' => $order->created_at->diffForHumans(),
                     ];
                 }
             } catch (\Exception $e) {
-                // Skip jika error
             }
         }
 
-        // Urutkan berdasarkan waktu terbaru
-        if (!empty($activities)) {
-            usort($activities, function($a, $b) {
-                return strtotime($b['time']) - strtotime($a['time']);
-            });
-        }
+        usort($activities, fn($a, $b) => strtotime($b['time']) - strtotime($a['time']));
+        return array_slice($activities, 0, 8);
+    }
 
-        return array_slice($activities, 0, 8); // Ambil 8 aktivitas terbaru
+    private function verifiedPayments()
+    {
+        return Pembayaran::where('status', 'terverifikasi');
+    }
+
+    private function thisMonth($query)
+    {
+        return $query->whereMonth('created_at', now()->month)
+                     ->whereYear('created_at', now()->year);
     }
 
     public function getStats()
     {
-        $stats = [
+        return response()->json([
             'total' => Pembayaran::count(),
             'menunggu' => Pembayaran::where('status', 'menunggu_verifikasi')->count(),
             'terverifikasi' => Pembayaran::where('status', 'terverifikasi')->count(),
             'ditolak' => Pembayaran::where('status', 'ditolak')->count(),
-            'revenue_today' => Pembayaran::where('status', 'terverifikasi')
-                ->whereDate('created_at', today())
-                ->sum('jumlah_transfer'),
-            'revenue_month' => Pembayaran::where('status', 'terverifikasi')
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->sum('jumlah_transfer')
-        ];
-
-        return response()->json($stats);
+            'revenue_today' => $this->verifiedPayments()->whereDate('created_at', today())->sum('jumlah_transfer'),
+            'revenue_month' => $this->thisMonth($this->verifiedPayments())->sum('jumlah_transfer'),
+        ]);
     }
 }

@@ -6,7 +6,7 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Edit Akun: {{ $user->name }}</h1>
-        <a href="{{ route('account.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow">
+        <a href="{{ route('admin.account.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
@@ -31,7 +31,7 @@
     @endif
 
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <form action="{{ route('account.update', $user->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.account.update', $user->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -241,7 +241,7 @@
                             </svg>
                             Update Akun
                         </button>
-                        <a href="{{ route('account.show', $user->id) }}" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <a href="{{ route('admin.account.show', $user->id) }}" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                 <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
