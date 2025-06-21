@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\Admin\ManajemenAkunController;
+use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\PembayaranController;
 use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -234,7 +235,25 @@ Route::prefix('admin')->group(function () {
 
             Route::get('/user/{userId}/history', [PembayaranController::class, 'getPaymentHistory'])->name('userHistory');
         });
+
+        // Member Routes
+        Route::prefix('dashboard/members')->group(function () {
+            Route::get('/', [MemberController::class, 'index'])->name('members.index');
+            Route::get('/create', [MemberController::class, 'create'])->name('members.create');
+            Route::post('/', [MemberController::class, 'store'])->name('members.store');
+            Route::get('/search', [MemberController::class, 'search'])->name('members.search');
+            Route::get('/{member}', [MemberController::class, 'show'])->name('members.show');
+            Route::get('/{member}/edit', [MemberController::class, 'edit'])->name('members.edit');
+            Route::put('/{member}', [MemberController::class, 'update'])->name('members.update');
+            Route::delete('/{member}', [MemberController::class, 'destroy'])->name('members.destroy');
+            Route::post('/{member}/verify', [MemberController::class, 'verify'])->name('members.verify');
+            Route::post('/{member}/unverify', [MemberController::class, 'unverify'])->name('members.unverify');
+            Route::post('/{member}/toggle-verification', [MemberController::class, 'toggleVerification'])->name('members.toggle-verification');
+            Route::get('/{member}/export', [MemberController::class, 'export'])->name('members.export');
+        });
     });
+
+
 
     // // Admin Pembayaran Routes
     // Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
