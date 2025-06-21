@@ -3,23 +3,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LaporanPenjualanKolaborasi extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    protected $table = 'laporan_penjualan_buku_Kolaborasi';
+    protected $table = 'laporan_penjualan_kolaborasi';
 
     protected $fillable = [
-        'judul_buku',
+        'judul',
         'penulis',
-        'jumlah_terjual',
-        'total_harga',
-        'tanggal_penjualan',
-        'status_pembayaran',
+        'bab',
+        'tanggal',
         'bukti_pembayaran',
+        'status_pembayaran',
+        'invoice',
     ];
 }
-
-
