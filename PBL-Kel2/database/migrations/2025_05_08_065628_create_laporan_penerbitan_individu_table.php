@@ -13,7 +13,6 @@ return new class extends Migration
 {
     Schema::create('laporan_penerbitan_individu', function (Blueprint $table) {
         $table->id();
-        $table->string('kode_buku')->unique();
         $table->string('judul');
         $table->string('penulis');
         $table->date('tanggal_terbit');
