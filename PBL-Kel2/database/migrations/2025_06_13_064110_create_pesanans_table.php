@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pesanan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('buku_id')->constrained('buku')->onDelete('cascade');
+            $table->foreignId('buku_id')->constrained('books')->onDelete('cascade');
             $table->string('order_number')->unique();
             $table->enum('tipe_buku', ['fisik', 'ebook']);
             $table->integer('quantity')->default(1);

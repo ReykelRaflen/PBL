@@ -98,18 +98,17 @@
             <i data-lucide="database" class="w-4 h-4"></i> Master Data
           </button>
           <ul x-show="openMenu === 'master'" x-transition class="pl-4 space-y-1">
-            <li>
-              <a href="{{ route('kategori-buku.index') }}"
-                class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
-                <i data-lucide="folder" class="w-4 h-4"></i> Kategori Buku
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
-                <i data-lucide="credit-card" class="w-4 h-4"></i> Rekening
-              </a>
-            </li>
-          </ul>
+        <li>
+           <a href="{{ route('kategori-buku.index') }}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+           <i data-lucide="folder" class="w-4 h-4"></i> Kategori Buku
+          </a>
+          </li>
+         <li>
+            <a href="{{ route('rekening.index') }}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+            <i data-lucide="credit-card" class="w-4 h-4"></i> Rekening
+    </a>
+  </li>
+</ul>
 
         </li>
 
