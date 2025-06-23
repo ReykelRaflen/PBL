@@ -185,7 +185,7 @@ class ManajemenAkunController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($account->id)],
             'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|in:admin,user',
+            'role' => 'required|in:admin,user,editor',
             'nomor_telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'tanggal_lahir' => 'nullable|date',
