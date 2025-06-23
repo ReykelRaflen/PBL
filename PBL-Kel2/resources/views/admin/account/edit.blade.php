@@ -111,6 +111,7 @@
                                 <option value="">Pilih Role</option>
                                 <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>User</option>
+                                <option value="editor" {{ old('role', $user->role) === 'editor' ? 'selected' : '' }}>editorz</option>
                             </select>
                             @error('role')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

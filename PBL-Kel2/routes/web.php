@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\Admin\ManajemenAkunController;
 use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\NaskahController;
 use App\Http\Controllers\Admin\PembayaranController;
 use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -253,33 +254,68 @@ Route::prefix('admin')->group(function () {
             Route::post('/{member}/toggle-verification', [MemberController::class, 'toggleVerification'])->name('members.toggle-verification');
             Route::get('/{member}/export', [MemberController::class, 'export'])->name('members.export');
         });
+
+        // Manajemen Naskah
+        // Route::prefix('dashboard/naskah')->name('naskah.')->group(function () {
+        //     Route::get('/', [NaskahController::class, 'index'])->name('index');
+        //     Route::get('/{naskah}', [NaskahController::class, 'show'])->name('show');
+        //     Route::post('/{naskah}/setujui', [NaskahController::class, 'setujui'])->name('setujui');
+        //     Route::post('/{naskah}/tolak', [NaskahController::class, 'tolak'])->name('tolak');
+        //     Route::patch('/{naskah}/status', [NaskahController::class, 'updateStatus'])->name('update-status');
+        //     Route::get('/{naskah}/download', [NaskahController::class, 'download'])->name('download');
+        //     Route::delete('/{naskah}', [NaskahController::class, 'destroy'])->name('destroy');
+        //     Route::post('/bulk-action', [NaskahController::class, 'bulkAction'])->name('bulk-action');
+        // });
+
+                // Naskah Routes
+        Route::prefix('dashboard/naskah')->group(function () {
+            Route::get('/', [NaskahController::class, 'index'])->name('admin.naskah.index');
+            Route::get('/create', [NaskahController::class, 'create'])->name('admin.naskah.create');
+            Route::post('/', [NaskahController::class, 'store'])->name('admin.naskah.store');
+            Route::get('/search', [NaskahController::class, 'search'])->name('admin.naskah.search');
+            Route::get('/{naskah}', [NaskahController::class, 'show'])->name('admin.naskah.show');
+            Route::get('/{naskah}/edit', [NaskahController::class, 'edit'])->name('admin.naskah.edit');
+            Route::put('/{naskah}', [NaskahController::class, 'update'])->name('admin.naskah.update');
+            Route::delete('/{naskah}', [NaskahController::class, 'destroy'])->name('admin.naskah.destroy');
+            
+            // Action routes - letakkan sebelum route {naskah} untuk menghindari konflik
+            Route::post('/{naskah}/setujui', [NaskahController::class, 'setujui'])->name('admin.naskah.setujui');
+            Route::post('/{naskah}/tolak', [NaskahController::class, 'tolak'])->name('admin.naskah.tolak');
+            Route::post('/{naskah}/update-status', [NaskahController::class, 'updateStatus'])->name('admin.naskah.update-status');
+            Route::get('/{naskah}/download', [NaskahController::class, 'download'])->name('admin.naskah.download');
+            Route::get('/{naskah}/preview', [NaskahController::class, 'preview'])->name('admin.naskah.preview');
+            Route::get('/{naskah}/status', [NaskahController::class, 'statusCheck'])->name('admin.naskah.status-check   ');
+            Route::post('/bulk-action', [NaskahController::class, 'bulkAction'])->name('admin.naskah.bulk-action');
+            Route::get('/export', [NaskahController::class, 'export'])->name('admin.naskah.export');
+
+        });
+
+
+
+        // // Admin Pembayaran Routes
+        // Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+
+        //     // Pembayaran Management
+
+        // });
+
+        // // User Pembayaran Routes (jika diperlukan)
+        // Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+        //     Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
+        //         Route::get('/history', [UserPembayaranController::class, 'history'])->name('history');
+        //         Route::get('/{pembayaran}', [UserPembayaranController::class, 'show'])->name('show');
+        //     });
+        // });
+
+        // Rekening Routes
+        Route::prefix('dashboard/rekening')->group(function () {
+            Route::get('/', [RekeningController::class, 'index'])->name('rekening.index');
+            Route::get('/create', [RekeningController::class, 'create'])->name('rekening.create');
+            Route::post('/', [RekeningController::class, 'store'])->name('rekening.store');
+            Route::get('/{rekening}/edit', [RekeningController::class, 'edit'])->name('rekening.edit');
+            Route::put('/{rekening}', [RekeningController::class, 'update'])->name('rekening.update');
+            Route::delete('/{rekening}', [RekeningController::class, 'destroy'])->name('rekening.destroy');
+        });
+
     });
-
-
-
-    // // Admin Pembayaran Routes
-    // Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-
-    //     // Pembayaran Management
-
-    // });
-
-    // // User Pembayaran Routes (jika diperlukan)
-    // Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
-    //     Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
-    //         Route::get('/history', [UserPembayaranController::class, 'history'])->name('history');
-    //         Route::get('/{pembayaran}', [UserPembayaranController::class, 'show'])->name('show');
-    //     });
-    // });
-
-    // Rekening Routes
-    Route::prefix('dashboard/rekening')->group(function () {
-        Route::get('/', [RekeningController::class, 'index'])->name('rekening.index');
-        Route::get('/create', [RekeningController::class, 'create'])->name('rekening.create');
-        Route::post('/', [RekeningController::class, 'store'])->name('rekening.store');
-        Route::get('/{rekening}/edit', [RekeningController::class, 'edit'])->name('rekening.edit');
-        Route::put('/{rekening}', [RekeningController::class, 'update'])->name('rekening.update');
-        Route::delete('/{rekening}', [RekeningController::class, 'destroy'])->name('rekening.destroy');
-    });
-
 });

@@ -53,11 +53,43 @@ class User extends Authenticatable
         return $this->role === 'user';
     }
 
+    public function isEditor()
+    {
+        return $this->role === 'editor';
+    }
+
     public function isVerified()
     {
         return $this->is_verified;
     }
 
+    // Tambahkan relasi-relasi ini
+    
+    /**
+     * Naskah yang diupload oleh user ini (sebagai pengirim)
+     */
+    public function naskah()
+    {
+        return $this->hasMany(Naskah::class, 'user_id');
+    }
+
+    /**
+     * Naskah yang direview oleh user ini (sebagai reviewer)
+     */
+    public function naskahDireview()
+    {
+        return $this->hasMany(Naskah::class, 'reviewer_id');
+    }
+
+    /**
+     * Status histories yang dibuat oleh user ini
+     */
+    public function statusHistories()
+    {
+        return $this->hasMany(NaskahStatusHistory::class);
+    }
+
+    // Relasi yang sudah ada sebelumnya
     public function pesanans()
     {
         return $this->hasMany(Pesanan::class);
@@ -66,5 +98,26 @@ class User extends Authenticatable
     public function pembayarans()
     {
         return $this->hasManyThrough(Pembayaran::class, Pesanan::class);
+    }
+
+    // Method tambahan untuk statistik naskah
+    public function getTotalNaskahAttribute()
+    {
+        return $this->naskah()->count();
+    }
+
+    public function getNaskahPendingAttribute()
+    {
+        return $this->naskah()->where('status', 'pending')->count();
+    }
+
+    public function getNaskahDisetujuiAttribute()
+    {
+        return $this->naskah()->where('status', 'disetujui')->count();
+    }
+
+    public function getNaskahDitolakAttribute()
+    {
+        return $this->naskah()->where('status', 'ditolak')->count();
     }
 }

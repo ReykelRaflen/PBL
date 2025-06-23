@@ -142,7 +142,7 @@
           </button>
           <ul x-show="openMenu === 'editor'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="#" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('admin.naskah.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Naskah
               </a>
             </li>
