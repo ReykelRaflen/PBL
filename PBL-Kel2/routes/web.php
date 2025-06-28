@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\LaporanPenerbitanKolaborasiController;
 use App\Http\Controllers\Admin\KategoriBukuController;
 use App\Http\Controllers\Admin\RekeningController;
+use App\Http\Controllers\PenerbitanIndividuController;
 
 // User Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -25,6 +26,11 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
+
+// User Routes
+Route::get('/penerbitan_individu', [PenerbitanIndividuController::class, 'showForm'])->name('penerbitan_individu.form');
+Route::post('/penerbitan_individu', [PenerbitanIndividuController::class, 'submit'])->name('penerbitan_individu.submit');
+
 
 // Semua route akun menggunakan middleware auth
 Route::middleware(['auth'])->prefix('akun')->name('akun.')->group(function () {

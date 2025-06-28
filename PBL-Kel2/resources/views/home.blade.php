@@ -24,7 +24,7 @@
     <!-- Fitur Navigasi -->
     <div class="container mt-5 text-center">
         <div class="row">
-            <div class="col">
+            <div class="col" onclick="window.location.href='{{ route('penerbitan_individu.form') }}'" style="cursor: pointer;">
                 <img src="{{ asset('img/Buku_Individu.png') }}" class="mb-2" width="50">
                 <p>Buku Individu</p>
             </div>

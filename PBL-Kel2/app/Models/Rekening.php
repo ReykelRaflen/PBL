@@ -16,4 +16,10 @@ class Rekening extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function penerbitanIndividus()
+{
+    return $this->hasMany(PenerbitanIndividu::class);
+}
+
 }   
