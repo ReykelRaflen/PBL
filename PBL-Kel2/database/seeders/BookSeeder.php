@@ -33,7 +33,7 @@ class BookSeeder extends Seeder
             ]
         );
 
-        $books = [
+        $bukus = [
             [
                 'judul_buku' => 'Laravel: Up & Running',
                 'penulis' => 'Matt Stauffer',
@@ -216,11 +216,11 @@ class BookSeeder extends Seeder
             ],
         ];
 
-        foreach ($books as $bookData) {
+        foreach ($bukus as $bookData) {
             Book::create($bookData);
         }
 
         $this->command->info('Book seeder completed successfully!');
-        $this->command->info('Created ' . count($books) . ' books with categories and promos.');
+        $this->command->info('Created ' . count($bukus) . ' books with categories and promos.');
     }
 }

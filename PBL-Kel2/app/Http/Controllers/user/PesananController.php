@@ -53,7 +53,7 @@ class PesananController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'buku_id' => 'required|exists:buku,id',
+            'buku_id' => 'required|exists:bukus,id',
             'quantity' => 'required|integer|min:1',
             'tipe_buku' => 'required|in:fisik,ebook',
             'kode_promo' => 'nullable|string',

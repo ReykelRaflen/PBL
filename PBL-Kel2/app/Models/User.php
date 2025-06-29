@@ -64,7 +64,7 @@ class User extends Authenticatable
     }
 
     // Tambahkan relasi-relasi ini
-    
+
     /**
      * Naskah yang diupload oleh user ini (sebagai pengirim)
      */
@@ -120,4 +120,23 @@ class User extends Authenticatable
     {
         return $this->naskah()->where('status', 'ditolak')->count();
     }
+
+
+    // Tambahkan method ini ke model User yang sudah ada
+
+    public function designs()
+    {
+        return $this->hasMany(Design::class, 'pembuat_id');
+    }
+
+    public function reviewedDesigns()
+    {
+        return $this->hasMany(Design::class, 'reviewer_id');
+    }
+
+    public function designStatusHistories()
+    {
+        return $this->hasMany(DesignStatusHistory::class);
+    }
+
 }

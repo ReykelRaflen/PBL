@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\Admin\DesignController;
 use App\Http\Controllers\Admin\ManajemenAkunController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\NaskahController;
@@ -267,7 +268,7 @@ Route::prefix('admin')->group(function () {
         //     Route::post('/bulk-action', [NaskahController::class, 'bulkAction'])->name('bulk-action');
         // });
 
-                // Naskah Routes
+        // Naskah Routes
         Route::prefix('dashboard/naskah')->group(function () {
             Route::get('/', [NaskahController::class, 'index'])->name('admin.naskah.index');
             Route::get('/create', [NaskahController::class, 'create'])->name('admin.naskah.create');
@@ -277,14 +278,14 @@ Route::prefix('admin')->group(function () {
             Route::get('/{naskah}/edit', [NaskahController::class, 'edit'])->name('admin.naskah.edit');
             Route::put('/{naskah}', [NaskahController::class, 'update'])->name('admin.naskah.update');
             Route::delete('/{naskah}', [NaskahController::class, 'destroy'])->name('admin.naskah.destroy');
-            
+
             // Action routes - letakkan sebelum route {naskah} untuk menghindari konflik
             Route::post('/{naskah}/setujui', [NaskahController::class, 'setujui'])->name('admin.naskah.setujui');
             Route::post('/{naskah}/tolak', [NaskahController::class, 'tolak'])->name('admin.naskah.tolak');
             Route::post('/{naskah}/update-status', [NaskahController::class, 'updateStatus'])->name('admin.naskah.update-status');
             Route::get('/{naskah}/download', [NaskahController::class, 'download'])->name('admin.naskah.download');
             Route::get('/{naskah}/preview', [NaskahController::class, 'preview'])->name('admin.naskah.preview');
-            Route::get('/{naskah}/status', [NaskahController::class, 'statusCheck'])->name('admin.naskah.status-check   ');
+            Route::get('/{naskah}/status', [NaskahController::class, 'statusCheck'])->name('admin.naskah.status-check');
             Route::post('/bulk-action', [NaskahController::class, 'bulkAction'])->name('admin.naskah.bulk-action');
             Route::get('/export', [NaskahController::class, 'export'])->name('admin.naskah.export');
 
@@ -315,6 +316,39 @@ Route::prefix('admin')->group(function () {
             Route::get('/{rekening}/edit', [RekeningController::class, 'edit'])->name('rekening.edit');
             Route::put('/{rekening}', [RekeningController::class, 'update'])->name('rekening.update');
             Route::delete('/{rekening}', [RekeningController::class, 'destroy'])->name('rekening.destroy');
+        });
+
+        // Design Routes
+        Route::prefix('dashboard/designs')->group(function () {
+            Route::get('/', [DesignController::class, 'index'])->name('admin.designs.index');
+            Route::get('/create', [DesignController::class, 'create'])->name('admin.designs.create');
+            Route::post('/', [DesignController::class, 'store'])->name('admin.designs.store');
+            Route::get('/search', [DesignController::class, 'search'])->name('admin.designs.search');
+            Route::get('/{design}', [DesignController::class, 'show'])->name('admin.designs.show');
+            Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('admin.designs.edit');
+            Route::put('/{design}', [DesignController::class, 'update'])->name('admin.designs.update');
+            Route::delete('/{design}', [DesignController::class, 'destroy'])->name('admin.designs.destroy');
+
+            // Action routes - letakkan sebelum route {design} untuk menghindari konflik
+            Route::post('/{design}/setujui', [DesignController::class, 'setujui'])->name('admin.designs.setujui');
+            Route::post('/{design}/tolak', [DesignController::class, 'tolak'])->name('admin.designs.tolak');
+            Route::post('/{design}/update-status', [DesignController::class, 'updateStatus'])->name('admin.designs.update-status');
+            Route::post('/{design}/assign-reviewer', [DesignController::class, 'assignReviewer'])->name('admin.designs.assign-reviewer');
+            Route::get('/{design}/preview', [DesignController::class, 'preview'])->name('admin.designs.preview');
+            Route::get('/{design}/status', [DesignController::class, 'statusCheck'])->name('admin.designs.status-check');
+
+            // Bulk actions
+            Route::post('/bulk-action', [DesignController::class, 'bulkAction'])->name('admin.designs.bulk-action');
+            Route::post('/bulk-assign-reviewer', [DesignController::class, 'bulkAssignReviewer'])->name('admin.designs.bulk-assign-reviewer');
+
+            // Export & Print
+            Route::get('/export', [DesignController::class, 'export'])->name('admin.designs.export');
+            Route::get('/print', [DesignController::class, 'print'])->name('admin.designs.print');
+
+            // API endpoints
+            Route::get('/api/data', [DesignController::class, 'getData'])->name('admin.designs.api.data');
+            Route::get('/api/chart-data', [DesignController::class, 'getChartData'])->name('admin.designs.api.chart-data');
+            Route::get('/api/notifications-count', [DesignController::class, 'getNotificationsCount'])->name('admin.designs.api.notifications-count');
         });
 
     });
