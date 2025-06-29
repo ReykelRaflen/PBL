@@ -28,7 +28,7 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 // User Routes
-Route::get('/penerbitan_individu', [PenerbitanIndividuController::class, 'showForm'])->name('penerbitan_individu.form');
+Route::get('/penerbitan_individu', [PenerbitanIndividuController::class, 'showForm'])->name('penerbitan_individu.index');
 Route::post('/penerbitan_individu', [PenerbitanIndividuController::class, 'submit'])->name('penerbitan_individu.submit');
 
 

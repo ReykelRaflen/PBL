@@ -11,7 +11,7 @@ class PenerbitanIndividuController extends Controller
     public function showForm()
     {
         $rekening = Rekening::find(1); // Ambil rekening id 1
-        return view('penerbitan_individu.form', compact('rekening'));
+        return view('penerbitan_individu.index', compact('rekening'));
     }
 
     public function submit(Request $request)
