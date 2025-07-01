@@ -1,6 +1,8 @@
 <?php
+
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -14,6 +16,9 @@ use App\Http\Controllers\Admin\LaporanPenerbitanIndividuController;
 use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\LaporanPenerbitanKolaborasiController;
 use App\Http\Controllers\Admin\KategoriBukuController;
+use App\Http\Controllers\Admin\RekeningController;
+use App\Http\Controllers\PenerbitanIndividuController;
+
 
 // User Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -22,6 +27,17 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
+
+
+// User Routes
+Route::prefix('penerbitan_individu')->group(function () {
+    Route::get('/', [PenerbitanIndividuController::class, 'showForm1'])->name('penerbitan_individu.index');
+    Route::post('/pembayaran', [PenerbitanIndividuController::class, 'submitForm1'])->name('penerbitan_individu.submit_pembayaran');
+    Route::get('/notification/{id}', [PenerbitanIndividuController::class, 'showNotification'])->name('penerbitan_individu.notification');
+    Route::get('/uploadNaskah/{id}', [PenerbitanIndividuController::class, 'showForm2'])->name('penerbitan_individu.uploadNaskah');
+    Route::post('/uploadNaskah', [PenerbitanIndividuController::class, 'submitForm2'])->name('penerbitan_individu.submit_uploadNaskah');
+});
+
 
 
 
@@ -38,11 +54,8 @@ Route::middleware(['auth'])->prefix('akun')->name('akun.')->group(function () {
     Route::put('/password', [AkunController::class, 'changePassword'])->name('password.update');
 });
 
-
 // Route untuk detail buku
 Route::get('/buku/detail/{id}', [BookController::class, 'show'])->name('books.show');
-
-
 
 // Route untuk pemesanan
 Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
@@ -52,6 +65,7 @@ Route::get('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('or
 Route::get('/email/verify', [RegisterController::class, 'showVerificationForm'])->name('verification.notice');
 Route::post('/email/verify', [RegisterController::class, 'verifyOtp'])->name('verification.verify');
 Route::post('/email/resend', [RegisterController::class, 'resendOtp'])->name('verification.resend');
+
 // Password Reset Routes
 Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -59,7 +73,7 @@ Route::get('/password/reset/{email}', [ForgotPasswordController::class, 'showRes
 Route::post('/password/reset', [ForgotPasswordController::class, 'reset'])->name('password.update');
 Route::post('/password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('password.resend');
 
-
+// Admin Routes
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuth::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AdminAuth::class, 'login']);
@@ -67,7 +81,6 @@ Route::prefix('admin')->group(function () {
 
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-
 
         // Kategori Buku Routes
         Route::prefix('kategori-buku')->name('kategori-buku.')->group(function () {
@@ -78,6 +91,7 @@ Route::prefix('admin')->group(function () {
             Route::put('/{id}', [KategoriBukuController::class, 'update'])->name('update');
             Route::delete('/{id}', [KategoriBukuController::class, 'destroy'])->name('destroy');
         });
+
         // Manajemen Buku Routes
         Route::prefix('books')->name('admin.books.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\BookManagementController::class, 'index'])->name('index');
@@ -88,7 +102,6 @@ Route::prefix('admin')->group(function () {
             Route::put('/{id}', [\App\Http\Controllers\Admin\BookManagementController::class, 'update'])->name('update');
             Route::delete('/{id}', [\App\Http\Controllers\Admin\BookManagementController::class, 'destroy'])->name('destroy');
         });
-
 
         // Laporan Penerbitan Individu
         Route::prefix('dashboard/penerbitan-individu')->name('penerbitanIndividu.')->group(function () {
@@ -140,6 +153,16 @@ Route::prefix('admin')->group(function () {
             Route::put('/{promo}', [PromoController::class, 'update'])->name('promos.update');
             Route::delete('/{promo}', [PromoController::class, 'destroy'])->name('promos.destroy');
         });
+
+        // Rekening Routes
+        Route::prefix('dashboard/rekening')->group(function () {
+            Route::get('/', [RekeningController::class, 'index'])->name('rekening.index');
+            Route::get('/create', [RekeningController::class, 'create'])->name('rekening.create');
+            Route::post('/', [RekeningController::class, 'store'])->name('rekening.store');
+            Route::get('/{rekening}/edit', [RekeningController::class, 'edit'])->name('rekening.edit');
+            Route::put('/{rekening}', [RekeningController::class, 'update'])->name('rekening.update');
+            Route::delete('/{rekening}', [RekeningController::class, 'destroy'])->name('rekening.destroy');
+        });
+        
     });
 });
-
