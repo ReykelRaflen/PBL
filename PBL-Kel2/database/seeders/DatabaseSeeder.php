@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             KategoriBukuSeeder::class,
             PromoSeeder::class,
-            BookSeeder::class
+            BookSeeder::class,
+            BukuKolaboratifSeeder::class
         ]);
     }
 

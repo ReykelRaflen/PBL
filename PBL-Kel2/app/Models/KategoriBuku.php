@@ -26,9 +26,22 @@ class KategoriBuku extends Model
         return $this->hasMany(Book::class, 'kategori_id');
     }
 
+      // Relationship dengan BukuKolaboratif
+    public function bukuKolaboratif()
+    {
+        return $this->hasMany(BukuKolaboratif::class, 'kategori_buku_id');
+    }
+
     // Scope untuk kategori aktif
     public function scopeActive($query)
     {
         return $query->where('status', true);
+    }
+
+    
+    // Method untuk mendapatkan jumlah buku
+    public function getJumlahBuku()
+    {
+        return $this->bukuKolaboratif()->count();
     }
 }

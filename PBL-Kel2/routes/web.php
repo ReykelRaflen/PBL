@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PembayaranController;
 use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\User\BukuKolaboratifController;
 use App\Http\Controllers\User\PesananController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -73,6 +74,43 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/user/pesanan/{pesanan}/upload-payment', [App\Http\Controllers\User\PesananController::class, 'uploadPayment'])->name('user.pesanan.uploadPayment');
     Route::get('/user/pesanan/{pesanan}/download-ebook', [App\Http\Controllers\User\PesananController::class, 'downloadEbook'])->name('user.pesanan.downloadEbook');
     Route::post('/user/pesanan/{pesanan}/cancel', [App\Http\Controllers\User\PesananController::class, 'cancel'])->name('user.pesanan.cancel');
+});
+
+
+// Routes Buku Kolaboratif
+Route::middleware(['web'])->group(function () {
+    Route::get('/buku-kolaboratif', [BukuKolaboratifController::class, 'index'])
+        ->name('buku-kolaboratif.index');
+
+    Route::get('/buku-kolaboratif/{bukuKolaboratif}', [BukuKolaboratifController::class, 'tampilkan'])
+        ->name('buku-kolaboratif.tampilkan');
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get(
+            '/buku-kolaboratif/{bukuKolaboratif}/bab/{babBuku}/pilih',
+            [BukuKolaboratifController::class, 'pilihBab']
+        )
+            ->name('buku-kolaboratif.pilih-bab');
+
+        Route::post(
+            '/buku-kolaboratif/{bukuKolaboratif}/bab/{babBuku}/pesan',
+            [BukuKolaboratifController::class, 'prosesPesanan']
+        )
+            ->name('buku-kolaboratif.proses-pesanan');
+
+        Route::get('/pesanan/{pesananBuku}/pembayaran', [BukuKolaboratifController::class, 'pembayaran'])
+            ->name('buku-kolaboratif.pembayaran');
+
+        Route::post('/pesanan/{pesananBuku}/pembayaran', [BukuKolaboratifController::class, 'prosesPembayaran'])
+            ->name('buku-kolaboratif.proses-pembayaran');
+
+        Route::get('/pesanan/{pesananBuku}/status', [BukuKolaboratifController::class, 'statusPesanan'])
+            ->name('buku-kolaboratif.status-pesanan');
+        Route::post('/pesanan/{id}/upload-naskah', [BukuKolaboratifController::class, 'uploadNaskah'])
+            ->name('buku-kolaboratif.upload-naskah');
+        Route::get('/pesanan/{id}/download-naskah', [BukuKolaboratifController::class, 'downloadNaskah'])
+            ->name('buku-kolaboratif.download-naskah');
+    });
 });
 
 
@@ -166,6 +204,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/{id}/edit', [LaporanPenjualanKolaborasiController::class, 'edit'])->name('penjualanKolaborasi.edit');
             Route::put('/{id}', [LaporanPenjualanKolaborasiController::class, 'update'])->name('penjualanKolaborasi.update');
             Route::delete('/{id}', [LaporanPenjualanKolaborasiController::class, 'destroy'])->name('penjualanKolaborasi.destroy');
+            Route::patch('/{id}/verifikasi', [LaporanPenjualanKolaborasiController::class, 'verifikasiPembayaran'])->name('penjualanKolaborasi.verifikasi');
+            Route::get('/{id}/download-bukti', [LaporanPenjualanKolaborasiController::class, 'downloadBukti'])->name('penjualanKolaborasi.download-bukti');
         });
 
         // Promo Routes
