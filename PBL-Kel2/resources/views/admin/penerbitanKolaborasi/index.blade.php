@@ -3,73 +3,418 @@
 @section('main')
 <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
     <div class="p-6">
-        <h1 class="text-2xl font-bold mb-6">Laporan Penerbitan Buku Kolaborasi</h1>
+        <h1 class="text-2xl font-bold mb-6">Manajemen Naskah Kolaborasi</h1>
         
-        <div class="mb-4">
-            <a href="{{ route('penerbitanKolaborasi.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:border-blue-800 focus:ring ring-blue-300 disabled:opacity-25 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Tambah Laporan
-            </a>
+        <!-- Statistik Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+            <div class="bg-blue-500 text-white p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ $statistik['total'] }}</h3>
+                        <p class="text-sm opacity-90">Total Naskah</p>
+                    </div>
+                    <i class="fas fa-file-alt text-2xl opacity-75"></i>
+                </div>
+            </div>
+
+            <div class="bg-yellow-500 text-white p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ $statistik['perlu_review'] }}</h3>
+                        <p class="text-sm opacity-90">Perlu Review</p>
+                    </div>
+                    <i class="fas fa-clock text-2xl opacity-75"></i>
+                </div>
+            </div>
+
+            <div class="bg-orange-500 text-white p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ $statistik['revisi'] }}</h3>
+                        <p class="text-sm opacity-90">Perlu Revisi</p>
+                    </div>
+                    <i class="fas fa-edit text-2xl opacity-75"></i>
+                </div>
+            </div>
+
+            <div class="bg-green-500 text-white p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ $statistik['selesai'] }}</h3>
+                        <p class="text-sm opacity-90">Selesai</p>
+                    </div>
+                    <i class="fas fa-check-circle text-2xl opacity-75"></i>
+                </div>
+            </div>
+
+            <div class="bg-red-500 text-white p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ $statistik['ditolak'] }}</h3>
+                        <p class="text-sm opacity-90">Ditolak</p>
+                    </div>
+                    <i class="fas fa-times-circle text-2xl opacity-75"></i>
+                </div>
+            </div>
         </div>
-        
+
+        <!-- Filter Form -->
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-6">
+            <form method="GET" action="{{ route('penerbitanKolaborasi.index') }}">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Cari</label>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="w-full px-3 py-2 border rounded-md dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                            placeholder="Judul, penulis, nomor...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Status</label>
+                        <select name="status"
+                            class="w-full px-3 py-2 border rounded-md dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                            <option value="">Semua Status</option>
+                            <option value="sudah_kirim" {{ request('status') == 'sudah_kirim' ? 'selected' : '' }}>
+                                Perlu Review
+                            </option>
+                            <option value="revisi" {{ request('status') == 'revisi' ? 'selected' : '' }}>
+                                Perlu Revisi
+                            </option>
+                            <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>
+                                Disetujui
+                            </option>
+                            <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>
+                                Selesai
+                            </option>
+                            <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>
+                                Ditolak
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tanggal Mulai</label>
+                        <input type="date" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}"
+                            class="w-full px-3 py-2 border rounded-md dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tanggal Selesai</label>
+                        <input type="date" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}"
+                            class="w-full px-3 py-2 border rounded-md dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                    </div>
+
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            <i class="fas fa-search mr-1"></i>Filter
+                        </button>
+                        <a href="{{ route('penerbitanKolaborasi.index') }}"
+                            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                            Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         @if(session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 dark:bg-green-800 dark:text-green-100" role="alert">
-            <p>{{ session('success') }}</p>
-        </div>
+            <div class="bg-green-100 text-green-800 p-3 rounded mb-4 dark:bg-green-700 dark:text-white">
+                {{ session('success') }}
+            </div>
         @endif
-        
+
+        @if(session('error'))
+            <div class="bg-red-100 text-red-800 p-3 rounded mb-4 dark:bg-red-700 dark:text-white">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
+            <table class="min-w-full table-auto border dark:text-white">
+                <thead class="bg-gray-100 dark:bg-gray-700">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Kode Buku</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Judul</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Bab Buku</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Penulis</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tanggal Terbit</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Jumlah Terjual</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
+                        <th class="p-3 text-left">Pesanan</th>
+                        <th class="p-3 text-left">Buku & Bab</th>
+                        <th class="p-3 text-left">Penulis</th>
+                        <th class="p-3 text-left">Naskah</th>
+                        <th class="p-3 text-left">Upload</th>
+                        <th class="p-3 text-left">Status</th>
+                        <th class="p-3 text-left">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                    @forelse($laporans as $laporan)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $laporan->kode_buku }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $laporan->judul }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $laporan->bab_buku }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $laporan->penulis }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $laporan->tanggal_terbit }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $laporan->jumlah_terjual }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ ucfirst($laporan->status) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <tbody>
+                    @forelse ($laporans as $laporan)
+                        <tr class="border-t dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="p-3">
+                                <div>
+                                    <strong class="text-blue-600">{{ $laporan->nomor_pesanan }}</strong>
+                                    <br><small class="text-gray-500">ID: {{ $laporan->id }}</small>
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <div>
+                                    <strong>{{ $laporan->bukuKolaboratif->judul ?? 'Judul Tidak Tersedia' }}</strong>
+                                    <br><small class="text-gray-500">
+                                        Bab {{ $laporan->babBuku->nomor_bab ?? '-' }}: {{ $laporan->babBuku->judul_bab ?? 'Judul Bab Tidak Tersedia' }}
+                                    </small>
+                                    @if($laporan->babBuku && $laporan->babBuku->tingkat_kesulitan)
+                                        <br><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                            {{ $laporan->babBuku->tingkat_kesulitan === 'mudah' ? 'bg-green-100 text-green-800' : 
+                                               ($laporan->babBuku->tingkat_kesulitan === 'sedang' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                            {{ ucfirst($laporan->babBuku->tingkat_kesulitan) }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <div>
+                                    {{ $laporan->user->name ?? 'Penulis Tidak Ditemukan' }}
+                                    @if($laporan->user)
+                                        <br><small class="text-gray-500">{{ $laporan->user->email }}</small>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <div>
+                                    <strong>{{ $laporan->judul_naskah ?? 'Belum Ada Judul' }}</strong>
+                                    @if($laporan->jumlah_kata)
+                                        <br><small class="text-gray-500">{{ number_format($laporan->jumlah_kata) }} kata</small>
+                                    @endif
+                                    @if($laporan->deskripsi_naskah)
+                                        <br><small class="text-gray-500">{{ Str::limit($laporan->deskripsi_naskah, 50) }}</small>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <div>
+                                    @if($laporan->tanggal_upload_naskah)
+                                        {{ $laporan->tanggal_upload_naskah->format('d/m/Y') }}
+                                        <br><small class="text-gray-500">{{ $laporan->tanggal_upload_naskah->format('H:i') }}</small>
+                                    @else
+                                        <span class="text-gray-400">Belum diupload</span>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $laporan->status_penulisan_badge }}">
+                                    {{ $laporan->status_penulisan_text }}
+                                </span>
+                                @if($laporan->tanggal_feedback)
+                                    <br><small class="text-gray-500">
+                                        Feedback: {{ $laporan->tanggal_feedback->format('d/m/Y') }}
+                                    </small>
+                                @endif
+                            </td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-2">
+                                    <!-- Tombol Lihat Detail -->
+                                    <a href="{{ route('penerbitanKolaborasi.show', $laporan->id) }}"
+                                        class="inline-flex items-center justify-center p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                        title="Lihat Detail">
+                                        <i class="fas fa-eye text-sm"></i>
+                                    </a>
 
-                            <a href="{{ route('penerbitanKolaborasi.edit', $laporan->id) }}" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                </svg>
-                            </a>
-                            <form action="{{ route('penerbitanKolaborasi.destroy', $laporan->id) }}" method="POST" class="inline-block">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" onclick="return confirm('Yakin ingin menghapus?')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                                    <!-- Tombol Download Naskah -->
+                                    @if($laporan->file_naskah)
+                                        <a href="{{ route('penerbitanKolaborasi.download', $laporan->id) }}"
+                                            class="inline-flex items-center justify-center p-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                                            title="Download Naskah">
+                                            <i class="fas fa-download text-sm"></i>
+                                        </a>
+                                    @endif
+
+                                    <!-- Tombol Aksi Review (hanya untuk status sudah_kirim) -->
+                                    @if($laporan->status_penulisan === 'sudah_kirim')
+                                        <div class="flex gap-1">
+                                            <!-- Terima -->
+                                            <button type="button"
+                                                class="inline-flex items-center justify-center p-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                                title="Terima Naskah" onclick="openAcceptModal({{ $laporan->id }})">
+                                                <i class="fas fa-check text-sm"></i>
+                                            </button>
+
+                                            <!-- Revisi -->
+                                            <button type="button"
+                                                class="inline-flex items-center justify-center p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                                title="Minta Revisi" onclick="openRevisionModal({{ $laporan->id }})">
+                                                <i class="fas fa-edit text-sm"></i>
+                                            </button>
+
+                                            <!-- Tolak -->
+                                            <button type="button"
+                                                class="inline-flex items-center justify-center p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                                title="Tolak Naskah" onclick="openRejectModal({{ $laporan->id }})">
+                                                <i class="fas fa-times text-sm"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-gray-400">Belum ada data laporan.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="7" class="text-center text-gray-500 dark:text-gray-400 py-8">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-file-alt text-4xl mb-2 opacity-50"></i>
+                                    <p>Belum ada naskah yang diupload.</p>
+                                </div>
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        @if($laporans->hasPages())
+            <div class="mt-6">
+                {{ $laporans->appends(request()->query())->links() }}
+            </div>
+        @endif
     </div>
 </div>
+
+<!-- Modal Terima Naskah -->
+<div id="acceptModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Terima Naskah</h3>
+            <form id="acceptForm" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="mb-4">
+                    <label for="catatan_persetujuan" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Catatan Persetujuan (Opsional)
+                    </label>
+                    <textarea name="catatan_persetujuan" id="catatan_persetujuan" rows="4"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="Catatan untuk penulis (opsional)..."></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeAcceptModal()"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                        <i class="fas fa-check mr-1"></i>Terima Naskah
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Revisi Naskah -->
+<div id="revisionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Minta Revisi</h3>
+            <form id="revisionForm" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="mb-4">
+                    <label for="feedback_editor_revision" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Feedback untuk Revisi *
+                    </label>
+                    <textarea name="feedback_editor" id="feedback_editor_revision" rows="4"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="Jelaskan apa yang perlu direvisi..." required></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeRevisionModal()"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                        <i class="fas fa-edit mr-1"></i>Kirim Revisi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tolak Naskah -->
+<div id="rejectModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Tolak Naskah</h3>
+            <form id="rejectForm" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="mb-4">
+                    <label for="feedback_editor_reject" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Alasan Penolakan *
+                    </label>
+                    <textarea name="feedback_editor" id="feedback_editor_reject" rows="4"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="Jelaskan alasan penolakan naskah..." required></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeRejectModal()"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                        <i class="fas fa-times mr-1"></i>Tolak Naskah
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openAcceptModal(id) {
+    document.getElementById('acceptForm').action = `/admin/penerbitan-kolaborasi/${id}/terima`;
+    document.getElementById('acceptModal').classList.remove('hidden');
+}
+
+function closeAcceptModal() {
+    document.getElementById('acceptModal').classList.add('hidden');
+    document.getElementById('catatan_persetujuan').value = '';
+}
+
+function openRevisionModal(id) {
+    document.getElementById('revisionForm').action = `/admin/penerbitan-kolaborasi/${id}/revisi`;
+    document.getElementById('revisionModal').classList.remove('hidden');
+}
+
+function closeRevisionModal() {
+    document.getElementById('revisionModal').classList.add('hidden');
+    document.getElementById('feedback_editor_revision').value = '';
+}
+
+function openRejectModal(id) {
+    document.getElementById('rejectForm').action = `/admin/penerbitan-kolaborasi/${id}/tolak`;
+    document.getElementById('rejectModal').classList.remove('hidden');
+}
+
+function closeRejectModal() {
+    document.getElementById('rejectModal').classList.add('hidden');
+    document.getElementById('feedback_editor_reject').value = '';
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'acceptModal') closeAcceptModal();
+    if (e.target.id === 'revisionModal') closeRevisionModal();
+    if (e.target.id === 'rejectModal') closeRejectModal();
+});
+
+// ESC key to close modals
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeAcceptModal();
+        closeRevisionModal();
+        closeRejectModal();
+    }
+});
+</script>
 @endsection
+

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
-class NaskahController extends Controller
+class NaskahIndividuController extends Controller
 {
     public function index(Request $request)
     {
@@ -51,7 +51,7 @@ class NaskahController extends Controller
             'segera_berakhir' => Naskah::whereDate('batas_waktu', '<=', now()->addDays(3))->count()
         ];
 
-        return view('admin.naskah.index', compact('naskah', 'stats'));
+        return view('admin.naskahIndividu.index', compact('naskah', 'stats'));
     }
 
     public function create()
@@ -59,7 +59,7 @@ class NaskahController extends Controller
         // Ambil semua user untuk dropdown pengirim
         $users = User::where('role', 'user')->orderBy('name')->get();
 
-        return view('admin.naskah.create', compact('users'));
+        return view('admin.naskahIndividu.create', compact('users'));
     }
 
     public function store(Request $request)
@@ -114,7 +114,7 @@ class NaskahController extends Controller
                 $pengirim->notify(new \App\Notifications\NaskahDitolak($naskah));
             }
 
-            return redirect()->route('admin.naskah.index')
+            return redirect()->route('admin.naskahIndividu.index')
                 ->with('success', 'Naskah "' . $naskah->judul . '" berhasil ditambahkan!');
 
         } catch (\Exception $e) {
@@ -136,14 +136,14 @@ class NaskahController extends Controller
             ->limit(5)
             ->get();
 
-        return view('admin.naskah.show', compact('naskah', 'relatedNaskah'));
+        return view('admin.naskahIndividu.show', compact('naskah', 'relatedNaskah'));
     }
 
 
     public function edit(Naskah $naskah)
     {
         $users = User::where('role', 'user')->orderBy('name')->get();
-        return view('admin.naskah.edit', compact('naskah', 'users'));
+        return view('admin.naskahIndividu.edit', compact('naskah', 'users'));
     }
 
     public function update(Request $request, Naskah $naskah)
@@ -202,7 +202,7 @@ class NaskahController extends Controller
 
             $naskah->update($updateData);
 
-            return redirect()->route('admin.naskah.index')
+            return redirect()->route('admin.naskahIndividu.index')
                 ->with('success', 'Naskah "' . $naskah->judul . '" berhasil diperbarui!');
 
         } catch (\Exception $e) {
@@ -223,7 +223,7 @@ class NaskahController extends Controller
             $judul = $naskah->judul;
             $naskah->delete();
 
-            return redirect()->route('admin.naskah.index')
+            return redirect()->route('admin.naskahIndividu.index')
                 ->with('success', 'Naskah "' . $judul . '" berhasil dihapus!');
 
         } catch (\Exception $e) {
@@ -306,7 +306,7 @@ class NaskahController extends Controller
             ->limit(5)
             ->get();
 
-        return view('admin.naskah.dashboard', compact(
+        return view('admin.naskahIndividu.dashboard', compact(
             'stats',
             'naskahTerbaru',
             'naskahSegera',
@@ -336,7 +336,7 @@ class NaskahController extends Controller
                 // $naskah->pengirim->notify(new NaskahDisetujui($naskah));
             }
 
-            return redirect()->route('admin.naskah.index')
+            return redirect()->route('admin.naskahIndividu.index')
                 ->with('success', 'Naskah "' . $naskah->judul . '" berhasil disetujui!');
 
         } catch (\Exception $e) {
@@ -367,7 +367,7 @@ class NaskahController extends Controller
                 // $naskah->pengirim->notify(new NaskahDitolak($naskah));
             }
 
-            return redirect()->route('admin.naskah.index')
+            return redirect()->route('admin.naskahIndividuIndividu.index')
                 ->with('success', 'Naskah "' . $naskah->judul . '" berhasil ditolak!');
 
         } catch (\Exception $e) {
@@ -558,7 +558,7 @@ class NaskahController extends Controller
                     return redirect()->back()->with('error', 'Aksi tidak valid!');
             }
 
-            return redirect()->route('admin.naskah.index')->with('success', $message);
+            return redirect()->route('admin.naskahIndividuIndividu.index')->with('success', $message);
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal melakukan aksi: ' . $e->getMessage());
@@ -612,7 +612,7 @@ class NaskahController extends Controller
                 'status' => 'sedang_direview'
             ]);
 
-        return redirect()->route('admin.naskah.index')
+        return redirect()->route('admin.naskahIndividuIndividu.index')
             ->with('success', $updated . ' naskah berhasil ditugaskan ke ' . $reviewer->name);
     }
 
@@ -703,7 +703,7 @@ class NaskahController extends Controller
         $naskah = $query->orderBy('created_at', 'desc')->get();
         $stats = Naskah::getStatistik();
 
-        return view('admin.naskah.print', compact('naskah', 'stats'));
+        return view('admin.naskahIndividu.print', compact('naskah', 'stats'));
     }
 
     public function getData(Request $request)

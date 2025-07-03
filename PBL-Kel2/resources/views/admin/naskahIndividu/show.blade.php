@@ -102,13 +102,13 @@
                             </div>
                         @endif
                         <div class="flex gap-2">
-                            <a href="{{ route('admin.naskah.download', $naskah) }}" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                 <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
                                 Download
                             </a>
-                            <a href="{{ route('admin.naskah.edit', $naskah) }}" class="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <a href="{{ route('admin.naskahIndividu.edit', $naskah) }}" class="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                 <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                                 </svg>
@@ -382,7 +382,7 @@
                             Preview File
                         </button>
                         
-                        <a href="{{ route('admin.naskah.download', $naskah) }}" class="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center justify-center">
+                        <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center justify-center">
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
@@ -429,7 +429,7 @@
                                 <p class="text-xs text-gray-600 mb-3">{{ $related->created_at->format('d M Y') }}</p>
                                 <div class="flex justify-between items-center">
                                     <span class="text-xs text-gray-500">{{ $related->ukuran_file_formatted }}</span>
-                                    <a href="{{ route('admin.naskah.show', $related) }}" class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                    <a href="{{ route('admin.naskahIndividu.show', $related) }}" class="text-blue-600 hover:text-blue-800 text-xs font-medium">
                                         Lihat Detail
                                     </a>
                                 </div>
@@ -443,7 +443,7 @@
 
     <!-- Navigation -->
     <div class="mt-8 flex justify-between items-center">
-        <a href="{{ route('admin.naskah.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm font-medium transition-colors">
+        <a href="{{ route('admin.naskahIndividu.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm font-medium transition-colors">
             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
             </svg>
@@ -451,7 +451,7 @@
         </a>
         
         <div class="flex space-x-2">
-                      <a href="{{ route('admin.naskah.edit', $naskah) }}" class="inline-flex items-center px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-md text-sm font-medium transition-colors">
+                      <a href="{{ route('admin.naskahIndividu.edit', $naskah) }}" class="inline-flex items-center px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-md text-sm font-medium transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                 </svg>
@@ -480,7 +480,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="setujuiForm" method="POST" action="{{ route('admin.naskah.setujui', $naskah) }}">
+            <form id="setujuiForm" method="POST" action="{{ route('admin.naskahIndividu.setujui', $naskah) }}">
                 @csrf
                 <div class="mb-4">
                     <p class="text-sm text-gray-600 mb-4">Apakah Anda yakin ingin menyetujui naskah ini?</p>
@@ -524,7 +524,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="tolakForm" method="POST" action="{{ route('admin.naskah.tolak', $naskah) }}">
+            <form id="tolakForm" method="POST" action="{{ route('admin.naskahIndividu.tolak', $naskah) }}">
                 @csrf
                 <div class="mb-4">
                     <p class="text-sm text-gray-600 mb-4">Apakah Anda yakin ingin menolak naskah ini?</p>
@@ -570,7 +570,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="hapusForm" method="POST" action="{{ route('admin.naskah.destroy', $naskah) }}">
+            <form id="hapusForm" method="POST" action="{{ route('admin.naskahIndividu.destroy', $naskah) }}">
                 @csrf
                 @method('DELETE')
                 <div class="mb-4">
@@ -715,7 +715,7 @@
         `;
         
         // Gunakan route yang benar
-        const previewUrl = `{{ route('admin.naskah.preview', $naskah) }}`;
+        const previewUrl = `{{ route('admin.naskahIndividu.preview', $naskah) }}`;
         
         fetch(previewUrl, {
             method: 'GET',
@@ -746,7 +746,7 @@
                                 </svg>
                                 Buka di Tab Baru
                             </a>
-                            <a href="{{ route('admin.naskah.download', $naskah) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                 <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
@@ -762,7 +762,7 @@
                                 <a href="${data.url}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors mr-2">
                                     Lihat Ukuran Penuh
                                 </a>
-                                <a href="{{ route('admin.naskah.download', $naskah) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                     Download
                                 </a>
                             </div>
@@ -774,7 +774,7 @@
                             <pre class="whitespace-pre-wrap text-sm text-gray-800 bg-gray-50 p-4 rounded border">${data.content}</pre>
                         </div>
                         <div class="mt-4 text-center">
-                            <a href="{{ route('admin.naskah.download', $naskah) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                 Download File
                             </a>
                         </div>
@@ -788,7 +788,7 @@
                                 </svg>
                                 <p class="text-gray-600 mb-2">${data.filename}</p>
                                 <p class="text-gray-500 text-sm mb-4">${data.message || 'Preview tidak tersedia untuk tipe file ini'}</p>
-                                <a href="{{ route('admin.naskah.download', $naskah) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                     <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                     </svg>
@@ -806,7 +806,7 @@
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                             </svg>
                             <p class="text-red-600 mb-4">${data.message}</p>
-                            <a href="{{ route('admin.naskah.download', $naskah) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                 Coba Download File
                             </a>
                         </div>
@@ -828,7 +828,7 @@
                             <button type="button" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" onclick="loadPreview()">
                                 Coba Lagi
                             </button>
-                            <a href="{{ route('admin.naskah.download', $naskah) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                 Download File
                             </a>
                         </div>
@@ -855,7 +855,7 @@
     function updateStatus(status) {
         const naskahId = {{ $naskah->id }};
         
-        fetch(`{{ route('admin.naskah.update-status', $naskah) }}`, {
+        fetch(`{{ route('admin.naskahIndividu.update-status', $naskah) }}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -886,7 +886,7 @@
         const previewContainer = document.getElementById('filePreview');
         if (!previewContainer) return;
         
-        const previewUrl = `{{ route('admin.naskah.preview', $naskah) }}`;
+        const previewUrl = `{{ route('admin.naskahIndividu.preview', $naskah) }}`;
         
         fetch(previewUrl, {
             method: 'GET',
@@ -932,7 +932,7 @@
                         <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" onclick="previewFile()">
                             Coba Preview
                         </button>
-                        <a href="{{ route('admin.naskah.download', $naskah) }}" class="block w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors text-center">
+                        <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="block w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors text-center">
                             Download
                         </a>
                     </div>
@@ -949,7 +949,7 @@
                 </div>
                 <p class="text-gray-600 text-sm">{{ $naskah->nama_file_asli }}</p>
                 <p class="text-gray-500 text-xs mt-1">{{ $naskah->ukuran_file_formatted }}</p>
-                <a href="{{ route('admin.naskah.download', $naskah) }}" class="mt-3 block w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors text-center">
+                <a href="{{ route('admin.naskahIndividu.download', $naskah) }}" class="mt-3 block w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors text-center">
                     Download File
                 </a>
             `;
@@ -1036,7 +1036,7 @@
     function checkStatus() {
         const naskahId = {{ $naskah->id }};
         
-        fetch(`{{ route('admin.naskah.status-check', $naskah) }}`)
+        fetch(`{{ route('admin.naskahIndividu.status-check', $naskah) }}`)
             .then(response => response.json())
             .then(data => {
                 const currentStatus = '{{ $naskah->status }}';

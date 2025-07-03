@@ -62,7 +62,7 @@ class PesananKolaborasi extends Model
         static::updated(function ($pesanan) {
             $oldStatus = $pesanan->getOriginal('status_pembayaran');
             $newStatus = $pesanan->status_pembayaran;
-                       
+
             // Jika status berubah ke pending dan ada bukti pembayaran
             if ($newStatus === 'pending' && $oldStatus !== 'pending' && $pesanan->bukti_pembayaran) {
                 $pesanan->createLaporanPenjualan();
@@ -130,7 +130,7 @@ class PesananKolaborasi extends Model
 
     public function getStatusBadgeAttribute()
     {
-        return match($this->status_pembayaran) {
+        return match ($this->status_pembayaran) {
             'menunggu' => 'bg-yellow-100 text-yellow-800',
             'pending' => 'bg-blue-100 text-blue-800',
             'menunggu_verifikasi' => 'bg-orange-100 text-orange-800',
@@ -144,7 +144,7 @@ class PesananKolaborasi extends Model
 
     public function getStatusPembayaranTextAttribute()
     {
-        return match($this->status_pembayaran) {
+        return match ($this->status_pembayaran) {
             'menunggu' => 'Menunggu Pembayaran',
             'pending' => 'Menunggu Verifikasi',
             'menunggu_verifikasi' => 'Menunggu Verifikasi',
@@ -159,7 +159,7 @@ class PesananKolaborasi extends Model
 
     public function getStatusPenulisanTextAttribute()
     {
-        return match($this->status_penulisan) {
+        return match ($this->status_penulisan) {
             'belum_mulai' => 'Belum Mulai',
             'dapat_mulai' => 'Dapat Mulai',
             'sedang_proses' => 'Sedang Proses',
@@ -190,21 +190,21 @@ class PesananKolaborasi extends Model
 
     public function getFileNaskahSizeAttribute()
     {
-        if ($this->file_naskah && \Storage::disk('public')->exists($this->file_naskah)) {
-            $bytes = \Storage::disk('public')->size($this->file_naskah);
+        if ($this->file_naskah && Storage::disk('public')->exists($this->file_naskah)) {
+            $bytes = Storage::disk('public')->size($this->file_naskah);
             return $this->formatBytes($bytes);
         }
         return null;
     }
 
-        private function formatBytes($bytes, $precision = 2)
+    private function formatBytes($bytes, $precision = 2)
     {
         $units = array('B', 'KB', 'MB', 'GB', 'TB');
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        
+
         return round($bytes, $precision) . ' ' . $units[$i];
     }
 
@@ -216,8 +216,8 @@ class PesananKolaborasi extends Model
 
     public function canUploadNaskah()
     {
-        return $this->isPembayaranLunas() && 
-               in_array($this->status_penulisan, ['dapat_mulai', 'sedang_proses', 'revisi']);
+        return $this->isPembayaranLunas() &&
+            in_array($this->status_penulisan, ['dapat_mulai', 'sedang_proses', 'revisi']);
     }
 
     public function hasNaskah()
@@ -259,11 +259,56 @@ class PesananKolaborasi extends Model
     public function scopeCanStartWriting($query)
     {
         return $query->where('status_pembayaran', 'lunas')
-                    ->where('status_penulisan', 'dapat_mulai');
+            ->where('status_penulisan', 'dapat_mulai');
     }
 
+    // public function scopeNeedReview($query)
+    // {
+    //     return $query->where('status_penulisan', 'sudah_kirim');
+    // }
+
+    // Add these methods to your existing PesananKolaborasi model
+
+    // Add this method after your existing getStatusPenulisanTextAttribute method
+    public function getStatusPenulisanBadgeAttribute()
+    {
+        return match ($this->status_penulisan) {
+            'belum_mulai' => 'bg-gray-100 text-gray-800',
+            'dapat_mulai' => 'bg-blue-100 text-blue-800',
+            'sedang_proses' => 'bg-yellow-100 text-yellow-800',
+            'sudah_kirim' => 'bg-purple-100 text-purple-800',
+            'revisi' => 'bg-orange-100 text-orange-800',
+            'selesai' => 'bg-green-100 text-green-800',
+            'disetujui' => 'bg-green-100 text-green-800',
+            'ditolak' => 'bg-red-100 text-red-800',
+            'dibatalkan' => 'bg-gray-100 text-gray-800',
+            default => 'bg-gray-100 text-gray-800'
+        };
+    }
+
+    // Add this method for checking if naskah can be reviewed
+    public function canBeReviewed()
+    {
+        return $this->status_penulisan === 'sudah_kirim' && $this->hasNaskah();
+    }
+
+    // Add this method for checking naskah status
+    public function isNaskahSelesai()
+    {
+        return in_array($this->status_penulisan, ['selesai', 'disetujui']);
+    }
+
+    // Add this scope for admin naskah management
     public function scopeNeedReview($query)
     {
-        return $query->where('status_penulisan', 'sudah_kirim');
+        return $query->where('status_penulisan', 'sudah_kirim')
+            ->whereNotNull('file_naskah');
     }
+
+    // Add this scope for completed manuscripts
+    public function scopeCompleted($query)
+    {
+        return $query->whereIn('status_penulisan', ['selesai', 'disetujui']);
+    }
+
 }

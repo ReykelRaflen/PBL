@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,11 +13,6 @@ use App\Models\PesananKolaborasi;
 
 class AkunController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    // }
-
     public function index()
     {
         $user = Auth::user();
@@ -29,8 +25,6 @@ class AkunController extends Controller
         return view('user.akun.profil', compact('user'));
     }
 
-// Add this method to your existing AkunController
-
     public function kolaborasi()
     {
         $pesananKolaborasi = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku'])
@@ -40,7 +34,6 @@ class AkunController extends Controller
 
         return view('user.akun.kolaborasi', compact('pesananKolaborasi'));
     }
-
 
     public function pembelian()
     {

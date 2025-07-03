@@ -151,7 +151,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <h3 class="text-lg font-medium text-gray-900 mb-4 sm:mb-0">Daftar Naskah</h3>
                     <div class="flex flex-col sm:flex-row gap-2">
-                        <a href="{{ route('admin.naskah.create') }}"
+                        <a href="{{ route('admin.naskahIndividu.create') }}"
                             class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition duration-150 ease-in-out">
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
@@ -325,7 +325,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-1">
-                                            <a href="{{ route('admin.naskah.show', $item) }}"
+                                            <a href="{{ route('admin.naskahIndividu.show', $item) }}"
                                                 class="text-blue-600 hover:text-blue-900 p-1 rounded" title="Lihat Detail">
                                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
@@ -334,7 +334,7 @@
                                                         clip-rule="evenodd"></path>
                                                 </svg>
                                             </a>
-                                            <a href="{{ route('admin.naskah.download', $item) }}"
+                                            <a href="{{ route('admin.naskahIndividu.download', $item) }}"
                                                 class="text-gray-600 hover:text-gray-900 p-1 rounded" title="Download">
                                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd"
@@ -342,7 +342,7 @@
                                                         clip-rule="evenodd"></path>
                                                 </svg>
                                             </a>
-                                            <a href="{{ route('admin.naskah.edit', $item) }}"
+                                            <a href="{{ route('admin.naskahIndividu.edit', $item) }}"
                                                 class="text-yellow-600 hover:text-yellow-900 p-1 rounded" title="Edit">
                                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                     <path
@@ -606,7 +606,7 @@
                         </svg>
                     </button>
                 </div>
-                <form id="bulkActionForm" method="POST" action="{{ route('admin.naskah.bulk-action') }}">
+                <form id="bulkActionForm" method="POST" action="{{ route('admin.naskahIndividu.bulk-action') }}">
                     @csrf
                     <div class="mb-4">
                         <div class="mb-4">

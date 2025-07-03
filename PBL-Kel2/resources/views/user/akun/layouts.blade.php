@@ -308,10 +308,29 @@
                             class="nav-link {{ request()->routeIs('akun.profil') || request()->routeIs('akun.index') ? 'active' : '' }}">
                             <i class="fas fa-user me-3"></i>Profil Saya
                         </a>
-                        <a href="{{ route('akun.kolaborasi') }}"
+                        {{-- <a href="{{ route('akun.kolaborasi') }}"
                             class="nav-link {{ request()->routeIs('akun.kolaborasi') ? 'active' : '' }}">
                             <i class="fas fa-handshake me-3"></i>Kolaborasi
-                        </a>
+                        </a> --}}
+
+                        <!-- Add this menu item to your existing navigation -->
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('akun.kolaborasi') ? 'active' : '' }}" 
+                            href="{{ route('akun.kolaborasi') }}">
+                                <i class="fas fa-users me-2"></i>
+                                Kolaborasi
+                                @php
+                                    $pendingKolaborasi = \App\Models\PesananKolaborasi::where('user_id', auth()->id())
+                                        ->whereIn('status_penulisan', ['dapat_mulai', 'revisi'])
+                                        ->count();
+                                @endphp
+                                @if($pendingKolaborasi > 0)
+                                    <span class="badge bg-warning rounded-pill ms-1">{{ $pendingKolaborasi }}</span>
+                                @endif
+                            </a>
+                        </li>
+
+
                         <a href="{{ route('akun.pembelian') }}"
                             class="nav-link {{ request()->routeIs('akun.pembelian') ? 'active' : '' }}">
                             <i class="fas fa-shopping-cart me-3"></i>Pembelian

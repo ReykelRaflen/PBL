@@ -111,6 +111,9 @@
                             <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu Verifikasi</p>
                             <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400" id="pending-count">{{ number_format($stats['menunggu']) }}</p>
                         </div>
+
+
+                        
                     </div>
                 </div>
 

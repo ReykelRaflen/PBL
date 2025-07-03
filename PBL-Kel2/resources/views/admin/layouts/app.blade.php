@@ -135,7 +135,7 @@
             <i data-lucide="users" class="w-4 h-4"></i> Member
           </a>
         </li>
-        <li>
+        {{-- <li>
           <button @click="openMenu === 'editor' ? openMenu = '' : openMenu = 'editor'"
             class="w-full flex items-center gap-2 text-left py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
             <i data-lucide="edit" class="w-4 h-4"></i> Editor
@@ -152,7 +152,40 @@
               </a>
             </li>
           </ul>
+        </li> --}}
+
+        <!-- Update the existing navigation section -->
+        <!-- Editor -->
+<!-- Update the Editor section in your existing navigation -->
+        <li>
+          <button @click="openMenu = openMenu === 'editor' ? '' : 'editor'"
+            class="flex items-center justify-between w-full py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+            <span class="flex items-center gap-2">
+              <i data-lucide="edit" class="w-4 h-4"></i> Editor
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" 
+              :class="{ 'rotate-180': openMenu === 'editor' }"></i>
+          </button>
+          <ul x-show="openMenu === 'editor'" x-transition class="pl-4 space-y-1">
+            <li>
+              <a href="{{route('admin.naskahIndividu.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Naskah Individu
+              </a>
+            </li>
+            <li>
+              <a href="{{route('naskahKolaborasi.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                <i data-lucide="users" class="w-4 h-4"></i> Naskah Kolaborasi
+              </a>
+            </li>
+            <li>
+              <a href="{{route('admin.designs.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                <i data-lucide="brush" class="w-4 h-4"></i> Design
+              </a>
+            </li>
+          </ul>
         </li>
+
+
 
         <!-- Transaksi -->
         <li class="mt-4 font-semibold text-gray-600 dark:text-gray-300">Transaksi</li>

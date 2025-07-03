@@ -3,7 +3,7 @@
 @section('content')
 <div class="content-area">
     <h4 class="page-title">
-        <i class="fas fa-book-open me-2"></i>Kolaborasi Saya
+        <i class="fas fa-users me-2"></i>Kolaborasi Saya
     </h4>
     
     @if(session('success'))
@@ -20,351 +20,298 @@
         </div>
     @endif
 
-    <!-- Filter Status -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <label for="statusFilter" class="form-label">Filter Status:</label>
-                    <select class="form-select" id="statusFilter" onchange="filterByStatus()">
-                        <option value="">Semua Status</option>
-                        <option value="belum_mulai">Belum Mulai</option>
-                        <option value="dapat_mulai">Dapat Mulai</option>
-                        <option value="sedang_proses">Sedang Proses</option>
-                        <option value="sudah_kirim">Sudah Dikirim</option>
-                        <option value="revisi">Perlu Revisi</option>
-                        <option value="diterima">Diterima</option>
-                        <option value="ditolak">Ditolak</option>
-                        <option value="selesai">Selesai</option>
-                    </select>
-                </div>
-                <div class="col-md-6 text-end">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Total: {{ $pesananKolaborasi->count() }} pesanan
-                    </small>
-                </div>
+    @if($pesananKolaborasi->isEmpty())
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Belum Ada Kolaborasi</h5>
+                <p class="text-muted">Anda belum memiliki proyek kolaborasi buku.</p>
+                <a href="{{ route('buku-kolaboratif.index') }}" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>Cari Proyek Kolaborasi
+                </a>
             </div>
         </div>
-    </div>
-
-    <!-- Daftar Pesanan Kolaborasi -->
-    <div class="row" id="kolaborasiContainer">
-        @forelse($pesananKolaborasi as $pesanan)
-        <div class="col-md-6 mb-4 pesanan-item" data-status="{{ $pesanan->status_penulisan }}">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center" 
-                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <h6 class="mb-0 text-white">
-                        <i class="fas fa-book me-2"></i>{{ $pesanan->bukuKolaboratif->judul ?? 'Judul Tidak Tersedia' }}
-                    </h6>
-                    <span class="badge bg-light text-dark">{{ $pesanan->nomor_pesanan }}</span>
-                </div>
-                
-                <div class="card-body">
-                    <!-- Info Bab -->
-                    <div class="mb-3">
-                        <h6 class="text-primary">
-                            <i class="fas fa-bookmark me-1"></i>
-                            Bab {{ $pesanan->babBuku->nomor_bab ?? 'N/A' }}: {{ $pesanan->babBuku->judul_bab ?? 'Judul Tidak Tersedia' }}
-                        </h6>
-                        <p class="text-muted small mb-0">{{ $pesanan->babBuku->deskripsi ?? 'Tidak ada deskripsi' }}</p>
-                    </div>
-
-                    <!-- Status Pembayaran -->
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <small class="text-muted">Status Pembayaran:</small>
-                            <br>
-                            @php
-                                $badgeClass = match($pesanan->status_pembayaran) {
-                                    'lunas' => 'bg-success',
-                                    'pending', 'menunggu_verifikasi' => 'bg-warning',
-                                    'menunggu' => 'bg-secondary',
-                                    'dibatalkan', 'tidak_sesuai' => 'bg-danger',
-                                    default => 'bg-secondary'
-                                };
-                            @endphp
-                            <span class="badge {{ $badgeClass }}">{{ ucwords(str_replace('_', ' ', $pesanan->status_pembayaran)) }}</span>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted">Jumlah Bayar:</small>
-                            <br>
-                            <strong class="text-success">Rp {{ number_format($pesanan->jumlah_bayar, 0, ',', '.') }}</strong>
-                        </div>
-                    </div>
-
-                    <!-- Status Penulisan -->
-                    <div class="mb-3">
-                        <small class="text-muted">Status Penulisan:</small>
-                        <br>
-                        @php
-                            $statusClass = match($pesanan->status_penulisan) {
-                                'diterima', 'selesai' => 'bg-success',
-                                'sudah_kirim' => 'bg-info',
-                                'sedang_proses', 'dapat_mulai' => 'bg-primary',
-                                'revisi' => 'bg-warning',
-                                'ditolak' => 'bg-danger',
-                                'belum_mulai' => 'bg-secondary',
-                                default => 'bg-secondary'
-                            };
-                        @endphp
-                        <span class="badge {{ $statusClass }} mb-2">
-                            {{ ucwords(str_replace('_', ' ', $pesanan->status_penulisan)) }}
+    @else
+        <div class="row">
+            @foreach($pesananKolaborasi as $pesanan)
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <small class="text-muted">{{ $pesanan->nomor_pesanan }}</small>
+                        <span class="badge {{ $pesanan->status_pembayaran_badge }}">
+                            {{ $pesanan->status_pembayaran_text }}
                         </span>
-                        
-                        @if($pesanan->status_penulisan === 'revisi' && $pesanan->feedback_editor)
-                            <div class="alert alert-warning alert-sm mt-2">
-                                <small><strong>Feedback Editor:</strong><br>{{ $pesanan->feedback_editor }}</small>
-                            </div>
-                        @endif
+                    </div>
+                    
+                    <div class="card-body">
+                        <h6 class="card-title">{{ $pesanan->bukuKolaboratif->judul ?? 'Judul Tidak Tersedia' }}</h6>
+                        <p class="card-text">
+                            <strong>Bab:</strong> {{ $pesanan->babBuku->judul_bab ?? 'Bab ' . ($pesanan->babBuku->nomor_bab ?? '-') }}<br>
+                            <strong>Harga:</strong> {{ $pesanan->jumlah_bayar_formatted }}<br>
+                            <strong>Status Penulisan:</strong> 
+                            <span class="badge {{ $pesanan->status_penulisan_badge }}">
+                                {{ $pesanan->status_penulisan_text }}
+                            </span>
+                        </p>
 
-                        @if($pesanan->status_penulisan === 'ditolak' && $pesanan->feedback_editor)
-                            <div class="alert alert-danger alert-sm mt-2">
-                                <small><strong>Alasan Penolakan:</strong><br>{{ $pesanan->feedback_editor }}</small>
-                            </div>
-                        @endif
-
-                        @if($pesanan->status_penulisan === 'diterima' && $pesanan->catatan_persetujuan)
-                            <div class="alert alert-success alert-sm mt-2">
-                                <small><strong>Catatan Persetujuan:</strong><br>{{ $pesanan->catatan_persetujuan }}</small>
-                            </div>
+                        @if($pesanan->tanggal_pesanan)
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                Dipesan: {{ $pesanan->tanggal_pesanan->format('d M Y H:i') }}
+                            </small>
                         @endif
                     </div>
 
-                    <!-- Info Naskah -->
-                    @if($pesanan->judul_naskah)
-                    <div class="mb-3">
-                        <small class="text-muted">Naskah:</small>
-                        <br>
-                        <strong>{{ $pesanan->judul_naskah }}</strong>
-                        @if($pesanan->jumlah_kata)
-                            <small class="text-muted">({{ number_format($pesanan->jumlah_kata) }} kata)</small>
-                        @endif
-                        @if($pesanan->tanggal_upload_naskah)
-                            <br><small class="text-muted">Dikirim: {{ $pesanan->tanggal_upload_naskah->format('d/m/Y H:i') }}</small>
-                        @endif
-                    </div>
-                    @endif
-
-                    <!-- Tanggal Pesanan -->
-                    <div class="mb-3">
-                        <small class="text-muted">
-                            <i class="fas fa-calendar me-1"></i>
-                            Dipesan: {{ $pesanan->tanggal_pesanan->format('d/m/Y H:i') }}
-                        </small>
-                    </div>
-                </div>
-
-                <div class="card-footer bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <!-- Action Buttons -->
-                        <div class="btn-group" role="group">
-                            @if($pesanan->status_pembayaran === 'lunas' && in_array($pesanan->status_penulisan, ['dapat_mulai', 'sedang_proses', 'revisi']))
-                                <button class="btn btn-primary btn-sm" onclick="uploadNaskah({{ $pesanan->id }})">
-                                    <i class="fas fa-upload me-1"></i>Upload Naskah
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex flex-wrap gap-2">
+                            <!-- Tombol Upload Naskah -->
+                            @if($pesanan->canUploadNaskah())
+                                <button type="button" class="btn btn-primary btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#uploadModal{{ $pesanan->id }}">
+                                    <i class="fas fa-upload me-1"></i>
+                                    @if($pesanan->status_penulisan === 'revisi')
+                                        Upload Revisi
+                                    @else
+                                        Upload Naskah
+                                    @endif
                                 </button>
                             @endif
-                            
-                            @if($pesanan->file_naskah)
-                                <a href="{{ Storage::url($pesanan->file_naskah) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-download me-1"></i>Lihat Naskah
+
+                            <!-- Tombol Download Naskah -->
+                            @if($pesanan->hasNaskah())
+                                <a href="{{ route('akun.kolaborasi.download-naskah', $pesanan->id) }}" 
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-download me-1"></i>Download
                                 </a>
                             @endif
+
+                            <!-- Tombol Detail -->
+                            <a href="{{ route('buku-kolaboratif.status-pesanan', $pesanan->id) }}" 
+                               class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-eye me-1"></i>Detail
+                            </a>
                         </div>
 
-                        <!-- Status Progress -->
-                        <div class="text-end">
+                        <!-- Progress Bar untuk Status -->
+                        <div class="mt-3">
                             @php
                                 $progress = match($pesanan->status_penulisan) {
-                                    'belum_mulai' => 0,
-                                    'dapat_mulai' => 20,
-                                    'sedang_proses' => 40,
-                                    'sudah_kirim' => 60,
-                                    'revisi' => 50,
-                                    'diterima' => 80,
-                                    'selesai' => 100,
+                                    'belum_mulai' => 10,
+                                    'dapat_mulai' => 25,
+                                    'sedang_proses' => 50,
+                                    'sudah_kirim' => 75,
+                                    'revisi' => 60,
+                                    'selesai', 'disetujui' => 100,
                                     'ditolak' => 0,
                                     default => 0
                                 };
+                                $progressColor = match($pesanan->status_penulisan) {
+                                    'selesai', 'disetujui' => 'success',
+                                    'ditolak' => 'danger',
+                                    'revisi' => 'warning',
+                                    'sudah_kirim' => 'info',
+                                    default => 'primary'
+                                };
                             @endphp
-                            <div class="progress" style="width: 100px; height: 6px;">
-                                <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%" 
-                                     aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-{{ $progressColor }}" 
+                                     role="progressbar" 
+                                     style="width: {{ $progress }}%">
+                                </div>
                             </div>
-                            <small class="text-muted">{{ $progress }}%</small>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @empty
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">Belum Ada Pesanan Kolaborasi</h5>
-                    <p class="text-muted">Anda belum memiliki pesanan kolaborasi buku.</p>
-                    <a href="{{ route('user.buku-kolaboratif.index') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Mulai Kolaborasi
-                    </a>
-                </div>
-            </div>
-        </div>
-        @endforelse
-    </div>
-</div>
 
-<!-- Modal Upload Naskah -->
-<div class="modal fade" id="uploadNaskahModal" tabindex="-1" aria-labelledby="uploadNaskahModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="uploadNaskahModalLabel">
-                    <i class="fas fa-upload me-2"></i>Upload Naskah
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <!-- Feedback Editor -->
+                        @if($pesanan->feedback_editor)
+                            <div class="mt-3">
+                                <div class="alert alert-{{ $pesanan->status_penulisan === 'revisi' ? 'warning' : 'info' }} alert-sm">
+                                    <strong>
+                                        @if($pesanan->status_penulisan === 'revisi')
+                                            <i class="fas fa-edit me-1"></i>Feedback Revisi:
+                                        @else
+                                            <i class="fas fa-comment me-1"></i>Feedback Editor:
+                                        @endif
+                                    </strong>
+                                    <p class="mb-0 mt-1">{{ $pesanan->feedback_editor }}</p>
+                                    @if($pesanan->tanggal_feedback)
+                                        <small class="text-muted">
+                                            {{ $pesanan->tanggal_feedback->format('d M Y H:i') }}
+                                        </small>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
-            <form id="uploadNaskahForm" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="judul_naskah" class="form-label">Judul Naskah *</label>
-                        <input type="text" class="form-control" id="judul_naskah" name="judul_naskah" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="deskripsi_naskah" class="form-label">Deskripsi Naskah</label>
-                        <textarea class="form-control" id="deskripsi_naskah" name="deskripsi_naskah" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="file_naskah" class="form-label">File Naskah *</label>
-                        <input type="file" class="form-control" id="file_naskah" name="file_naskah" 
-                               accept=".pdf,.doc,.docx" required>
-                        <small class="text-muted">Format yang didukung: PDF, DOC, DOCX. Maksimal 10MB.</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="jumlah_kata" class="form-label">Jumlah Kata (Opsional)</label>
-                        <input type="number" class="form-control" id="jumlah_kata" name="jumlah_kata" min="0">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="catatan_penulis" class="form-label">Catatan untuk Editor</label>
-                        <textarea class="form-control" id="catatan_penulis" name="catatan_penulis" rows="3"></textarea>
+
+            <!-- Modal Upload Naskah -->
+            @if($pesanan->canUploadNaskah())
+            <div class="modal fade" id="uploadModal{{ $pesanan->id }}" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <form action="{{ route('akun.kolaborasi.upload-naskah', $pesanan->id) }}" 
+                              method="POST" 
+                              enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    @if($pesanan->status_penulisan === 'revisi')
+                                        <i class="fas fa-edit me-2"></i>Upload Revisi Naskah
+                                    @else
+                                        <i class="fas fa-upload me-2"></i>Upload Naskah
+                                    @endif
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="judul_naskah{{ $pesanan->id }}" class="form-label">
+                                        <i class="fas fa-heading me-1"></i>Judul Naskah *
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="judul_naskah{{ $pesanan->id }}" 
+                                           name="judul_naskah" 
+                                           value="{{ old('judul_naskah', $pesanan->judul_naskah) }}" 
+                                           required
+                                           placeholder="Masukkan judul naskah">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="file_naskah{{ $pesanan->id }}" class="form-label">
+                                        <i class="fas fa-file me-1"></i>File Naskah *
+                                    </label>
+                                    <input type="file" 
+                                           class="form-control" 
+                                           id="file_naskah{{ $pesanan->id }}" 
+                                           name="file_naskah" 
+                                           accept=".doc,.docx,.pdf" 
+                                           required>
+                                    <div class="form-text">
+                                        Format: DOC, DOCX, PDF. Maksimal 10MB.
+                                        @if($pesanan->hasNaskah())
+                                            <br><strong>File saat ini:</strong> {{ basename($pesanan->file_naskah) }}
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="deskripsi_naskah{{ $pesanan->id }}" class="form-label">
+                                        <i class="fas fa-align-left me-1"></i>Deskripsi Naskah
+                                    </label>
+                                    <textarea class="form-control" 
+                                              id="deskripsi_naskah{{ $pesanan->id }}" 
+                                              name="deskripsi_naskah" 
+                                              rows="3"
+                                              placeholder="Deskripsi singkat tentang naskah">{{ old('deskripsi_naskah', $pesanan->deskripsi_naskah) }}</textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="jumlah_kata{{ $pesanan->id }}" class="form-label">
+                                                <i class="fas fa-calculator me-1"></i>Jumlah Kata
+                                            </label>
+                                            <input type="number" 
+                                                   class="form-control" 
+                                                   id="jumlah_kata{{ $pesanan->id }}" 
+                                                   name="jumlah_kata" 
+                                                   value="{{ old('jumlah_kata', $pesanan->jumlah_kata) }}" 
+                                                   min="500"
+                                                   placeholder="Minimal 500 kata">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="catatan_penulis{{ $pesanan->id }}" class="form-label">
+                                        <i class="fas fa-sticky-note me-1"></i>Catatan untuk Editor
+                                    </label>
+                                    <textarea class="form-control" 
+                                              id="catatan_penulis{{ $pesanan->id }}" 
+                                              name="catatan_penulis" 
+                                              rows="3"
+                                              placeholder="Catatan tambahan untuk editor (opsional)">{{ old('catatan_penulis', $pesanan->catatan_penulis) }}</textarea>
+                                </div>
+
+                                @if($pesanan->status_penulisan === 'revisi' && $pesanan->feedback_editor)
+                                    <div class="alert alert-warning">
+                                        <strong><i class="fas fa-exclamation-triangle me-1"></i>Feedback Revisi:</strong>
+                                        <p class="mb-0 mt-2">{{ $pesanan->feedback_editor }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    Batal
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-upload me-1"></i>
+                                    @if($pesanan->status_penulisan === 'revisi')
+                                        Upload Revisi
+                                    @else
+                                        Upload Naskah
+                                    @endif
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-upload me-2"></i>Upload Naskah
-                    </button>
-                </div>
-            </form>
+            </div>
+            @endif
+            @endforeach
         </div>
-    </div>
+
+        <!-- Pagination jika diperlukan -->
+        @if($pesananKolaborasi->count() > 12)
+            <div class="d-flex justify-content-center mt-4">
+                <!-- Add pagination if needed -->
+            </div>
+        @endif
+    @endif
 </div>
 
 <style>
-.content-area {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.alert-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
 }
 
 .card {
-    transition: all 0.3s ease;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease-in-out;
 }
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.alert-sm {
-    padding: 0.5rem;
-    font-size: 0.875rem;
 }
 
 .progress {
     border-radius: 10px;
 }
 
-.progress-bar {
-    border-radius: 10px;
+.badge {
+    font-size: 0.75em;
 }
 
-.btn-group .btn {
-    margin-right: 0.25rem;
+.btn-sm {
+    font-size: 0.8rem;
 }
 
-@media (max-width: 768px) {
-    .btn-group {
+@media (max-width: 576px) {
+    .card-footer .d-flex {
         flex-direction: column;
-        width: 100%;
     }
     
-    .btn-group .btn {
+    .card-footer .btn {
+        width: 100%;
         margin-bottom: 0.25rem;
-        margin-right: 0;
     }
 }
 </style>
-
-<script>
-function filterByStatus() {
-    const filter = document.getElementById('statusFilter').value;
-    const items = document.querySelectorAll('.pesanan-item');
-    
-    items.forEach(item => {
-        if (filter === '' || item.dataset.status === filter) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-function uploadNaskah(pesananId) {
-    const form = document.getElementById('uploadNaskahForm');
-    form.action = `/akun/kolaborasi/${pesananId}/upload-naskah`;
-    
-    const modal = new bootstrap.Modal(document.getElementById('uploadNaskahModal'));
-    modal.show();
-}
-
-// File validation
-document.getElementById('file_naskah').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        // Check file size (10MB limit)
-        if (file.size > 10 * 1024 * 1024) {
-            alert('Ukuran file terlalu besar. Maksimal 10MB.');
-            this.value = '';
-            return;
-        }
-        
-        // Check file type
-        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-        if (!allowedTypes.includes(file.type)) {
-            alert('Format file tidak didukung. Gunakan PDF, DOC, atau DOCX.');
-            this.value = '';
-            return;
-        }
-    }
-});
-</script>
 @endsection

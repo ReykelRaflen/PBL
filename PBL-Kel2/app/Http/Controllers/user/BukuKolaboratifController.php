@@ -268,7 +268,7 @@ class BukuKolaboratifController extends Controller
         return view('buku-kolaboratif.pembayaran', compact('pesananBuku'));
     }
 
-   public function prosesPembayaran(Request $request, $pesananId)
+    public function prosesPembayaran(Request $request, $pesananId)
     {
         // Validasi input
         $request->validate([
@@ -339,6 +339,7 @@ class BukuKolaboratifController extends Controller
                            ->withInput();
         }
     }
+
     public function statusPesanan($pesananId)
     {
         $pesananBuku = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku', 'user'])
@@ -348,25 +349,7 @@ class BukuKolaboratifController extends Controller
         return view('buku-kolaboratif.status-pesanan', compact('pesananBuku'));
     }
 
-    private function generateNomorPesanan()
-    {
-        do {
-            $nomor = 'PES-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        } while (PesananKolaborasi::where('nomor_pesanan', $nomor)->exists());
-        
-        return $nomor;
-    }
-
-    private function generateInvoiceNumber()
-    {
-        do {
-            $invoice = 'INV-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        } while (\App\Models\LaporanPenjualanKolaborasi::where('nomor_invoice', $invoice)->exists());
-        
-        return $invoice;
-    }
-
-     public function uploadNaskah(Request $request, $pesananId)
+    public function uploadNaskah(Request $request, $pesananId)
     {
         // Validasi input
         $request->validate([
@@ -374,9 +357,7 @@ class BukuKolaboratifController extends Controller
             'judul_naskah' => 'required|string|max:255',
             'deskripsi_naskah' => 'nullable|string|max:1000',
             'jumlah_kata' => 'nullable|integer|min:500',
-            'catatan_penulis' => 'nullable|string|max:500',
-            'catatan_revisi' => 'nullable|string|max:500',
-            'is_revision' => 'nullable|boolean'
+            'catatan_penulis' => 'nullable|string|max:500'
         ], [
             'file_naskah.required' => 'File naskah harus diupload',
             'file_naskah.mimes' => 'Format file harus DOC, DOCX, atau PDF',
@@ -425,12 +406,6 @@ class BukuKolaboratifController extends Controller
                 'status_penulisan' => 'sudah_kirim'
             ];
 
-            // Jika ini adalah revisi, tambahkan catatan revisi
-            if ($request->is_revision && $request->catatan_revisi) {
-                $updateData['catatan_penulis'] = $request->catatan_revisi;
-                $updateData['status_penulisan'] = 'sudah_kirim'; // Reset ke sudah kirim untuk review ulang
-            }
-
             $pesananBuku->update($updateData);
 
             DB::commit();
@@ -438,16 +413,11 @@ class BukuKolaboratifController extends Controller
             Log::info('Naskah berhasil diupload', [
                 'pesanan_id' => $pesananBuku->id,
                 'nomor_pesanan' => $pesananBuku->nomor_pesanan,
-                'file_path' => $filePath,
-                'is_revision' => $request->is_revision ?? false
+                'file_path' => $filePath
             ]);
 
-            $message = $request->is_revision ? 
-                'Revisi naskah berhasil diupload. Editor akan melakukan review ulang.' :
-                'Naskah berhasil diupload. Editor akan melakukan review dalam 3-5 hari kerja.';
-
-            return redirect()->route('buku-kolaboratif.status-pesanan', $pesananBuku->id)
-                           ->with('success', $message);
+            return redirect()->route('akun.kolaborasi')
+                           ->with('success', 'Naskah berhasil diupload. Editor akan melakukan review dalam 3-5 hari kerja.');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -484,4 +454,12 @@ class BukuKolaboratifController extends Controller
         return Storage::disk('public')->download($pesananBuku->file_naskah, $fileName);
     }
 
+    private function generateNomorPesanan()
+    {
+        do {
+            $nomor = 'PES-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        } while (PesananKolaborasi::where('nomor_pesanan', $nomor)->exists());
+        
+        return $nomor;
+    }
 }
