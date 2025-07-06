@@ -28,7 +28,7 @@
                 <img src="{{ asset('img/Buku_Individu.png') }}" class="mb-2" width="50">
                 <p>Buku Individu</p>
             </div>
-            <div class="col">
+            <div class="col" onclick="window.location.href='{{ route('penerbitan_kolaborasi.index') }}'" style="cursor: pointer;">
                 <img src="{{ asset('img/Buku_kolaborasi.png') }}" class="mb-2" width="50">
                 <p>Buku Kolaboratif</p>
             </div>

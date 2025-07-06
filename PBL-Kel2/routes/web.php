@@ -21,8 +21,7 @@ use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\LaporanPenerbitanKolaborasiController;
 use App\Http\Controllers\Admin\KategoriBukuController;
 use App\Http\Controllers\User\TemplateController as UserTemplateController;
-
-
+use App\Http\Controllers\PenerbitanKolaborasiController;
 use App\Http\Controllers\Admin\RekeningController;
 
 // User Routes
@@ -32,6 +31,28 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
+
+// User Routes
+Route::prefix('penerbitan_kolaborasi')->group(function () {
+    Route::get('/', [PenerbitanKolaborasiController::class, 'listBuku'])->name('penerbitan_kolaborasi.index');
+    Route::get('/buku/{id}', [PenerbitanKolaborasiController::class, 'showBuku'])->name('penerbitan_kolaborasi.showBuku');
+    Route::get('/pesanBab/{id}', [PenerbitanKolaborasiController::class, 'pesanBab'])->name('penerbitan_kolaborasi.pesanBab');
+    Route::post('/submitPesanBab', [PenerbitanKolaborasiController::class, 'submitPesanBab'])->name('penerbitan_kolaborasi.submitPesanBab');
+    Route::get('/uploadBuktiPembayaran/{id}', [PenerbitanKolaborasiController::class, 'showUploadBuktiPembayaran'])->name('penerbitan_kolaborasi.uploadBuktiPembayaran');
+    Route::post('/submitUploadBuktiPembayaran', [PenerbitanKolaborasiController::class, 'submitUploadBuktiPembayaran'])->name('penerbitan_kolaborasi.submitUploadBuktiPembayaran');
+    Route::get('/notification/{id}', [PenerbitanKolaborasiController::class, 'showNotification'])->name('penerbitan_kolaborasi.notification');
+    
+
+    Route::get('/uploadNaskah/{id}', [PenerbitanKolaborasiController::class, 'showUploadNaskah'])->name('penerbitan_kolaborasi.uploadNaskahForm');
+    
+    Route::post('/uploadNaskah', [PenerbitanKolaborasiController::class, 'uploadNaskah'])->name('penerbitan_kolaborasi.uploadNaskah');
+
+
+});
+
+
+
+
 
 
 
