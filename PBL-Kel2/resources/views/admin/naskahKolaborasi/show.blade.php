@@ -42,26 +42,17 @@
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Tanggal Pesanan:</label>
-                            <p>{{ $naskah->tanggal_pesanan ? $naskah->tanggal_pesanan->format('d M Y H:i') : 'Tidak tersedia' }}
-                            </p>
+                            <p>{{ $naskah->tanggal_pesanan ? $naskah->tanggal_pesanan->format('d M Y H:i') : ($naskah->created_at ? $naskah->created_at->format('d M Y H:i') : 'Tidak tersedia') }}</p>
                         </div>
-                        @if($naskah->pesananKolaborasi)
-                            <div>
-                                <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Jumlah Bayar:</label>
-                                <p class="text-green-600 font-semibold">
-                                    {{ $naskah->pesananKolaborasi->jumlah_bayar_formatted ?? 'Tidak tersedia' }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Status Pembayaran:</label>
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $naskah->pesananKolaborasi->status_badge ?? 'bg-gray-100 text-gray-800' }}">
-                                    {{ $naskah->pesananKolaborasi->status_pembayaran_text ?? 'Tidak tersedia' }}
-                                </span>
-                            </div>
-                        @endif
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Status Pembayaran:</label>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $naskah->status_pembayaran_badge ?? 'bg-green-100 text-green-800' }}">
+                                {{ $naskah->status_pembayaran_text ?? 'Lunas' }}
+                            </span>
+                        </div>
                         @if($naskah->catatan)
                             <div>
-                                <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Catatan Pesanan:</label>
+                                <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Catatan Admin:</label>
                                 <p class="text-sm bg-white dark:bg-gray-600 p-2 rounded">{{ $naskah->catatan }}</p>
                             </div>
                         @endif
@@ -110,7 +101,7 @@
                     </div>
                     <div>
                         <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Bab:</label>
-                        <p>Bab {{ $naskah->babBuku->nomor_bab ?? '-' }}:
+                                            <p>Bab {{ $naskah->babBuku->nomor_bab ?? '-' }}:
                             {{ $naskah->babBuku->judul_bab ?? 'Tidak Ditemukan' }}</p>
                     </div>
                     @if($naskah->babBuku && $naskah->babBuku->deskripsi)
@@ -120,15 +111,15 @@
                         </div>
                     @endif
                     @if($naskah->babBuku && $naskah->babBuku->tingkat_kesulitan)
-                                <div>
-                                    <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Tingkat Kesulitan:</label>
-                                    <span
-                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                                        {{ $naskah->babBuku->tingkat_kesulitan === 'mudah' ? 'bg-green-100 text-green-800' :
-                        ($naskah->babBuku->tingkat_kesulitan === 'sedang' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                        {{ ucfirst($naskah->babBuku->tingkat_kesulitan) }}
-                                    </span>
-                                </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Tingkat Kesulitan:</label>
+                            <span
+                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                {{ $naskah->babBuku->tingkat_kesulitan === 'mudah' ? 'bg-green-100 text-green-800' :
+                                   ($naskah->babBuku->tingkat_kesulitan === 'sedang' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                {{ ucfirst($naskah->babBuku->tingkat_kesulitan) }}
+                            </span>
+                        </div>
                     @endif
                     @if($naskah->tanggal_deadline)
                         <div>
@@ -165,7 +156,7 @@
                     @if($naskah->jumlah_kata)
                         <div>
                             <label class="text-sm font-medium text-gray-600 dark:text-gray-300">Jumlah Kata:</label>
-                            <p>{{ $naskah->jumlah_kata_formatted }} kata</p>
+                            <p>{{ number_format($naskah->jumlah_kata, 0, ',', '.') }} kata</p>
                         </div>
                     @endif
                     @if($naskah->deskripsi_naskah)
@@ -230,6 +221,7 @@
                         <div class="p-3 bg-white dark:bg-gray-600 rounded border-l-4 border-green-400">
                             <div class="flex justify-between items-start mb-2">
                                 <strong class="text-green-700 dark:text-green-300">
+                                    <i class="fas fa-check-circle mr-1"></i>Catatan Persetujuan
                                 </strong>
                                 @if($naskah->tanggal_disetujui)
                                     <small class="text-gray-500">{{ $naskah->tanggal_disetujui->format('d M Y H:i') }}</small>
@@ -343,7 +335,7 @@
         </div>
     </div>
 
-    <!-- Modal Terima Naskah -->
+       <!-- Modal Terima Naskah -->
     <div id="acceptModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
             <div class="mt-3">
@@ -500,7 +492,7 @@
         }
 
         function confirmDelete(id) {
-            document.getElementById('deleteForm').action = `/admin/naskah-kolaborasi/${id}`;
+            document.getElementById('deleteForm').action = `/admin/admin/naskah-kolaborasi/${id}`;
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 

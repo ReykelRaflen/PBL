@@ -155,7 +155,7 @@
                     </div>
 
                     <!-- Form Pemesanan -->
-                    <form action="{{ route('buku-kolaboratif.proses-pesanan', [$bukuKolaboratif, $babBuku]) }}" method="POST">
+                    <form action="{{ route('buku-kolaboratif.proses-pesanan', [$bukuKolaboratif->id, $babBuku->id]) }}" method="POST">
                         @csrf
                         
                         <div class="mb-3">
@@ -680,69 +680,101 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form submission with loading state
+    console.log('DOM loaded');
+    
+    // Ambil form element
     const form = document.querySelector('form');
+    console.log('Form found:', form);
+    
+    if (!form) {
+        console.error('Form tidak ditemukan!');
+        return;
+    }
+    
+    console.log('Form action:', form.action);
+    console.log('Form method:', form.method);
+    
     const submitBtn = form.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn.innerHTML;
+    const checkbox = document.getElementById('setuju');
+    const textarea = document.getElementById('catatan');
+    
+    console.log('Submit button:', submitBtn);
+    console.log('Checkbox:', checkbox);
+    console.log('Textarea:', textarea);
 
+    // Form submission handler
     form.addEventListener('submit', function(e) {
-        // Validate form before submission
-        if (!form.checkValidity()) {
+        console.log('Form submit event triggered');
+        
+        // Reset previous validation
+        form.classList.remove('was-validated');
+        
+        let isValid = true;
+        let errorMessage = '';
+
+        // Validasi checkbox
+        if (!checkbox || !checkbox.checked) {
+            isValid = false;
+            errorMessage = 'Anda harus menyetujui syarat dan ketentuan';
+            if (checkbox) {
+                checkbox.classList.add('is-invalid');
+            }
+        } else if (checkbox) {
+            checkbox.classList.remove('is-invalid');
+        }
+
+        // Validasi textarea (opsional, tapi cek panjang jika diisi)
+        if (textarea && textarea.value.length > 1000) {
+            isValid = false;
+            errorMessage = 'Catatan maksimal 1000 karakter';
+            textarea.classList.add('is-invalid');
+        } else if (textarea) {
+            textarea.classList.remove('is-invalid');
+        }
+
+        if (!isValid) {
             e.preventDefault();
             e.stopPropagation();
-            form.classList.add('was-validated');
-            return;
+            alert(errorMessage);
+            console.log('Form validation failed:', errorMessage);
+            return false;
         }
 
-        // Check if checkbox is checked
-        const checkbox = form.querySelector('#setuju');
-        if (!checkbox.checked) {
-            e.preventDefault();
-            alert('Anda harus menyetujui syarat dan ketentuan terlebih dahulu.');
-            checkbox.focus();
-            return;
+        console.log('Form validation passed');
+        
+        // Disable submit button to prevent double submission
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
         }
-
-        // Add loading state
-        submitBtn.classList.add('loading');
-        submitBtn.disabled = true;
-
-        // Optional: Add timeout to prevent infinite loading
-        setTimeout(function() {
-            if (submitBtn.classList.contains('loading')) {
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-            }
-        }, 10000); // 10 seconds timeout
+        
+        // Allow form to submit
+        return true;
     });
 
     // Character counter for textarea
-    const textarea = document.getElementById('catatan');
-    const maxLength = 1000;
-    
     if (textarea) {
-        // Create character counter element
-        const counter = document.createElement('div');
-        counter.className = 'form-text text-end char-counter';
-        counter.innerHTML = `<span id="char-count">0</span>/${maxLength} karakter`;
-        textarea.parentNode.appendChild(counter);
+        const maxLength = 1000;
+        const counterDiv = document.createElement('div');
+        counterDiv.className = 'form-text text-end';
+        counterDiv.innerHTML = '<span id="char-count">0</span>/' + maxLength + ' karakter';
+        textarea.parentNode.appendChild(counterDiv);
 
         const charCount = document.getElementById('char-count');
-
-                textarea.addEventListener('input', function() {
+        
+        textarea.addEventListener('input', function() {
             const currentLength = this.value.length;
             charCount.textContent = currentLength;
             
-            // Update counter color based on usage
-            counter.classList.remove('text-muted', 'text-warning', 'text-danger');
-            
-            if (currentLength > maxLength * 0.9) {
-                counter.classList.add('text-warning');
-            } else if (currentLength >= maxLength) {
-                counter.classList.add('text-danger');
+            if (currentLength > maxLength) {
+                counterDiv.style.color = '#dc3545';
+                this.classList.add('is-invalid');
+            } else if (currentLength > maxLength * 0.9) {
+                counterDiv.style.color = '#ffc107';
+                this.classList.remove('is-invalid');
             } else {
-                counter.classList.add('text-muted');
+                counterDiv.style.color = '#6c757d';
+                this.classList.remove('is-invalid');
             }
         });
 
@@ -750,268 +782,15 @@ document.addEventListener('DOMContentLoaded', function() {
         textarea.dispatchEvent(new Event('input'));
     }
 
-    // Date input validation
-    const dateInput = document.getElementById('tanggal_deadline');
-    if (dateInput) {
-        // Set minimum date to 7 days from now
-        const minDate = new Date();
-        minDate.setDate(minDate.getDate() + 7);
-        dateInput.min = minDate.toISOString().split('T')[0];
-
-        // Validate date on change
-        dateInput.addEventListener('change', function() {
-            const selectedDate = new Date(this.value);
-            const today = new Date();
-            const minAllowedDate = new Date();
-            minAllowedDate.setDate(today.getDate() + 7);
-
-            if (selectedDate < minAllowedDate) {
-                this.setCustomValidity('Deadline minimal 7 hari dari sekarang');
-                this.classList.add('is-invalid');
-            } else {
-                this.setCustomValidity('');
-                this.classList.remove('is-invalid');
-            }
-        });
-    }
-
-    // Smooth scroll to error messages
-    const errorElements = document.querySelectorAll('.is-invalid');
-    if (errorElements.length > 0) {
-        errorElements[0].scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-        });
-    }
-
-    // Auto-hide success/error alerts after 5 seconds
-    const alerts = document.querySelectorAll('.alert-success, .alert-danger');
-    alerts.forEach(function(alert) {
-        setTimeout(function() {
-            if (alert && alert.parentNode) {
-                alert.style.transition = 'opacity 0.5s ease-out';
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    if (alert && alert.parentNode) {
-                        alert.remove();
-                    }
-                }, 500);
-            }
-        }, 5000);
-    });
-
-    // Form validation styling
-    const inputs = form.querySelectorAll('input, textarea, select');
-    inputs.forEach(function(input) {
-        input.addEventListener('blur', function() {
-            if (this.checkValidity()) {
-                this.classList.remove('is-invalid');
-                this.classList.add('is-valid');
-            } else {
-                this.classList.remove('is-valid');
-                this.classList.add('is-invalid');
-            }
-        });
-
-        input.addEventListener('input', function() {
-            if (this.classList.contains('is-invalid') && this.checkValidity()) {
-                this.classList.remove('is-invalid');
-                this.classList.add('is-valid');
-            }
-        });
-    });
-
-    // Checkbox validation
-    const checkbox = document.getElementById('setuju');
+    // Checkbox validation styling
     if (checkbox) {
         checkbox.addEventListener('change', function() {
             if (this.checked) {
                 this.classList.remove('is-invalid');
-                this.classList.add('is-valid');
-            } else {
-                this.classList.remove('is-valid');
-                this.classList.add('is-invalid');
             }
         });
     }
-
-    // Modal enhancement
-    const modal = document.getElementById('syaratKetentuanModal');
-    if (modal) {
-        modal.addEventListener('shown.bs.modal', function() {
-            // Focus on close button for accessibility
-            const closeBtn = modal.querySelector('.btn-close');
-            if (closeBtn) {
-                closeBtn.focus();
-            }
-        });
-    }
-
-    // Prevent double submission
-    let isSubmitting = false;
-    form.addEventListener('submit', function(e) {
-        if (isSubmitting) {
-            e.preventDefault();
-            return false;
-        }
-        isSubmitting = true;
-        
-        // Reset flag after timeout
-        setTimeout(function() {
-            isSubmitting = false;
-        }, 3000);
-    });
-
-    // Add fade-in animation to cards
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(function(card, index) {
-        card.style.animationDelay = (index * 0.1) + 's';
-        card.classList.add('fade-in');
-    });
-
-    // Price formatting (if needed for dynamic updates)
-    function formatPrice(amount) {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(amount).replace('IDR', 'Rp');
-    }
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Ctrl/Cmd + Enter to submit form
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-            e.preventDefault();
-            if (form.checkValidity()) {
-                form.submit();
-            }
-        }
-        
-        // Escape to close modal
-        if (e.key === 'Escape') {
-            const openModal = document.querySelector('.modal.show');
-            if (openModal) {
-                const modal = bootstrap.Modal.getInstance(openModal);
-                if (modal) {
-                    modal.hide();
-                }
-            }
-        }
-    });
-
-    // Tooltip initialization (if Bootstrap tooltips are used)
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Enhanced form validation messages
-    const customValidationMessages = {
-        'catatan': {
-            'tooLong': 'Catatan terlalu panjang. Maksimal 1000 karakter.'
-        },
-        'tanggal_deadline': {
-            'valueMissing': 'Tanggal deadline harus diisi.',
-            'rangeUnderflow': 'Deadline minimal 7 hari dari sekarang.'
-        },
-        'setuju': {
-            'valueMissing': 'Anda harus menyetujui syarat dan ketentuan.'
-        }
-    };
-
-    // Apply custom validation messages
-    Object.keys(customValidationMessages).forEach(function(fieldName) {
-        const field = document.getElementById(fieldName);
-        if (field) {
-            field.addEventListener('invalid', function(e) {
-                const validity = e.target.validity;
-                const messages = customValidationMessages[fieldName];
-                
-                if (validity.valueMissing && messages.valueMissing) {
-                    e.target.setCustomValidity(messages.valueMissing);
-                } else if (validity.tooLong && messages.tooLong) {
-                    e.target.setCustomValidity(messages.tooLong);
-                } else if (validity.rangeUnderflow && messages.rangeUnderflow) {
-                    e.target.setCustomValidity(messages.rangeUnderflow);
-                }
-            });
-            
-            field.addEventListener('input', function(e) {
-                e.target.setCustomValidity('');
-            });
-        }
-    });
-
-    // Performance optimization: Debounce textarea input
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    if (textarea) {
-        const debouncedInput = debounce(function(e) {
-            // Any expensive operations on textarea input can go here
-            console.log('Textarea updated:', e.target.value.length, 'characters');
-        }, 300);
-
-        textarea.addEventListener('input', debouncedInput);
-    }
-
-    // Accessibility improvements
-    const requiredFields = document.querySelectorAll('[required]');
-    requiredFields.forEach(function(field) {
-        const label = document.querySelector(`label[for="${field.id}"]`);
-        if (label && !label.querySelector('.required-indicator')) {
-            const indicator = document.createElement('span');
-            indicator.className = 'required-indicator text-danger';
-            indicator.innerHTML = ' *';
-            indicator.setAttribute('aria-label', 'required');
-            label.appendChild(indicator);
-        }
-    });
-
-    // Add loading overlay for better UX
-    function showLoadingOverlay() {
-        const overlay = document.createElement('div');
-        overlay.id = 'loading-overlay';
-        overlay.innerHTML = `
-            <div class="d-flex justify-content-center align-items-center h-100">
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <div class="mt-2">Memproses pesanan...</div>
-                </div>
-            </div>
-        `;
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            z-index: 9999;
-            display: flex;
-        `;
-        document.body.appendChild(overlay);
-    }
-
-    // Show loading overlay on form submit
-    form.addEventListener('submit', function(e) {
-        if (form.checkValidity()) {
-            setTimeout(showLoadingOverlay, 100);
-        }
-    });
 });
 </script>
 @endpush
+

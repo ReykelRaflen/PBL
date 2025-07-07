@@ -28,7 +28,15 @@ class BabBuku extends Model
         'deadline' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'harga' => 'decimal:2',
+        'estimasi_kata' => 'integer'
     ];
+
+    // Konstanta untuk status
+    const STATUS_TERSEDIA = 'tersedia';
+    const STATUS_DIPESAN = 'dipesan';
+    const STATUS_SELESAI = 'selesai';
+    const STATUS_TIDAK_TERSEDIA = 'tidak_tersedia';
 
     // Relationship dengan BukuKolaboratif
     public function bukuKolaboratif()
@@ -59,25 +67,31 @@ class BabBuku extends Model
     // Scope untuk bab tersedia
     public function scopeTersedia($query)
     {
-        return $query->where('status', 'tersedia');
+        return $query->where('status', self::STATUS_TERSEDIA);
     }
 
     // Scope untuk bab dipesan
     public function scopeDipesan($query)
     {
-        return $query->where('status', 'dipesan');
+        return $query->where('status', self::STATUS_DIPESAN);
     }
 
     // Scope untuk bab selesai
     public function scopeSelesai($query)
     {
-        return $query->where('status', 'selesai');
+        return $query->where('status', self::STATUS_SELESAI);
+    }
+
+    // Scope untuk bab tidak tersedia
+    public function scopeTidakTersedia($query)
+    {
+        return $query->where('status', self::STATUS_TIDAK_TERSEDIA);
     }
 
     // Method untuk check apakah bab bisa dipesan
     public function bisaDipesan()
     {
-        return $this->status === 'tersedia';
+        return $this->status === self::STATUS_TERSEDIA;
     }
 
     // Method untuk mendapatkan harga bab
@@ -90,15 +104,29 @@ class BabBuku extends Model
     public function getStatusBadgeAttribute()
     {
         switch ($this->status) {
-            case 'tersedia':
+            case self::STATUS_TERSEDIA:
                 return '<span class="badge bg-success">Tersedia</span>';
-            case 'dipesan':
+            case self::STATUS_DIPESAN:
                 return '<span class="badge bg-warning">Dipesan</span>';
-            case 'selesai':
+            case self::STATUS_SELESAI:
                 return '<span class="badge bg-info">Selesai</span>';
+            case self::STATUS_TIDAK_TERSEDIA:
+                return '<span class="badge bg-danger">Tidak Tersedia</span>';
             default:
                 return '<span class="badge bg-secondary">' . ucfirst($this->status) . '</span>';
         }
+    }
+
+    // Accessor untuk status text
+    public function getStatusTextAttribute()
+    {
+        return match($this->status) {
+            self::STATUS_TERSEDIA => 'Tersedia',
+            self::STATUS_DIPESAN => 'Dipesan',
+            self::STATUS_SELESAI => 'Selesai',
+            self::STATUS_TIDAK_TERSEDIA => 'Tidak Tersedia',
+            default => ucfirst(str_replace('_', ' ', $this->status))
+        };
     }
 
     // Accessor untuk tingkat kesulitan badge
@@ -114,5 +142,47 @@ class BabBuku extends Model
             default:
                 return '<span class="badge bg-secondary">Belum Ditentukan</span>';
         }
+    }
+
+    // Methods untuk mengubah status
+    public function markAsTersedia()
+    {
+        return $this->update(['status' => self::STATUS_TERSEDIA]);
+    }
+
+    public function markAsDipesan()
+    {
+        return $this->update(['status' => self::STATUS_DIPESAN]);
+    }
+
+    public function markAsSelesai()
+    {
+        return $this->update(['status' => self::STATUS_SELESAI]);
+    }
+
+    public function markAsTidakTersedia()
+    {
+        return $this->update(['status' => self::STATUS_TIDAK_TERSEDIA]);
+    }
+
+    // Check status methods
+    public function isTersedia()
+    {
+        return $this->status === self::STATUS_TERSEDIA;
+    }
+
+    public function isDipesan()
+    {
+        return $this->status === self::STATUS_DIPESAN;
+    }
+
+    public function isSelesai()
+    {
+        return $this->status === self::STATUS_SELESAI;
+    }
+
+    public function isTidakTersedia()
+    {
+        return $this->status === self::STATUS_TIDAK_TERSEDIA;
     }
 }

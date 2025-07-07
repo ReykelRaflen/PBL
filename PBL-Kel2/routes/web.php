@@ -118,42 +118,85 @@ Route::prefix('buku-kolaboratif')->group(function () {
     });
 });
 
+// Tambahkan route test ini sementara
+Route::get('/test-pesanan/{bukuId}/{babId}', function($bukuId, $babId) {
+    $buku = \App\Models\BukuKolaboratif::find($bukuId);
+    $bab = \App\Models\BabBuku::find($babId);
+    
+    return response()->json([
+        'buku' => $buku ? $buku->toArray() : null,
+        'bab' => $bab ? $bab->toArray() : null,
+        'user' => auth()->user() ? auth()->user()->toArray() : null
+    ]);
+});
 
-// Routes Buku Kolaboratif
-Route::middleware(['web'])->group(function () {
-    Route::get('/buku-kolaboratif', [BukuKolaboratifController::class, 'index'])
-        ->name('buku-kolaboratif.index');
 
-    Route::get('/buku-kolaboratif/{bukuKolaboratif}', [BukuKolaboratifController::class, 'tampilkan'])
-        ->name('buku-kolaboratif.tampilkan');
 
-    Route::middleware(['auth'])->group(function () {
-        Route::get(
-            '/buku-kolaboratif/{bukuKolaboratif}/bab/{babBuku}/pilih',
-            [BukuKolaboratifController::class, 'pilihBab']
-        )
-            ->name('buku-kolaboratif.pilih-bab');
+// // Routes Buku Kolaboratif
+// Route::middleware(['web'])->group(function () {
+//     Route::get('/buku-kolaboratif', [BukuKolaboratifController::class, 'index'])
+//         ->name('buku-kolaboratif.index');
 
-        Route::post(
-            '/buku-kolaboratif/{bukuKolaboratif}/bab/{babBuku}/pesan',
-            [BukuKolaboratifController::class, 'prosesPesanan']
-        )
-            ->name('buku-kolaboratif.proses-pesanan');
+//     Route::get('/buku-kolaboratif/{bukuKolaboratif}', [BukuKolaboratifController::class, 'tampilkan'])
+//         ->name('buku-kolaboratif.tampilkan');
 
-        Route::get('/pesanan/{pesananBuku}/pembayaran', [BukuKolaboratifController::class, 'pembayaran'])
-            ->name('buku-kolaboratif.pembayaran');
+//     Route::middleware(['auth'])->group(function () {
+//         Route::get(
+//             '/buku-kolaboratif/{bukuKolaboratif}/bab/{babBuku}/pilih',
+//             [BukuKolaboratifController::class, 'pilihBab']
+//         )
+//             ->name('buku-kolaboratif.pilih-bab');
 
-        Route::post('/pesanan/{pesananBuku}/pembayaran', [BukuKolaboratifController::class, 'prosesPembayaran'])
-            ->name('buku-kolaboratif.proses-pembayaran');
+//         Route::post(
+//             '/buku-kolaboratif/{bukuKolaboratif}/bab/{babBuku}/pesan',
+//             [BukuKolaboratifController::class, 'prosesPesanan']
+//         )
+//             ->name('buku-kolaboratif.proses-pesanan');
 
-        Route::get('/pesanan/{pesananBuku}/status', [BukuKolaboratifController::class, 'statusPesanan'])
-            ->name('buku-kolaboratif.status-pesanan');
-        Route::post('/pesanan/{id}/upload-naskah', [BukuKolaboratifController::class, 'uploadNaskah'])
-            ->name('buku-kolaboratif.upload-naskah');
-        Route::get('/pesanan/{id}/download-naskah', [BukuKolaboratifController::class, 'downloadNaskah'])
-            ->name('buku-kolaboratif.download-naskah');
+//         Route::get('/pesanan/{pesananBuku}/pembayaran', [BukuKolaboratifController::class, 'pembayaran'])
+//             ->name('buku-kolaboratif.pembayaran');
+
+//         Route::post('/pesanan/{pesananBuku}/pembayaran', [BukuKolaboratifController::class, 'prosesPembayaran'])
+//             ->name('buku-kolaboratif.proses-pembayaran');
+
+//         Route::get('/pesanan/{pesananBuku}/status', [BukuKolaboratifController::class, 'statusPesanan'])
+//             ->name('buku-kolaboratif.status-pesanan');
+//         Route::post('/pesanan/{id}/upload-naskah', [BukuKolaboratifController::class, 'uploadNaskah'])
+//             ->name('buku-kolaboratif.upload-naskah');
+//         Route::get('/pesanan/{id}/download-naskah', [BukuKolaboratifController::class, 'downloadNaskah'])
+//             ->name('buku-kolaboratif.download-naskah');
+//     });
+// });
+
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('buku-kolaboratif')->name('buku-kolaboratif.')->group(function () {
+        Route::get('/', [BukuKolaboratifController::class, 'index'])->name('index');
+        Route::get('/{id}', [BukuKolaboratifController::class, 'tampilkan'])->name('tampilkan');
+        
+        // Route untuk pemilihan dan pemesanan bab
+        Route::get('/{bukuKolaboratif}/bab/{babBuku}/pilih', [BukuKolaboratifController::class, 'pilihBab'])->name('pilih-bab');
+        Route::post('/{bukuKolaboratif}/bab/{babBuku}/pesan', [BukuKolaboratifController::class, 'prosesPesanan'])->name('proses-pesanan');
+        
+        // Route untuk pembayaran
+        Route::get('/pembayaran/{pesananId}', [BukuKolaboratifController::class, 'pembayaran'])->name('pembayaran');
+        Route::post('/pembayaran/{pesananId}', [BukuKolaboratifController::class, 'prosesPembayaran'])->name('proses-pembayaran');
+        
+        // Route untuk status dan naskah
+        Route::get('/status/{pesananId}', [BukuKolaboratifController::class, 'statusPesanan'])->name('status-pesanan');
+        Route::get('/upload-naskah/{pesananId}', [BukuKolaboratifController::class, 'uploadNaskah'])->name('upload-naskah');
+        Route::post('/upload-naskah/{pesananId}', [BukuKolaboratifController::class, 'prosesUploadNaskah'])->name('proses-upload-naskah');
+        Route::get('/download-naskah/{pesananId}', [BukuKolaboratifController::class, 'downloadNaskah'])->name('download-naskah');
+        
+        // Route untuk daftar pesanan dan pembatalan
+        Route::get('/pesanan', [BukuKolaboratifController::class, 'daftarPesanan'])->name('daftar-pesanan');
+        Route::post('/pesanan/{pesananId}/batal', [BukuKolaboratifController::class, 'batalkanPesanan'])->name('batal-pesanan');
+        
+        // API routes
+        Route::get('/api/bab-status/{bukuId}', [BukuKolaboratifController::class, 'getBabStatus'])->name('api.bab-status');
+        Route::get('/api/status-pembayaran/{pesananId}', [BukuKolaboratifController::class, 'cekStatusPembayaran'])->name('api.status-pembayaran');
     });
 });
+
 
 
 
@@ -458,28 +501,60 @@ Route::prefix('admin')->group(function () {
     });
 
     // Naskah Kolaborasi Routes
-    Route::prefix('admin/naskah-kolaborasi')->name('naskahKolaborasi.')->group(function () {
-        Route::get('/', [NaskahKolaborasiController::class, 'index'])->name('index');
-        Route::get('/create', [NaskahKolaborasiController::class, 'create'])->name('create');
-        Route::post('/', [NaskahKolaborasiController::class, 'store'])->name('store');
-        Route::get('/{id}', [NaskahKolaborasiController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [NaskahKolaborasiController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [NaskahKolaborasiController::class, 'update'])->name('update');
-        Route::delete('/{id}', [NaskahKolaborasiController::class, 'destroy'])->name('destroy');
-        Route::put('/{id}/terima', [NaskahKolaborasiController::class, 'terima'])->name('terima');
-        Route::put('/{id}/revisi', [NaskahKolaborasiController::class, 'revisi'])->name('revisi');
-        Route::put('/{id}/tolak', [NaskahKolaborasiController::class, 'tolak'])->name('tolak');
-        Route::get('/{id}/download', [NaskahKolaborasiController::class, 'download'])->name('download');
-    });
-
-    // API Routes untuk AJAX
-    Route::prefix('admin/api')->group(function () {
-        Route::get('/buku-kolaboratif/{id}/bab', [NaskahKolaborasiController::class, 'getBabByBuku']);
-        Route::get('/pesanan-kolaborasi/{id}', [NaskahKolaborasiController::class, 'getPesananDetail']);
-    });
+    // Route::prefix('naskah-kolaborasi')->name('naskahKolaborasi.')->group(function () {
+    //     Route::get('/', [NaskahKolaborasiController::class, 'index'])->name('index');
+    //     Route::get('/create', [NaskahKolaborasiController::class, 'create'])->name('create');
+    //     Route::post('/', [NaskahKolaborasiController::class, 'store'])->name('store');
+    //     Route::get('/{id}', [NaskahKolaborasiController::class, 'show'])->name('show');
+    //     Route::get('/{id}/edit', [NaskahKolaborasiController::class, 'edit'])->name('edit');
+    //     Route::put('/{id}', [NaskahKolaborasiController::class, 'update'])->name('update');
+    //     Route::delete('/{id}', [NaskahKolaborasiController::class, 'destroy'])->name('destroy');
+    //     Route::put('/{id}/terima', [NaskahKolaborasiController::class, 'terima'])->name('terima');
+    //     Route::put('/{id}/revisi', [NaskahKolaborasiController::class, 'revisi'])->name('revisi');
+    //     Route::put('/{id}/tolak', [NaskahKolaborasiController::class, 'tolak'])->name('tolak');
+    //     Route::get('/{id}/download', [NaskahKolaborasiController::class, 'download'])->name('download');
+    // });
 
 
 
+    // // API Routes untuk AJAX
+    // Route::prefix('admin/api')->group(function () {
+    //     Route::get('/buku-kolaboratif/{id}/bab', [NaskahKolaborasiController::class, 'getBabByBuku']);
+    //     Route::get('/pesanan-kolaborasi/{id}', [NaskahKolaborasiController::class, 'getPesananDetail']);
+    // });
+
+    // Route untuk naskah kolaborasi
+    Route::resource('naskah-kolaborasi', NaskahKolaborasiController::class, [
+        'names' => [
+            'index' => 'naskahKolaborasi.index',
+            'create' => 'naskahKolaborasi.create',
+            'store' => 'naskahKolaborasi.store',
+            'show' => 'naskahKolaborasi.show',
+            'edit' => 'naskahKolaborasi.edit',
+            'update' => 'naskahKolaborasi.update',
+            'destroy' => 'naskahKolaborasi.destroy',
+        ]
+    ]);
+
+    // Route untuk download naskah
+    Route::get('naskah-kolaborasi/{id}/download', [NaskahKolaborasiController::class, 'download'])
+        ->name('naskahKolaborasi.download');
+
+    // Route untuk aksi review
+    Route::put('naskah-kolaborasi/{id}/terima', [NaskahKolaborasiController::class, 'terima'])
+        ->name('naskahKolaborasi.terima');
+    Route::put('naskah-kolaborasi/{id}/revisi', [NaskahKolaborasiController::class, 'revisi'])
+        ->name('naskahKolaborasi.revisi');
+    Route::put('naskah-kolaborasi/{id}/tolak', [NaskahKolaborasiController::class, 'tolak'])
+        ->name('naskahKolaborasi.tolak');
+});
+
+// Route API di luar group admin (tanpa middleware admin)
+Route::prefix('admin/api')->middleware(['auth'])->group(function () {
+    Route::get('buku-kolaboratif/{bukuId}/bab', [App\Http\Controllers\Admin\NaskahKolaborasiController::class, 'getBabByBuku'])
+        ->name('api.buku.bab');
+    Route::get('pesanan-kolaborasi/{pesananId}', [App\Http\Controllers\Admin\NaskahKolaborasiController::class, 'getPesananDetail'])
+        ->name('api.pesanan.detail');
 
     // // Admin Pembayaran Routes
     // Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {

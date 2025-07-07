@@ -11,6 +11,12 @@
             </a>
         </div>
 
+        @if(session('error'))
+            <div class="bg-red-100 text-red-800 p-3 rounded mb-4 dark:bg-red-700 dark:text-white">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <form action="{{ route('naskahKolaborasi.update', $naskah->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -18,25 +24,6 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Kolom Kiri -->
                 <div class="space-y-4">
-                    <div>
-                        <label for="pesanan_kolaborasi_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Pesanan Kolaborasi (Opsional)
-                        </label>
-                        <select name="pesanan_kolaborasi_id" id="pesanan_kolaborasi_id"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
-                            <option value="">Pilih Pesanan (Opsional)</option>
-                            @foreach($pesananKolaborasi as $pesanan)
-                                <option value="{{ $pesanan->id }}" {{ old('pesanan_kolaborasi_id', $naskah->pesanan_kolaborasi_id) == $pesanan->id ? 'selected' : '' }}>
-                                    {{ $pesanan->nomor_pesanan }} - {{ $pesanan->bukuKolaboratif->judul ?? 'N/A' }}
-                                    ({{ $pesanan->user->name ?? 'N/A' }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('pesanan_kolaborasi_id')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
                     <div>
                         <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Penulis *
@@ -123,6 +110,18 @@
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div>
+                        <label for="tanggal_deadline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Tanggal Deadline
+                        </label>
+                        <input type="date" name="tanggal_deadline" id="tanggal_deadline" 
+                               value="{{ old('tanggal_deadline', $naskah->tanggal_deadline ? $naskah->tanggal_deadline->format('Y-m-d') : '') }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                        @error('tanggal_deadline')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <!-- Kolom Kanan -->
@@ -132,7 +131,7 @@
                             Judul Naskah *
                         </label>
                         <input type="text" name="judul_naskah" id="judul_naskah" value="{{ old('judul_naskah', $naskah->judul_naskah) }}" required
-                                                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                                placeholder="Masukkan judul naskah">
                         @error('judul_naskah')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -158,7 +157,7 @@
                         @if($naskah->file_naskah)
                             <div class="mb-2 p-2 bg-blue-50 dark:bg-blue-900 rounded">
                                 <p class="text-sm text-blue-700 dark:text-blue-300">
-                                    <i class="fas fa-file mr-1"></i>File saat ini: {{ $naskah->file_naskah }}
+                                    <i class="fas fa-file mr-1"></i>File saat ini: {{ basename($naskah->file_naskah) }}
                                 </p>
                                 <a href="{{ route('naskahKolaborasi.download', $naskah->id) }}" 
                                    class="text-blue-600 hover:text-blue-800 text-sm">
@@ -168,7 +167,7 @@
                         @endif
                         <input type="file" name="file_naskah" id="file_naskah" accept=".pdf,.doc,.docx"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
-                        <small class="text-gray-500">Format: PDF, DOC, DOCX. Maksimal 10MB. Kosongkan jika tidak ingin mengubah file.</small>
+                                              <small class="text-gray-500">Format: PDF, DOC, DOCX. Maksimal 10MB. Kosongkan jika tidak ingin mengubah file.</small>
                         @error('file_naskah')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -187,18 +186,6 @@
                     </div>
 
                     <div>
-                        <label for="tanggal_deadline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Tanggal Deadline
-                        </label>
-                        <input type="date" name="tanggal_deadline" id="tanggal_deadline" 
-                               value="{{ old('tanggal_deadline', $naskah->tanggal_deadline ? $naskah->tanggal_deadline->format('Y-m-d') : '') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
-                        @error('tanggal_deadline')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
                         <label for="catatan_penulis" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Catatan Penulis
                         </label>
@@ -206,6 +193,18 @@
                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                                   placeholder="Catatan dari penulis">{{ old('catatan_penulis', $naskah->catatan_penulis) }}</textarea>
                         @error('catatan_penulis')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="catatan" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Catatan Admin
+                        </label>
+                        <textarea name="catatan" id="catatan" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                                  placeholder="Catatan dari admin">{{ old('catatan', $naskah->catatan) }}</textarea>
+                        @error('catatan')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
@@ -276,49 +275,44 @@ document.getElementById('buku_kolaboratif_id').addEventListener('change', functi
     const currentBabId = '{{ $naskah->bab_buku_id }}';
     
     // Clear existing options except current one
-    babSelect.innerHTML = '<option value="">Pilih Bab</option>';
+    babSelect.innerHTML = '<option value="">Loading...</option>';
     
     if (bukuId) {
         // Fetch bab data
         fetch(`/admin/api/buku-kolaboratif/${bukuId}/bab`)
             .then(response => response.json())
             .then(data => {
+                babSelect.innerHTML = '<option value="">Pilih Bab</option>';
+                
+                if (data.error) {
+                    babSelect.innerHTML = '<option value="">Error: ' + data.error + '</option>';
+                    return;
+                }
+                
                 data.forEach(bab => {
                     const option = document.createElement('option');
                     option.value = bab.id;
                     option.textContent = `Bab ${bab.nomor_bab}: ${bab.judul_bab}`;
+                    
                     if (bab.id == currentBabId) {
                         option.selected = true;
                     }
+                    
+                    // Disable jika status tidak tersedia (kecuali yang sedang dipilih)
+                    if (bab.status !== 'tersedia' && bab.id != currentBabId) {
+                        option.disabled = true;
+                        option.textContent += ` (${bab.status_text || bab.status})`;
+                    }
+                    
                     babSelect.appendChild(option);
                 });
             })
-            .catch(error => console.error('Error:', error));
-    }
-});
-
-// Auto-fill from pesanan kolaborasi
-document.getElementById('pesanan_kolaborasi_id').addEventListener('change', function() {
-    const pesananId = this.value;
-    
-    if (pesananId) {
-        // Fetch pesanan data and auto-fill form
-        fetch(`/admin/api/pesanan-kolaborasi/${pesananId}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('user_id').value = data.user_id;
-                document.getElementById('buku_kolaboratif_id').value = data.buku_kolaboratif_id;
-                document.getElementById('nomor_pesanan').value = data.nomor_pesanan;
-                
-                // Trigger buku change to load bab
-                document.getElementById('buku_kolaboratif_id').dispatchEvent(new Event('change'));
-                
-                // Set bab after a short delay
-                setTimeout(() => {
-                    document.getElementById('bab_buku_id').value = data.bab_buku_id;
-                }, 500);
-            })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                babSelect.innerHTML = '<option value="">Error loading bab</option>';
+            });
+    } else {
+        babSelect.innerHTML = '<option value="">Pilih Bab</option>';
     }
 });
 

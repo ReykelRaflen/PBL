@@ -758,6 +758,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function untuk refresh status bab
     function refreshBabStatus() {
+        if (!window.location.href) return;
+        
         fetch(window.location.href, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -777,6 +779,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function untuk update card bab
     function updateBabCards(babStatus) {
+        if (!Array.isArray(babStatus)) return;
+        
         babStatus.forEach(bab => {
             const babCard = document.querySelector(`[data-bab-id="${bab.id}"]`);
             if (babCard) {
@@ -795,143 +799,136 @@ document.addEventListener('DOMContentLoaded', function() {
                         addUserInfo(babCard, bab);
                     } else if (bab.user && userInfo) {
                         // Update info user yang sudah ada
-                        updateUserInfo(userInfo, bab);
+                                              updateUserInfo(userInfo, bab);
                     }
                 } else if (userInfo) {
-                    // Hapus info user jika status berubah ke tersedia
+                    // Hapus info user jika status kembali tersedia
                     userInfo.remove();
                 }
 
-                // Update tombol aksi
-                updateActionButton(babCard, bab);
+                // Update tombol
+                updateBabButton(babCard, bab);
             }
         });
     }
 
-    // Helper functions
+    // Function untuk mendapatkan warna status
     function getStatusColor(status) {
-        switch(status) {
-            case 'tersedia': return 'success';
-            case 'dipesan': return 'warning';
-            case 'selesai': return 'info';
-            default: return 'secondary';
-        }
+        const colors = {
+            'tersedia': 'success',
+            'dipesan': 'warning',
+            'selesai': 'primary',
+            'tidak_tersedia': 'secondary'
+        };
+        return colors[status] || 'secondary';
     }
 
+    // Function untuk mendapatkan text status
     function getStatusText(status) {
-        switch(status) {
-            case 'tersedia': return 'Tersedia';
-            case 'dipesan': return 'Dipesan';
-            case 'selesai': return 'Selesai';
-            default: return ucfirst(status);
+        const texts = {
+            'tersedia': 'Tersedia',
+            'dipesan': 'Sedang Ditulis',
+            'selesai': 'Selesai',
+            'tidak_tersedia': 'Tidak Tersedia'
+        };
+        return texts[status] || status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    // Function untuk menambah info user
+    function addUserInfo(babCard, bab) {
+        if (!bab.user) return;
+        
+        const cardBody = babCard.querySelector('.card-body');
+        if (cardBody) {
+            const userInfoDiv = document.createElement('div');
+            userInfoDiv.className = 'user-info mt-2 p-2 bg-light rounded';
+            userInfoDiv.innerHTML = `
+                <small class="text-muted">
+                    <i class="fas fa-user me-1"></i>
+                    Ditulis oleh: <strong>${bab.user.name}</strong>
+                    ${bab.tanggal_pesanan ? `<br><i class="fas fa-calendar me-1"></i>Sejak: ${formatDate(bab.tanggal_pesanan)}` : ''}
+                </small>
+            `;
+            cardBody.appendChild(userInfoDiv);
         }
     }
 
-    function ucfirst(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    function addUserInfo(babCard, bab) {
-        const cardBody = babCard.querySelector('.card-body');
-        const hargaDiv = cardBody.querySelector('.mb-3');
-        
-        const userInfoHtml = `
-            <div class="mb-2 user-info">
-                <small class="text-muted">
-                    ${bab.status === 'dipesan' ? 'Sedang dikerjakan oleh:' : 'Diselesaikan oleh:'}
-                </small><br>
-                <span class="badge bg-light text-dark border">
-                    <i class="fas fa-user"></i> ${bab.user.name}
-                </span>
-            </div>
-        `;
-        
-        hargaDiv.insertAdjacentHTML('beforebegin', userInfoHtml);
-    }
-
+    // Function untuk update info user
     function updateUserInfo(userInfo, bab) {
-        const statusText = bab.status === 'dipesan' ? 'Sedang dikerjakan oleh:' : 'Diselesaikan oleh:';
-        userInfo.querySelector('small').textContent = statusText;
-        userInfo.querySelector('.badge').innerHTML = `<i class="fas fa-user"></i> ${bab.user.name}`;
+        if (!bab.user || !userInfo) return;
+        
+        userInfo.innerHTML = `
+            <small class="text-muted">
+                <i class="fas fa-user me-1"></i>
+                Ditulis oleh: <strong>${bab.user.name}</strong>
+                ${bab.tanggal_pesanan ? `<br><i class="fas fa-calendar me-1"></i>Sejak: ${formatDate(bab.tanggal_pesanan)}` : ''}
+            </small>
+        `;
     }
 
-    function updateActionButton(babCard, bab) {
-        const actionDiv = babCard.querySelector('.mt-auto');
-        let buttonHtml = '';
+    // Function untuk update tombol bab
+    function updateBabButton(babCard, bab) {
+        const button = babCard.querySelector('.btn');
+        if (!button) return;
 
+        // Reset classes
+        button.className = 'btn';
+        
         switch(bab.status) {
             case 'tersedia':
-                buttonHtml = `
-                    <a href="/buku-kolaboratif/${bab.buku_kolaboratif_id}/bab/${bab.id}/pilih" class="btn btn-primary w-100">
-                        <i class="fas fa-shopping-cart"></i> Pesan Sekarang
-                    </a>
-                `;
+                button.classList.add('btn-primary');
+                button.innerHTML = '<i class="fas fa-edit me-1"></i>Pilih Bab Ini';
+                button.disabled = false;
+                button.href = `/buku-kolaboratif/${bab.buku_kolaboratif_id}/bab/${bab.id}/pilih`;
                 break;
+                
             case 'dipesan':
-                if (bab.user) {
-                    buttonHtml = `
-                        <div class="text-center">
-                            <button class="btn btn-warning w-100 mb-2" disabled>
-                                <i class="fas fa-clock"></i> Sedang Dikerjakan
-                            </button>
-                            <small class="text-muted">
-                                oleh <strong>${bab.user.name}</strong>
-                            </small>
-                        </div>
-                    `;
-                } else {
-                    buttonHtml = `
-                        <button class="btn btn-warning w-100" disabled>
-                            <i class="fas fa-clock"></i> Sedang Dikerjakan
-                        </button>
-                    `;
-                }
+                button.classList.add('btn-warning');
+                button.innerHTML = '<i class="fas fa-clock me-1"></i>Sedang Ditulis';
+                button.disabled = true;
+                button.removeAttribute('href');
                 break;
+                
             case 'selesai':
-                if (bab.user) {
-                    buttonHtml = `
-                        <div class="text-center">
-                            <button class="btn btn-info w-100 mb-2" disabled>
-                                <i class="fas fa-check-circle"></i> Sudah Selesai
-                            </button>
-                            <small class="text-muted">
-                                oleh <strong>${bab.user.name}</strong>
-                            </small>
-                        </div>
-                    `;
-                } else {
-                    buttonHtml = `
-                        <button class="btn btn-info w-100" disabled>
-                            <i class="fas fa-check-circle"></i> Sudah Selesai
-                        </button>
-                    `;
-                }
+                button.classList.add('btn-success');
+                button.innerHTML = '<i class="fas fa-check me-1"></i>Selesai';
+                button.disabled = true;
+                button.removeAttribute('href');
                 break;
+                
             default:
-                buttonHtml = `
-                    <button class="btn btn-secondary w-100" disabled>
-                        <i class="fas fa-ban"></i> Tidak Tersedia
-                    </button>
-                `;
+                button.classList.add('btn-secondary');
+                button.innerHTML = '<i class="fas fa-ban me-1"></i>Tidak Tersedia';
+                button.disabled = true;
+                button.removeAttribute('href');
         }
-
-        actionDiv.innerHTML = buttonHtml;
     }
 
-    // Tooltip initialization
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
+    // Function untuk format tanggal
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        } catch (e) {
+            return dateString;
+        }
+    }
 
-    // Loading state untuk tombol
-    document.querySelectorAll('.btn-primary').forEach(button => {
-        button.addEventListener('click', function() {
-            if (!this.disabled) {
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-                this.disabled = true;
-            }
-        });
+    // Progress bar animation
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width || bar.getAttribute('aria-valuenow') + '%';
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.transition = 'width 1s ease-in-out';
+            bar.style.width = width;
+        }, 500);
     });
 
     // Lazy loading untuk gambar
@@ -949,44 +946,182 @@ document.addEventListener('DOMContentLoaded', function() {
 
     images.forEach(img => imageObserver.observe(img));
 
-    // Animasi fade in untuk card
-    const cards = document.querySelectorAll('.bab-card');
-    cards.forEach((card, index) => {
+    // Tooltip initialization
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+
+    // Search functionality (jika ada search box)
+    const searchInput = document.getElementById('search-bab');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const babCards = document.querySelectorAll('[data-bab-id]');
+            
+            babCards.forEach(card => {
+                const title = card.querySelector('.card-title');
+                const description = card.querySelector('.card-text');
+                
+                if (title && description) {
+                    const titleText = title.textContent.toLowerCase();
+                    const descText = description.textContent.toLowerCase();
+                    
+                    if (titleText.includes(searchTerm) || descText.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        card.classList.add('search-highlight');
+                    } else {
+                        card.style.display = searchTerm ? 'none' : 'block';
+                        card.classList.remove('search-highlight');
+                    }
+                }
+            });
+        }, 300));
+    }
+
+    // Filter functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            const babCards = document.querySelectorAll('[data-bab-id]');
+            
+            // Update active button
+            filterButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter cards
+            babCards.forEach(card => {
+                const statusBadge = card.querySelector('.status-badge');
+                if (statusBadge) {
+                    const status = statusBadge.textContent.toLowerCase();
+                    
+                    if (filter === 'all' || status.includes(filter.toLowerCase())) {
+                        card.style.display = 'block';
+                        card.classList.add('fade-in');
+                    } else {
+                        card.style.display = 'none';
+                        card.classList.remove('fade-in');
+                    }
+                }
+            });
+        });
+    });
+
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
         setTimeout(() => {
-            card.classList.add('fade-in');
-        }, index * 100);
-    });
-});
+            if (notification && notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
 
-// Function untuk copy text (jika diperlukan)
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        // Show success notification
-        showNotification('Teks berhasil disalin!', 'success');
-    }).catch(function(err) {
-        console.error('Could not copy text: ', err);
-        showNotification('Gagal menyalin teks', 'error');
+    // Error handling untuk fetch requests
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error('Unhandled promise rejection:', event.reason);
+        // Bisa tambahkan notifikasi error di sini jika diperlukan
     });
-}
 
-// Function untuk show notification
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
-    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-    notification.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.remove();
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + F untuk focus ke search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            const searchInput = document.getElementById('search-bab');
+            if (searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            }
         }
-    }, 3000);
-}
+        
+        // Escape untuk clear search
+        if (e.key === 'Escape') {
+            const searchInput = document.getElementById('search-bab');
+            if (searchInput && searchInput.value) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
+        }
+    });
+
+    // Performance monitoring
+    if ('performance' in window) {
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                if (perfData) {
+                    console.log('Page load time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+                }
+            }, 0);
+        });
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    });
+
+    // Initial status check after 2 seconds
+    setTimeout(function() {
+        if (!document.hidden) {
+            refreshBabStatus();
+        }
+    }, 2000);
+
+    // Add fade-in animation to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(function(card, index) {
+        card.style.animationDelay = (index * 0.1) + 's';
+        card.classList.add('fade-in');
+    });
+
+    // Back to top button
+    const backToTopBtn = document.getElementById('back-to-top');
+    if (backToTopBtn) {
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.style.display = 'block';
+            } else {
+                backToTopBtn.style.display = 'none';
+            }
+        });
+
+        backToTopBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+});
 </script>
 @endpush

@@ -11,32 +11,18 @@
                 </a>
             </div>
 
+            @if(session('error'))
+                <div class="bg-red-100 text-red-800 p-3 rounded mb-4 dark:bg-red-700 dark:text-white">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <form action="{{ route('naskahKolaborasi.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Kolom Kiri -->
                     <div class="space-y-4">
-                        <div>
-                            <label for="pesanan_kolaborasi_id"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Pesanan Kolaborasi (Opsional)
-                            </label>
-                            <select name="pesanan_kolaborasi_id" id="pesanan_kolaborasi_id"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
-                                <option value="">Pilih Pesanan (Opsional)</option>
-                                @foreach($pesananKolaborasi as $pesanan)
-                                    <option value="{{ $pesanan->id }}" {{ old('pesanan_kolaborasi_id') == $pesanan->id ? 'selected' : '' }}>
-                                        {{ $pesanan->nomor_pesanan }} - {{ $pesanan->bukuKolaboratif->judul ?? 'N/A' }}
-                                        ({{ $pesanan->user->name ?? 'N/A' }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('pesanan_kolaborasi_id')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         <div>
                             <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Penulis *
@@ -130,6 +116,19 @@
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        <div>
+                            <label for="tanggal_deadline"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Tanggal Deadline
+                            </label>
+                            <input type="date" name="tanggal_deadline" id="tanggal_deadline"
+                                value="{{ old('tanggal_deadline') }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                            @error('tanggal_deadline')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
                     <!-- Kolom Kanan -->
@@ -189,95 +188,134 @@
                         </div>
 
                         <div>
-                            <div>
-                                <label for="tanggal_deadline"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Tanggal Deadline
-                                </label>
-                                <input type="date" name="tanggal_deadline" id="tanggal_deadline"
-                                    value="{{ old('tanggal_deadline') }}"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
-                                @error('tanggal_deadline')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            <label for="catatan_penulis"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Catatan Penulis
+                            </label>
+                            <textarea name="catatan_penulis" id="catatan_penulis" rows="4"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                                placeholder="Catatan dari penulis">{{ old('catatan_penulis') }}</textarea>
+                            @error('catatan_penulis')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                            <div>
-                                <label for="catatan_penulis"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Catatan Penulis
-                                </label>
-                                <textarea name="catatan_penulis" id="catatan_penulis" rows="4"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                                    placeholder="Catatan dari penulis">{{ old('catatan_penulis') }}</textarea>
-                                @error('catatan_penulis')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
+                        <div>
+                            <label for="catatan"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Catatan Admin
+                            </label>
+                            <textarea name="catatan" id="catatan" rows="3"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                                placeholder="Catatan dari admin">{{ old('catatan') }}</textarea>
+                            @error('catatan')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
+                </div>
 
-                    <div class="flex items-center justify-end mt-6 pt-6 border-t">
-                        <a href="{{ route('naskahKolaborasi.index') }}"
-                            class="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mr-3">
-                            Batal
-                        </a>
-                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            <i class="fas fa-save mr-1"></i>Simpan
-                        </button>
-                    </div>
+                <div class="flex items-center justify-end mt-6 pt-6 border-t">
+                    <a href="{{ route('naskahKolaborasi.index') }}"
+                        class="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 mr-3">
+                        Batal
+                    </a>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <i class="fas fa-save mr-1"></i>Simpan
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
-    <script>
-        // Load bab berdasarkan buku yang dipilih
-        document.getElementById('buku_kolaboratif_id').addEventListener('change', function () {
-            const bukuId = this.value;
-            const babSelect = document.getElementById('bab_buku_id');
+       <script>
+// Load bab berdasarkan buku yang dipilih
+document.getElementById('buku_kolaboratif_id').addEventListener('change', function () {
+    const bukuId = this.value;
+    const babSelect = document.getElementById('bab_buku_id');
+    
+    console.log('Buku ID selected:', bukuId);
 
-            // Clear existing options
+    // Clear existing options
+    babSelect.innerHTML = '<option value="">Loading...</option>';
+
+    if (bukuId) {
+        const url = `/admin/api/buku-kolaboratif/${bukuId}/bab`;
+        console.log('Fetching URL:', url);
+        
+        // Fetch bab data
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response OK:', response.ok);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            
+            // Clear loading option
             babSelect.innerHTML = '<option value="">Pilih Bab</option>';
-
-            if (bukuId) {
-                // Fetch bab data (you'll need to create an API endpoint for this)
-                fetch(`/admin/api/buku-kolaboratif/${bukuId}/bab`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(bab => {
-                            const option = document.createElement('option');
-                            option.value = bab.id;
-                            option.textContent = `Bab ${bab.nomor_bab}: ${bab.judul_bab}`;
-                            babSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error:', error));
+            
+            if (data.error) {
+                console.error('API Error:', data.error);
+                babSelect.innerHTML = '<option value="">Error: ' + data.error + '</option>';
+                return;
             }
-        });
-
-        // Auto-fill from pesanan kolaborasi
-        document.getElementById('pesanan_kolaborasi_id').addEventListener('change', function () {
-            const pesananId = this.value;
-
-            if (pesananId) {
-                // Fetch pesanan data and auto-fill form
-                fetch(`/admin/api/pesanan-kolaborasi/${pesananId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('user_id').value = data.user_id;
-                        document.getElementById('buku_kolaboratif_id').value = data.buku_kolaboratif_id;
-                        document.getElementById('nomor_pesanan').value = data.nomor_pesanan;
-
-                        // Trigger buku change to load bab
-                        document.getElementById('buku_kolaboratif_id').dispatchEvent(new Event('change'));
-
-                        // Set bab after a short delay
-                        setTimeout(() => {
-                            document.getElementById('bab_buku_id').value = data.bab_buku_id;
-                        }, 500);
-                    })
-                    .catch(error => console.error('Error:', error));
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                console.log('No bab data found');
+                babSelect.innerHTML = '<option value="">Tidak ada bab tersedia</option>';
+            } else {
+                console.log('Adding bab options:', data.length);
+                data.forEach(bab => {
+                    const option = document.createElement('option');
+                    option.value = bab.id;
+                    option.textContent = `Bab ${bab.nomor_bab}: ${bab.judul_bab}`;
+                    
+                    // Disable jika status tidak tersedia
+                    if (bab.status !== 'tersedia') {
+                        option.disabled = true;
+                        option.textContent += ` (${bab.status_text || bab.status})`;
+                    }
+                    
+                    babSelect.appendChild(option);
+                    console.log('Added option:', option.textContent);
+                });
             }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            babSelect.innerHTML = '<option value="">Error loading bab: ' + error.message + '</option>';
         });
-    </script>
+    } else {
+        babSelect.innerHTML = '<option value="">Pilih Bab</option>';
+    }
+});
+
+// Generate nomor pesanan otomatis jika kosong
+document.addEventListener('DOMContentLoaded', function() {
+    const nomorPesananInput = document.getElementById('nomor_pesanan');
+    if (nomorPesananInput && !nomorPesananInput.value) {
+        const today = new Date();
+        const dateStr = today.getFullYear() + 
+                       String(today.getMonth() + 1).padStart(2, '0') + 
+                       String(today.getDate()).padStart(2, '0');
+        const randomNum = Math.floor(Math.random() * 9999) + 1;
+        const nomor = `NK-${dateStr}-${String(randomNum).padStart(4, '0')}`;
+        nomorPesananInput.value = nomor;
+    }
+});
+</script>
+
 @endsection

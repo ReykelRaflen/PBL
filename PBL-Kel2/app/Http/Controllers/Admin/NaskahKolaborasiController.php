@@ -69,13 +69,29 @@ class NaskahKolaborasiController extends Controller
 
     public function create()
     {
-        $users = User::where('role', 'penulis')->get();
-        $bukuKolaboratif = BukuKolaboratif::where('status', 'aktif')->get();
-        $pesananBuku = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku', 'user'])
-            ->where('status_pembayaran', 'lunas')
+        // Ambil semua user dengan berbagai role yang bisa menjadi penulis
+        $users = User::whereIn('role', ['penulis', 'user', 'member'])
+            ->orderBy('name')
             ->get();
+        
+        // Jika tidak ada user dengan role tersebut, ambil semua user kecuali admin
+        if ($users->isEmpty()) {
+            $users = User::where('role', '!=', 'admin')
+                ->orderBy('name')
+                ->get();
+        }
 
-        return view('admin.naskahKolaborasi.create', compact('users', 'bukuKolaboratif', 'pesananBuku'));
+        // Jika masih kosong, ambil semua user
+        if ($users->isEmpty()) {
+            $users = User::orderBy('name')->get();
+        }
+        
+        $bukuKolaboratif = BukuKolaboratif::where('status', 'aktif')->get();
+
+        // Debug log
+        Log::info('Create naskah - Users count: ' . $users->count());
+
+        return view('admin.naskahKolaborasi.create', compact('users', 'bukuKolaboratif'));
     }
 
     public function store(Request $request)
@@ -84,7 +100,6 @@ class NaskahKolaborasiController extends Controller
             'user_id' => 'required|exists:users,id',
             'buku_kolaboratif_id' => 'required|exists:buku_kolaboratif,id',
             'bab_buku_id' => 'required|exists:bab_buku,id',
-            'pesanan_kolaborasi_id' => 'nullable|exists:pesanan_kolaborasi,id',
             'nomor_pesanan' => 'required|string|max:50|unique:pesanan_kolaborasi,nomor_pesanan',
             'judul_naskah' => 'nullable|string|max:500',
             'deskripsi_naskah' => 'nullable|string|max:2000',
@@ -93,12 +108,21 @@ class NaskahKolaborasiController extends Controller
             'tanggal_deadline' => 'nullable|date|after:today',
             'catatan_penulis' => 'nullable|string|max:1000',
             'catatan' => 'nullable|string|max:1000',
+            'jumlah_bayar' => 'nullable|numeric|min:0',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Handle file upload - menggunakan disk public
+            // Cek apakah bab masih tersedia
+            $bab = BabBuku::find($validated['bab_buku_id']);
+            if (!$bab || !$bab->isTersedia()) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Bab yang dipilih sudah tidak tersedia.');
+            }
+
+            // Handle file upload
             if ($request->hasFile('file_naskah')) {
                 $file = $request->file('file_naskah');
                 $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
@@ -112,23 +136,23 @@ class NaskahKolaborasiController extends Controller
             $validated['status_penulisan'] = $request->hasFile('file_naskah') ? 'sudah_kirim' : 'dapat_mulai';
             $validated['tanggal_pesanan'] = now();
             $validated['admin_id'] = auth()->id();
+            $validated['jumlah_bayar'] = $validated['jumlah_bayar'] ?? 0;
 
-            // Generate nomor pesanan if not provided
-            if (!$validated['nomor_pesanan']) {
+            // Generate nomor pesanan if not provided or empty
+            if (empty($validated['nomor_pesanan'])) {
                 $validated['nomor_pesanan'] = $this->generateNomorPesanan();
             }
 
             $naskah = PesananKolaborasi::create($validated);
 
             // Update status bab menjadi tidak tersedia
-            if ($naskah->babBuku) {
-                $naskah->babBuku->update(['status' => 'tidak_tersedia']);
-            }
+            $bab->markAsTidakTersedia();
 
             Log::info('Naskah kolaborasi created', [
                 'admin_id' => auth()->id(),
                 'pesanan_id' => $naskah->id,
-                'nomor_pesanan' => $naskah->nomor_pesanan
+                'nomor_pesanan' => $naskah->nomor_pesanan,
+                'bab_id' => $bab->id
             ]);
 
             DB::commit();
@@ -141,16 +165,17 @@ class NaskahKolaborasiController extends Controller
 
             Log::error('Error creating naskah kolaborasi', [
                 'error' => $e->getMessage(),
-                'admin_id' => auth()->id()
+                'admin_id' => auth()->id(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Terjadi kesalahan saat menyimpan naskah.');
+                ->with('error', 'Terjadi kesalahan saat menyimpan naskah: ' . $e->getMessage());
         }
     }
 
-    public function show($id)
+       public function show($id)
     {
         $naskah = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku', 'user'])
             ->findOrFail($id);
@@ -163,15 +188,26 @@ class NaskahKolaborasiController extends Controller
         $naskah = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku', 'user'])
             ->findOrFail($id);
 
-        $users = User::where('role', 'penulis')->get();
+        // Ambil semua user dengan berbagai role yang bisa menjadi penulis
+        $users = User::whereIn('role', ['penulis', 'user', 'member'])
+            ->orderBy('name')
+            ->get();
+        
+        // Jika tidak ada user dengan role tersebut, ambil semua user kecuali admin
+        if ($users->isEmpty()) {
+            $users = User::where('role', '!=', 'admin')
+                ->orderBy('name')
+                ->get();
+        }
+
+        // Jika masih kosong, ambil semua user
+        if ($users->isEmpty()) {
+            $users = User::orderBy('name')->get();
+        }
+
         $bukuKolaboratif = BukuKolaboratif::where('status', 'aktif')->get();
 
-        // Perbaikan: tambahkan variabel pesananKolaborasi
-        $pesananKolaborasi = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku', 'user'])
-            ->where('status_pembayaran', 'lunas')
-            ->get();
-
-        return view('admin.naskahKolaborasi.edit', compact('naskah', 'users', 'bukuKolaboratif', 'pesananKolaborasi'));
+        return view('admin.naskahKolaborasi.edit', compact('naskah', 'users', 'bukuKolaboratif'));
     }
 
     public function update(Request $request, $id)
@@ -194,7 +230,7 @@ class NaskahKolaborasiController extends Controller
         try {
             DB::beginTransaction();
 
-            // Handle file upload - menggunakan disk public
+            // Handle file upload
             if ($request->hasFile('file_naskah')) {
                 // Delete old file if exists
                 if ($naskah->file_naskah && Storage::disk('public')->exists($naskah->file_naskah)) {
@@ -217,13 +253,20 @@ class NaskahKolaborasiController extends Controller
             if ($naskah->bab_buku_id != $validated['bab_buku_id']) {
                 // Return old bab to available
                 if ($naskah->babBuku) {
-                    $naskah->babBuku->update(['status' => 'tersedia']);
+                    $naskah->babBuku->markAsTersedia();
+                }
+
+                // Check if new bab is available
+                $newBab = BabBuku::find($validated['bab_buku_id']);
+                if ($newBab && !$newBab->isTersedia()) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Bab yang dipilih sudah tidak tersedia.');
                 }
 
                 // Set new bab to unavailable
-                $newBab = BabBuku::find($validated['bab_buku_id']);
                 if ($newBab) {
-                    $newBab->update(['status' => 'tidak_tersedia']);
+                    $newBab->markAsTidakTersedia();
                 }
             }
 
@@ -251,7 +294,7 @@ class NaskahKolaborasiController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Terjadi kesalahan saat memperbarui naskah.');
+                ->with('error', 'Terjadi kesalahan saat memperbarui naskah: ' . $e->getMessage());
         }
     }
 
@@ -262,14 +305,14 @@ class NaskahKolaborasiController extends Controller
 
             $naskah = PesananKolaborasi::findOrFail($id);
 
-            // Delete file if exists - menggunakan disk public
+            // Delete file if exists
             if ($naskah->file_naskah && Storage::disk('public')->exists($naskah->file_naskah)) {
                 Storage::disk('public')->delete($naskah->file_naskah);
             }
 
             // Return bab to available status
             if ($naskah->babBuku) {
-                $naskah->babBuku->update(['status' => 'tersedia']);
+                $naskah->babBuku->markAsTersedia();
             }
 
             $nomor_pesanan = $naskah->nomor_pesanan;
@@ -296,21 +339,19 @@ class NaskahKolaborasiController extends Controller
             ]);
 
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan saat menghapus naskah.');
+                ->with('error', 'Terjadi kesalahan saat menghapus naskah: ' . $e->getMessage());
         }
     }
 
     public function download($id)
     {
         try {
-            // Ambil data dari tabel pesanan_kolaborasi
             $pesanan = PesananKolaborasi::findOrFail($id);
 
             if (!$pesanan->file_naskah) {
                 return redirect()->back()->with('error', 'File naskah tidak tersedia.');
             }
 
-            // Path file di storage/app/public/ - sesuaikan dengan disk public
             if (!Storage::disk('public')->exists($pesanan->file_naskah)) {
                 return redirect()->back()->with('error', 'File naskah tidak ditemukan di server.');
             }
@@ -340,70 +381,50 @@ class NaskahKolaborasiController extends Controller
         }
     }
 
-    /**
-     * Get Bab by Buku ID (for AJAX)
-     */
-    public function getBabByBuku($bukuId)
-    {
-        try {
-            $bab = BabBuku::where('buku_kolaboratif_id', $bukuId)
-                ->select('id', 'nomor_bab', 'judul_bab', 'status')
-                ->orderBy('nomor_bab')
-                ->get();
+ /**
+ * Get Bab by Buku ID (for AJAX)
+ */
+public function getBabByBuku($bukuId)
+{
+    try {
+        Log::info('Getting bab for buku ID: ' . $bukuId);
+        
+        // Sesuaikan dengan kolom yang ada di database
+        $bab = BabBuku::where('buku_kolaboratif_id', $bukuId)
+            ->select('id', 'nomor_bab', 'judul_bab', 'status', 'deskripsi') // Hanya kolom yang ada
+            ->orderBy('nomor_bab')
+            ->get();
 
-            return response()->json($bab);
-        } catch (\Exception $e) {
-            Log::error('Error getting bab by buku', [
-                'buku_id' => $bukuId,
-                'error' => $e->getMessage()
-            ]);
+        Log::info('Found bab count: ' . $bab->count());
+        Log::info('Bab data: ', $bab->toArray());
+        
+        // Transform data untuk response
+        $babData = $bab->map(function($item) {
+            return [
+                'id' => $item->id,
+                'nomor_bab' => $item->nomor_bab,
+                'judul_bab' => $item->judul_bab,
+                'status' => $item->status,
+                'deskripsi' => $item->deskripsi,
+                'status_text' => $item->status_text ?? ucfirst(str_replace('_', ' ', $item->status))
+            ];
+        });
 
-            return response()->json(['error' => 'Gagal mengambil data bab'], 500);
-        }
+        return response()->json($babData);
+        
+    } catch (\Exception $e) {
+        Log::error('Error getting bab by buku', [
+            'buku_id' => $bukuId,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'error' => 'Gagal mengambil data bab',
+            'message' => $e->getMessage()
+        ], 500);
     }
-
-    /**
-     * Get Pesanan Detail (for AJAX)
-     */
-    public function getPesananDetail($pesananId)
-    {
-        try {
-            $pesanan = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku', 'user'])
-                ->findOrFail($pesananId);
-
-            return response()->json([
-                'id' => $pesanan->id,
-                'nomor_pesanan' => $pesanan->nomor_pesanan,
-                'user_id' => $pesanan->user_id,
-                'buku_kolaboratif_id' => $pesanan->buku_kolaboratif_id,
-                'bab_buku_id' => $pesanan->bab_buku_id,
-                'jumlah_bayar' => $pesanan->jumlah_bayar,
-                'status_pembayaran' => $pesanan->status_pembayaran,
-                'catatan' => $pesanan->catatan,
-                'user' => [
-                    'id' => $pesanan->user->id,
-                    'name' => $pesanan->user->name,
-                    'email' => $pesanan->user->email
-                ],
-                'buku' => [
-                    'id' => $pesanan->bukuKolaboratif->id,
-                    'judul' => $pesanan->bukuKolaboratif->judul
-                ],
-                'bab' => $pesanan->babBuku ? [
-                    'id' => $pesanan->babBuku->id,
-                    'nomor_bab' => $pesanan->babBuku->nomor_bab,
-                    'judul_bab' => $pesanan->babBuku->judul_bab
-                ] : null
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error getting pesanan detail', [
-                'pesanan_id' => $pesananId,
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json(['error' => 'Gagal mengambil data pesanan'], 500);
-        }
-    }
+}
 
     /**
      * Terima naskah
@@ -430,6 +451,11 @@ class NaskahKolaborasiController extends Controller
                 'tanggal_disetujui' => now(),
                 'admin_id' => auth()->id()
             ]);
+
+            // Update status bab menjadi selesai
+            if ($naskah->babBuku) {
+                $naskah->babBuku->markAsSelesai();
+            }
 
             Log::info('Naskah accepted', [
                 'naskah_id' => $id,
@@ -544,7 +570,7 @@ class NaskahKolaborasiController extends Controller
 
             // Kembalikan status bab menjadi tersedia
             if ($naskah->babBuku) {
-                $naskah->babBuku->update(['status' => 'tersedia']);
+                $naskah->babBuku->markAsTersedia();
 
                 Log::info('Chapter status returned to available after rejection', [
                     'bab_id' => $naskah->babBuku->id,
@@ -564,7 +590,7 @@ class NaskahKolaborasiController extends Controller
             return redirect()->route('naskahKolaborasi.index')
                 ->with('success', 'Naskah berhasil ditolak. Bab telah dikembalikan ke status tersedia.');
 
-        } catch (\Exception $e) {
+               } catch (\Exception $e) {
             DB::rollback();
 
             Log::error('Error rejecting naskah', [
@@ -578,6 +604,52 @@ class NaskahKolaborasiController extends Controller
         }
     }
 
+    /**
+     * Get Pesanan Detail (for AJAX)
+     */
+    public function getPesananDetail($pesananId)
+    {
+        try {
+            $pesanan = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku', 'user'])
+                ->findOrFail($pesananId);
+
+            return response()->json([
+                'id' => $pesanan->id,
+                'nomor_pesanan' => $pesanan->nomor_pesanan,
+                'user_id' => $pesanan->user_id,
+                'buku_kolaboratif_id' => $pesanan->buku_kolaboratif_id,
+                'bab_buku_id' => $pesanan->bab_buku_id,
+                'jumlah_bayar' => $pesanan->jumlah_bayar,
+                'status_pembayaran' => $pesanan->status_pembayaran,
+                'catatan' => $pesanan->catatan,
+                'user' => [
+                    'id' => $pesanan->user->id,
+                    'name' => $pesanan->user->name,
+                    'email' => $pesanan->user->email
+                ],
+                'buku' => [
+                    'id' => $pesanan->bukuKolaboratif->id,
+                    'judul' => $pesanan->bukuKolaboratif->judul
+                ],
+                'bab' => $pesanan->babBuku ? [
+                    'id' => $pesanan->babBuku->id,
+                    'nomor_bab' => $pesanan->babBuku->nomor_bab,
+                    'judul_bab' => $pesanan->babBuku->judul_bab
+                ] : null
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting pesanan detail', [
+                'pesanan_id' => $pesananId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json(['error' => 'Gagal mengambil data pesanan'], 500);
+        }
+    }
+
+    /**
+     * Generate nomor pesanan unik
+     */
     private function generateNomorPesanan()
     {
         $maxAttempts = 10;
@@ -594,5 +666,35 @@ class NaskahKolaborasiController extends Controller
         } while (PesananKolaborasi::where('nomor_pesanan', $nomor)->exists());
 
         return $nomor;
+    }
+
+    /**
+     * Debug method untuk cek users (hapus setelah selesai)
+     */
+    public function getUsers()
+    {
+        $users = User::all();
+        $penulis = User::where('role', 'penulis')->get();
+        
+        return response()->json([
+            'all_users' => $users->map(function($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role
+                ];
+            }),
+            'penulis_only' => $penulis->map(function($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role
+                ];
+            }),
+            'total_users' => $users->count(),
+            'total_penulis' => $penulis->count()
+        ]);
     }
 }
