@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\LaporanPenerbitanKolaborasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -505,6 +506,16 @@ class NaskahKolaborasiController extends Controller
                 $naskah->babBuku->markAsSelesai();
             }
 
+            // Debug log sebelum membuat laporan
+            Log::info('About to create laporan penerbitan', [
+                'naskah_id' => $naskah->id,
+                'buku_kolaboratif_id' => $naskah->buku_kolaboratif_id,
+                'buku_judul' => $naskah->bukuKolaboratif ? $naskah->bukuKolaboratif->judul : 'null'
+            ]);
+
+            // Buat atau update laporan penerbitan
+            $this->createOrUpdateLaporanPenerbitan($naskah);
+
             Log::info('Naskah accepted', [
                 'naskah_id' => $id,
                 'admin_id' => auth()->id(),
@@ -514,7 +525,7 @@ class NaskahKolaborasiController extends Controller
             DB::commit();
 
             return redirect()->route('naskahKolaborasi.index')
-                ->with('success', 'Naskah berhasil diterima!');
+                ->with('success', 'Naskah berhasil diterima dan laporan penerbitan telah dibuat!');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -522,11 +533,146 @@ class NaskahKolaborasiController extends Controller
             Log::error('Error accepting naskah', [
                 'naskah_id' => $id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'admin_id' => auth()->id()
             ]);
 
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Buat atau update laporan penerbitan kolaborasi
+     */
+    private function createOrUpdateLaporanPenerbitan($naskah)
+    {
+        try {
+            Log::info('Starting createOrUpdateLaporanPenerbitan', [
+                'naskah_id' => $naskah->id,
+                'buku_kolaboratif_id' => $naskah->buku_kolaboratif_id
+            ]);
+
+            if (!$naskah->bukuKolaboratif) {
+                Log::warning('BukuKolaboratif not found for naskah', [
+                    'naskah_id' => $naskah->id,
+                    'buku_kolaboratif_id' => $naskah->buku_kolaboratif_id
+                ]);
+                return;
+            }
+
+            $bukuKolaboratif = $naskah->bukuKolaboratif;
+
+            // Cek apakah sudah ada laporan untuk buku ini
+            $laporan = LaporanPenerbitanKolaborasi::where('buku_kolaboratif_id', $naskah->buku_kolaboratif_id)->first();
+
+            Log::info('Checking existing laporan', [
+                'existing_laporan' => $laporan ? $laporan->id : 'not found',
+                'buku_kolaboratif_id' => $naskah->buku_kolaboratif_id
+            ]);
+
+            if (!$laporan) {
+                $kodeBuku = $this->generateKodeBuku($bukuKolaboratif->judul);
+
+                // Buat informasi penulis dan bab untuk catatan
+                $penulis = $naskah->user ? $naskah->user->name : 'Tim Kolaborasi';
+                $babInfo = $naskah->babBuku ? "Bab {$naskah->babBuku->nomor_bab}: {$naskah->babBuku->judul_bab}" : 'Kolaborasi';
+
+                // Data sesuai dengan struktur tabel yang sebenarnya
+                $dataLaporan = [
+                    'buku_kolaboratif_id' => $naskah->buku_kolaboratif_id,
+                    'kode_buku' => $kodeBuku,
+                    'judul' => $bukuKolaboratif->judul,
+                    'isbn' => null, // Akan diisi nanti saat terbit
+                    'tanggal_terbit' => null, // Akan diisi saat buku benar-benar terbit
+                    'status' => 'proses',
+                    'penerbit' => null, // Akan diisi nanti
+                    'harga_jual' => null, // Akan diisi nanti
+                    'jumlah_cetak' => null, // Akan diisi nanti
+                    'jumlah_terjual' => 0,
+                    'admin_id' => auth()->id(),
+                    'catatan' => "Laporan dibuat otomatis saat naskah pertama disetujui.\nPenulis: {$penulis}\nBab: {$babInfo}"
+                ];
+
+                Log::info('Creating new laporan with data', $dataLaporan);
+
+                $newLaporan = LaporanPenerbitanKolaborasi::create($dataLaporan);
+
+                Log::info('Laporan penerbitan kolaborasi created successfully', [
+                    'laporan_id' => $newLaporan->id,
+                    'kode_buku' => $kodeBuku,
+                    'buku_kolaboratif_id' => $naskah->buku_kolaboratif_id,
+                    'admin_id' => auth()->id()
+                ]);
+
+            } else {
+                Log::info('Laporan penerbitan sudah ada', [
+                    'laporan_id' => $laporan->id,
+                    'kode_buku' => $laporan->kode_buku
+                ]);
+
+                // Update catatan untuk menunjukkan ada naskah baru yang disetujui
+                $penulis = $naskah->user ? $naskah->user->name : 'Tim Kolaborasi';
+                $babInfo = $naskah->babBuku ? "Bab {$naskah->babBuku->nomor_bab}: {$naskah->babBuku->judul_bab}" : 'Kolaborasi';
+
+                $currentCatatan = $laporan->catatan ?? '';
+                $newCatatan = $currentCatatan . "\n" . now()->format('d/m/Y H:i') . " - Naskah baru disetujui: {$penulis} ({$babInfo})";
+
+                $laporan->update([
+                    'catatan' => $newCatatan
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error creating/updating laporan penerbitan', [
+                'naskah_id' => $naskah->id,
+                'buku_kolaboratif_id' => $naskah->buku_kolaboratif_id ?? 'null',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
+    /**
+     * Generate kode buku sederhana
+     */
+    private function generateKodeBuku($judul)
+    {
+        try {
+            $words = explode(' ', $judul);
+            $kode = '';
+
+            foreach (array_slice($words, 0, 2) as $word) {
+                $kode .= strtoupper(substr($word, 0, 3));
+            }
+
+            $year = date('Y');
+            $baseKode = "BK-{$kode}-{$year}";
+
+            // Cek apakah kode sudah ada
+            $counter = 1;
+            $finalKode = $baseKode;
+
+            while (LaporanPenerbitanKolaborasi::where('kode_buku', $finalKode)->exists()) {
+                $finalKode = $baseKode . '-' . str_pad($counter, 4, '0', STR_PAD_LEFT);
+                $counter++;
+            }
+
+            Log::info('Generated kode buku', [
+                'judul' => $judul,
+                'kode_buku' => $finalKode
+            ]);
+
+            return $finalKode;
+
+        } catch (\Exception $e) {
+            Log::error('Error generating kode buku', [
+                'judul' => $judul,
+                'error' => $e->getMessage()
+            ]);
+
+            // Fallback kode
+            return 'BK-' . date('Y') . '-' . time();
         }
     }
 

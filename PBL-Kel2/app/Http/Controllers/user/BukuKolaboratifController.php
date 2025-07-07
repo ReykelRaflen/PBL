@@ -310,7 +310,7 @@ class BukuKolaboratifController extends Controller
 }
 
 
-    /**
+        /**
      * STEP 3: Halaman pembayaran
      */
     public function pembayaran($pesananId)
@@ -343,8 +343,12 @@ class BukuKolaboratifController extends Controller
                 ->with('info', 'Pembayaran sudah diproses sebelumnya.');
         }
 
-        return view('buku-kolaboratif.pembayaran', compact('pesananBuku'));
+        // Ambil data rekening dari database
+        $rekenings = \App\Models\Rekening::orderBy('bank')->get();
+
+        return view('buku-kolaboratif.pembayaran', compact('pesananBuku', 'rekenings'));
     }
+
 
         /**
      * STEP 4: User upload bukti pembayaran

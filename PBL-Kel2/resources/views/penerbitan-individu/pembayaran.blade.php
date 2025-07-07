@@ -98,57 +98,76 @@
                                 </div>
                             </div>
 
-                            <!-- Informasi Pembayaran -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card border-success">
-                                    <div class="card-header bg-success text-white">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-university me-2"></i>
-                                            Informasi Transfer Bank
-                                        </h5>
+                                                    <!-- Informasi Transfer Bank -->
+                        <div class="alert alert-info border-left mb-4">
+                            <h6><i class="fas fa-info-circle me-2"></i>Informasi Transfer Bank</h6>
+                            <div class="row">
+                                @forelse($rekenings as $rekening)
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        @php
+                                            // Tentukan logo bank berdasarkan nama bank
+                                            $bankLogos = [
+                                                'BCA' => 'https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg',
+                                                'MANDIRI' => 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo_2016.svg',
+                                                'BRI' => 'https://upload.wikimedia.org/wikipedia/commons/2/2e/BRI_2020.svg',
+                                                'BNI' => 'https://upload.wikimedia.org/wikipedia/commons/5/55/BNI_logo.svg',
+                                                'BTN' => 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Logo_BTN.png',
+                                                'CIMB' => 'https://upload.wikimedia.org/wikipedia/commons/8/8c/CIMB_Niaga_logo.svg',
+                                                'DANAMON' => 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Danamon_logo.svg',
+                                                'PERMATA' => 'https://upload.wikimedia.org/wikipedia/commons/2/2e/PermataBank_logo.svg',
+                                                'MEGA' => 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Bank_Mega_logo.svg',
+                                                'PANIN' => 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Panin_Bank_logo.svg'
+                                            ];
+                                            
+                                            $bankName = strtoupper($rekening->bank);
+                                            $logoUrl = $bankLogos[$bankName] ?? 'https://via.placeholder.com/100x30/007bff/ffffff?text=' . urlencode($rekening->bank);
+                                        @endphp
+                                        <img src="{{ $logoUrl }}" 
+                                             alt="{{ $rekening->bank }}" 
+                                             style="height: 20px; max-width: 60px; object-fit: contain;" 
+                                             class="me-2"
+                                             onerror="this.src='https://via.placeholder.com/60x20/007bff/ffffff?text={{ urlencode($rekening->bank) }}'">
+                                        <strong>Bank {{ $rekening->bank }}</strong>
                                     </div>
-                                    <div class="card-body">
-                                        @if($rekenings && $rekenings->count() > 0)
-                                            <div class="row">
-                                                @foreach($rekenings as $rekening)
-                                                    <div class="col-12 mb-3">
-                                                        <div class="p-3 border rounded bg-light text-center">
-                                                            @php
-                                                                $bankColor = match (strtolower($rekening->bank)) {
-                                                                    'bca' => 'text-primary',
-                                                                    'mandiri' => 'text-warning',
-                                                                    'bni' => 'text-success',
-                                                                    'bri' => 'text-info',
-                                                                    'btn' => 'text-secondary',
-                                                                    default => 'text-dark'
-                                                                };
-                                                            @endphp
-                                                            <i class="fas fa-university {{ $bankColor }} mb-2"
-                                                                style="font-size: 1.5rem;"></i>
-                                                            <h6 class="fw-bold mb-1">Bank {{ strtoupper($rekening->bank) }}</h6>
-                                                            <p class="mb-1 fs-5">
-                                                                <strong>{{ $rekening->nomor_rekening }}</strong>
-                                                                <button class="btn btn-sm btn-outline-secondary ms-2"
-                                                                    onclick="copyToClipboard('{{ $rekening->nomor_rekening }}')"
-                                                                    title="Copy nomor rekening">
-                                                                    <i class="fas fa-copy"></i>
-                                                                </button>
-                                                            </p>
-                                                            <small class="text-muted">a.n. {{ $rekening->nama_pemilik }}</small>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <div class="alert alert-warning text-center">
-                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                Belum ada rekening yang tersedia. Silakan hubungi admin.
-                                            </div>
-                                        @endif
+                                    <div class="text-muted small">
+                                        <div>No. Rek: 
+                                            <strong style="cursor: pointer;" 
+                                                    onclick="copyToClipboard('{{ $rekening->nomor_rekening }}', this)"
+                                                    title="Klik untuk menyalin nomor rekening">
+                                                {{ $rekening->nomor_rekening }}
+                                            </strong>
+                                            <i class="fas fa-copy ms-1 text-primary" style="font-size: 12px;"></i>
+                                        </div>
+                                        <div>A.n: <strong>{{ $rekening->nama_pemilik }}</strong></div>
                                     </div>
                                 </div>
+                                @empty
+                                <div class="col-12">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Informasi rekening belum tersedia. Silakan hubungi admin untuk informasi pembayaran.
+                                    </div>
+                                </div>
+                                @endforelse
                             </div>
+                            
+                            @if($rekenings->count() > 0)
+                            <div class="mt-3 p-3 bg-light rounded">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <strong>Petunjuk Transfer:</strong>
+                                    <ul class="mb-0 mt-1">
+                                        <li>Klik pada nomor rekening untuk menyalin</li>
+                                        <li>Transfer sesuai dengan jumlah yang tertera</li>
+                                        <li>Simpan bukti transfer untuk diupload</li>
+                                        <li>Pastikan nama pengirim sesuai dengan nama akun Anda</li>
+                                    </ul>
+                                </small>
+                            </div>
+                            @endif
                         </div>
+
 
                         <!-- Petunjuk Pembayaran -->
                         <div class="row mb-4">

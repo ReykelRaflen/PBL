@@ -15,7 +15,7 @@ class BabBuku extends Model
         'buku_kolaboratif_id',
         'nomor_bab',
         'judul_bab',
-        'deskripsi_bab',
+        'deskripsi',
         'tingkat_kesulitan',
         'estimasi_kata',
         'harga',
@@ -105,15 +105,15 @@ class BabBuku extends Model
     {
         switch ($this->status) {
             case self::STATUS_TERSEDIA:
-                return '<span class="badge bg-success">Tersedia</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Tersedia</span>';
             case self::STATUS_DIPESAN:
-                return '<span class="badge bg-warning">Dipesan</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Dipesan</span>';
             case self::STATUS_SELESAI:
-                return '<span class="badge bg-info">Selesai</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Selesai</span>';
             case self::STATUS_TIDAK_TERSEDIA:
-                return '<span class="badge bg-danger">Tidak Tersedia</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Tidak Tersedia</span>';
             default:
-                return '<span class="badge bg-secondary">' . ucfirst($this->status) . '</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">' . ucfirst($this->status) . '</span>';
         }
     }
 
@@ -129,19 +129,42 @@ class BabBuku extends Model
         };
     }
 
+    // Accessor untuk status class
+    public function getStatusClassAttribute()
+    {
+        return match($this->status) {
+            self::STATUS_TERSEDIA => 'bg-green-100 text-green-800',
+            self::STATUS_DIPESAN => 'bg-yellow-100 text-yellow-800',
+            self::STATUS_SELESAI => 'bg-blue-100 text-blue-800',
+            self::STATUS_TIDAK_TERSEDIA => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800'
+        };
+    }
+
     // Accessor untuk tingkat kesulitan badge
     public function getTingkatKesulitanBadgeAttribute()
     {
         switch ($this->tingkat_kesulitan) {
             case 'mudah':
-                return '<span class="badge bg-success"><i class="fas fa-star"></i> Mudah</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><i class="fas fa-star mr-1"></i> Mudah</span>';
             case 'sedang':
-                return '<span class="badge bg-warning"><i class="fas fa-star"></i><i class="fas fa-star"></i> Sedang</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><i class="fas fa-star mr-1"></i><i class="fas fa-star mr-1"></i> Sedang</span>';
             case 'sulit':
-                return '<span class="badge bg-danger"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> Sulit</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"><i class="fas fa-star mr-1"></i><i class="fas fa-star mr-1"></i><i class="fas fa-star mr-1"></i> Sulit</span>';
             default:
-                return '<span class="badge bg-secondary">Belum Ditentukan</span>';
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Belum Ditentukan</span>';
         }
+    }
+
+    // Accessor untuk tingkat kesulitan class
+    public function getTingkatKesulitanClassAttribute()
+    {
+        return match($this->tingkat_kesulitan) {
+            'mudah' => 'bg-green-100 text-green-800',
+            'sedang' => 'bg-yellow-100 text-yellow-800',
+            'sulit' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800'
+        };
     }
 
     // Methods untuk mengubah status
@@ -184,5 +207,23 @@ class BabBuku extends Model
     public function isTidakTersedia()
     {
         return $this->status === self::STATUS_TIDAK_TERSEDIA;
+    }
+
+    // Method untuk mendapatkan formatted harga
+    public function getFormattedHargaAttribute()
+    {
+        return 'Rp ' . number_format($this->getHargaBab(), 0, ',', '.');
+    }
+
+    // Method untuk check apakah bab bisa diedit
+    public function canBeEdited()
+    {
+        return $this->status === self::STATUS_TERSEDIA;
+    }
+
+    // Method untuk check apakah bab bisa dihapus
+    public function canBeDeleted()
+    {
+        return $this->status === self::STATUS_TERSEDIA && $this->pesananKolaborasi()->count() === 0;
     }
 }

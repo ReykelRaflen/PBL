@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.app')
 
 @section('title', 'Pembayaran')
 
@@ -126,43 +126,70 @@
                         <div class="alert alert-info border-left mb-4">
                             <h6><i class="fas fa-info-circle me-2"></i>Informasi Transfer Bank</h6>
                             <div class="row">
+                                @forelse($rekenings as $rekening)
                                 <div class="col-md-4 mb-3">
                                     <div class="d-flex align-items-center mb-2">
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg"
-                                            alt="BCA" style="height: 20px;" class="me-2">
-                                        <strong>Bank BCA</strong>
+                                        @php
+                                            // Tentukan logo bank berdasarkan nama bank
+                                            $bankLogos = [
+                                                'BCA' => 'https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg',
+                                                'MANDIRI' => 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo_2016.svg',
+                                                'BRI' => 'https://upload.wikimedia.org/wikipedia/commons/2/2e/BRI_2020.svg',
+                                                'BNI' => 'https://upload.wikimedia.org/wikipedia/commons/5/55/BNI_logo.svg',
+                                                'BTN' => 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Logo_BTN.png',
+                                                'CIMB' => 'https://upload.wikimedia.org/wikipedia/commons/8/8c/CIMB_Niaga_logo.svg',
+                                                'DANAMON' => 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Danamon_logo.svg',
+                                                'PERMATA' => 'https://upload.wikimedia.org/wikipedia/commons/2/2e/PermataBank_logo.svg',
+                                                'MEGA' => 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Bank_Mega_logo.svg',
+                                                'PANIN' => 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Panin_Bank_logo.svg'
+                                            ];
+                                            
+                                            $bankName = strtoupper($rekening->bank);
+                                            $logoUrl = $bankLogos[$bankName] ?? 'https://via.placeholder.com/100x30/007bff/ffffff?text=' . urlencode($rekening->bank);
+                                        @endphp
+                                        <img src="{{ $logoUrl }}" 
+                                             alt="{{ $rekening->bank }}" 
+                                             style="height: 20px; max-width: 60px; object-fit: contain;" 
+                                             class="me-2"
+                                             onerror="this.src='https://via.placeholder.com/60x20/007bff/ffffff?text={{ urlencode($rekening->bank) }}'">
+                                        <strong>Bank {{ $rekening->bank }}</strong>
                                     </div>
                                     <div class="text-muted small">
-                                        <div>No. Rek: <strong style="cursor: pointer;"
-                                                onclick="copyToClipboard('1234567890', this)">1234567890</strong></div>
-                                        <div>A.n: <strong>PT Penerbit Kolaborasi</strong></div>
+                                        <div>No. Rek: 
+                                            <strong style="cursor: pointer;" 
+                                                    onclick="copyToClipboard('{{ $rekening->nomor_rekening }}', this)"
+                                                    title="Klik untuk menyalin nomor rekening">
+                                                {{ $rekening->nomor_rekening }}
+                                            </strong>
+                                            <i class="fas fa-copy ms-1 text-primary" style="font-size: 12px;"></i>
+                                        </div>
+                                        <div>A.n: <strong>{{ $rekening->nama_pemilik }}</strong></div>
                                     </div>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo_2016.svg"
-                                            alt="Mandiri" style="height: 20px;" class="me-2">
-                                        <strong>Bank Mandiri</strong>
-                                    </div>
-                                    <div class="text-muted small">
-                                        <div>No. Rek: <strong style="cursor: pointer;"
-                                                onclick="copyToClipboard('0987654321', this)">0987654321</strong></div>
-                                        <div>A.n: <strong>PT Penerbit Kolaborasi</strong></div>
+                                @empty
+                                <div class="col-12">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Informasi rekening belum tersedia. Silakan hubungi admin untuk informasi pembayaran.
                                     </div>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/BRI_2020.svg"
-                                            alt="BRI" style="height: 20px;" class="me-2">
-                                        <strong>Bank BRI</strong>
-                                    </div>
-                                    <div class="text-muted small">
-                                        <div>No. Rek: <strong style="cursor: pointer;"
-                                                onclick="copyToClipboard('5678901234', this)">5678901234</strong></div>
-                                        <div>A.n: <strong>PT Penerbit Kolaborasi</strong></div>
-                                    </div>
-                                </div>
+                                @endforelse
                             </div>
+                            
+                            @if($rekenings->count() > 0)
+                            <div class="mt-3 p-3 bg-light rounded">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <strong>Petunjuk Transfer:</strong>
+                                    <ul class="mb-0 mt-1">
+                                        <li>Klik pada nomor rekening untuk menyalin</li>
+                                        <li>Transfer sesuai dengan jumlah yang tertera</li>
+                                        <li>Simpan bukti transfer untuk diupload</li>
+                                        <li>Pastikan nama pengirim sesuai dengan nama akun Anda</li>
+                                    </ul>
+                                </small>
+                            </div>
+                            @endif
                         </div>
 
                         <form action="{{ route('buku-kolaboratif.proses-pembayaran', $pesananBuku->id) }}" method="POST"
@@ -250,63 +277,6 @@
 
             <!-- Sidebar Informasi -->
             <div class="col-md-4">
-                <!-- Informasi Rekening -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-info text-white">
-                        <h6 class="mb-0">
-                            <i class="fas fa-university me-2"></i>Informasi Rekening
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg"
-                                    alt="BCA" style="height: 20px;" class="me-2">
-                                <strong>Bank BCA</strong>
-                            </div>
-                            <div class="text-muted small">
-                                <div>No. Rekening: <strong style="cursor: pointer;"
-                                        onclick="copyToClipboard('1234567890', this)">1234567890</strong></div>
-                                <div>Atas Nama: <strong>PT. Penerbit Kolaborasi</strong></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo_2016.svg"
-                                    alt="Mandiri" style="height: 20px;" class="me-2">
-                                <strong>Bank Mandiri</strong>
-                            </div>
-                            <div class="text-muted small">
-                                <div>No. Rekening: <strong style="cursor: pointer;"
-                                        onclick="copyToClipboard('0987654321', this)">0987654321</strong></div>
-                                <div>Atas Nama: <strong>PT. Penerbit Kolaborasi</strong></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/BRI_2020.svg" alt="BRI"
-                                    style="height: 20px;" class="me-2">
-                                <strong>Bank BRI</strong>
-                            </div>
-                            <div class="text-muted small">
-                                <div>No. Rekening: <strong style="cursor: pointer;"
-                                        onclick="copyToClipboard('5678901234', this)">5678901234</strong></div>
-                                <div>Atas Nama: <strong>PT. Penerbit Kolaborasi</strong></div>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-warning">
-                            <small>
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                <strong>Penting:</strong> Transfer sesuai dengan jumlah yang tertera.
-                                Pembayaran akan diverifikasi dalam 1x24 jam.
-                            </small>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Panduan Pembayaran -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-warning text-dark">
@@ -369,15 +339,15 @@
                     <div class="card-body text-center">
                         <p class="text-muted small mb-3">Hubungi customer service kami jika ada kendala</p>
                         <div class="d-grid gap-2">
-                            <a href="https://wa.me/6281234567890?text=Halo, saya butuh bantuan untuk pesanan {{ $pesananBuku->nomor_pesanan }}"
+                            <a href="https://wa.me/6281324558686?text=Halo, saya butuh bantuan untuk pesanan {{ $pesananBuku->nomor_pesanan }}"
                                 class="btn btn-success btn-sm" target="_blank">
                                 <i class="fab fa-whatsapp me-2"></i>WhatsApp
                             </a>
-                            <a href="mailto:support@penerbitkolaborasi.com?subject=Bantuan Pesanan {{ $pesananBuku->nomor_pesanan }}"
+                            <a href="mailto:admin@fanyapublishing.com?subject=Bantuan Pesanan {{ $pesananBuku->nomor_pesanan }}"
                                 class="btn btn-primary btn-sm">
                                 <i class="fas fa-envelope me-2"></i>Email Support
                             </a>
-                            <a href="tel:+6281234567890" class="btn btn-outline-secondary btn-sm">
+                            <a href="tel:+62 813-2455-8686" class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-phone me-2"></i>Telepon
                             </a>
                         </div>

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\PesananKolaborasi;
+use App\Models\Pesanan;
 
 class AkunController extends Controller
 {
@@ -41,11 +42,89 @@ class AkunController extends Controller
         return view('user.akun.kolaborasi', compact('pesananKolaborasi'));
     }
 
-
-    public function pembelian()
+  public function pembelian(Request $request)
     {
-        return view('user.akun.pembelian');
+        $user = Auth::user();
+        
+        // Query dasar
+        $query = Pesanan::where('user_id', $user->id)
+            ->with(['buku', 'pembayaran']);
+        
+        // Apply filters
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('order_number', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('buku', function($bookQuery) use ($request) {
+                      $bookQuery->where('judul_buku', 'like', '%' . $request->search . '%')
+                               ->orWhere('penulis', 'like', '%' . $request->search . '%');
+                  });
+            });
+        }
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->filled('tipe_buku')) {
+            $query->where('tipe_buku', $request->tipe_buku);
+        }
+        
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('tanggal_pesanan', '>=', $request->tanggal_dari);
+        }
+        
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('tanggal_pesanan', '<=', $request->tanggal_sampai);
+        }
+        
+        // Get filtered results
+        $pesananBuku = $query->orderBy('created_at', 'desc')->get();
+        
+        // Ambil semua pesanan untuk statistik (tanpa filter)
+        $allPesanan = Pesanan::where('user_id', $user->id)->get();
+        
+        // Hitung statistik
+        $statistik = [
+            'total_pesanan' => $allPesanan->count(),
+            'menunggu_pembayaran' => $allPesanan->where('status', 'menunggu_pembayaran')->count(),
+            'menunggu_verifikasi' => $allPesanan->where('status', 'menunggu_verifikasi')->count(),
+            'diproses' => $allPesanan->whereIn('status', ['terverifikasi', 'diproses'])->count(),
+            'dikirim' => $allPesanan->where('status', 'dikirim')->count(),
+            'selesai' => $allPesanan->where('status', 'selesai')->count(),
+            'dibatalkan' => $allPesanan->where('status', 'dibatalkan')->count(),
+            'total_nilai' => $allPesanan->sum('total'),
+            'total_fisik' => $allPesanan->where('tipe_buku', 'fisik')->count(),
+            'total_ebook' => $allPesanan->where('tipe_buku', 'ebook')->count(),
+        ];
+        
+        return view('user.akun.pembelian', compact('pesananBuku', 'statistik'));
     }
+    
+    public function refreshPesanan()
+    {
+        $user = Auth::user();
+        
+        // Ambil pesanan yang statusnya berubah dalam 1 menit terakhir
+        $recentUpdates = Pesanan::where('user_id', $user->id)
+            ->where('updated_at', '>', now()->subMinute())
+            ->get(['id', 'status']);
+        
+        $updates = [];
+        foreach ($recentUpdates as $pesanan) {
+            $updates[] = [
+                'id' => $pesanan->id,
+                'status' => $pesanan->status,
+                'status_text' => $pesanan->status_text,
+                'badge_class' => $pesanan->status_badge
+            ];
+        }
+        
+        return response()->json([
+            'success' => true,
+            'updates' => $updates
+        ]);
+    }
+
 
     public function download()
     {

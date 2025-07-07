@@ -98,17 +98,25 @@
             <i data-lucide="database" class="w-4 h-4"></i> Master Data
           </button>
           <ul x-show="openMenu === 'master'" x-transition class="pl-4 space-y-1">
-        <li>
-           <a href="{{ route('kategori-buku.index') }}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
-           <i data-lucide="folder" class="w-4 h-4"></i> Kategori Buku
-          </a>
-          </li>
-         <li>
-            <a href="{{ route('rekening.index') }}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
-            <i data-lucide="credit-card" class="w-4 h-4"></i> Rekening
-    </a>
-  </li>
-</ul>
+            <li>
+              <a href="{{ route('kategori-buku.index') }}"
+                class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                <i data-lucide="folder" class="w-4 h-4"></i> Kategori Buku
+              </a>
+            </li>
+            <li>
+              <a href="{{ route('rekening.index') }}"
+                class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                <i data-lucide="credit-card" class="w-4 h-4"></i> Rekening
+              </a>
+            </li>
+            <li>
+              <a href="{{ route('admin.buku-kolaboratif.index') }}"
+                class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+                <i data-lucide="book-open" class="w-4 h-4"></i> Buku Kolaboratif
+              </a>
+            </li>
+          </ul>
 
         </li>
 
@@ -131,7 +139,8 @@
 
         </li>
         <li>
-          <a href="{{route('members.index')}}" class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+          <a href="{{route('members.index')}}"
+            class="flex items-center gap-2 py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
             <i data-lucide="users" class="w-4 h-4"></i> Member
           </a>
         </li>
@@ -142,12 +151,14 @@
           </button>
           <ul x-show="openMenu === 'editor'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="{{route('admin.naskah.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('admin.naskah.index')}}"
+                class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Naskah
               </a>
             </li>
             <li>
-              <a href="{{route('admin.designs.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('admin.designs.index')}}"
+                class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="brush" class="w-4 h-4"></i> Design
               </a>
             </li>
@@ -156,29 +167,32 @@
 
         <!-- Update the existing navigation section -->
         <!-- Editor -->
-<!-- Update the Editor section in your existing navigation -->
+        <!-- Update the Editor section in your existing navigation -->
         <li>
           <button @click="openMenu = openMenu === 'editor' ? '' : 'editor'"
             class="flex items-center justify-between w-full py-1 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
             <span class="flex items-center gap-2">
               <i data-lucide="edit" class="w-4 h-4"></i> Editor
             </span>
-            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" 
+            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform"
               :class="{ 'rotate-180': openMenu === 'editor' }"></i>
           </button>
           <ul x-show="openMenu === 'editor'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="{{route('admin.naskah-individu.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('admin.naskah-individu.index')}}"
+                class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Naskah Individu
               </a>
             </li>
             <li>
-              <a href="{{route('naskahKolaborasi.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('naskahKolaborasi.index')}}"
+                class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="users" class="w-4 h-4"></i> Naskah Kolaborasi
               </a>
             </li>
             <li>
-              <a href="{{route('admin.designs.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('admin.designs.index')}}"
+                class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="brush" class="w-4 h-4"></i> Design
               </a>
             </li>
@@ -227,7 +241,7 @@
             </li>
 
             <li>
-              <a href="{{ route('penerbitanKolaborasi.index')}}"
+              <a href="{{ route('admin.laporanPenerbitanKolaborasi.index')}}"
                 class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-plus" class="w-4 h-4"></i> Buku Kolaborasi
               </a>

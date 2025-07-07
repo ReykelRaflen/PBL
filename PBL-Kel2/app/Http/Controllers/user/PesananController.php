@@ -199,7 +199,7 @@ class PesananController extends Controller
         return view('user.pesanan.show', compact('pesanan'));
     }
 
-    public function payment(Pesanan $pesanan)
+        public function payment(Pesanan $pesanan)
     {
         // Pastikan user hanya bisa melihat pesanannya sendiri
         if ($pesanan->user_id !== Auth::id()) {
@@ -212,8 +212,12 @@ class PesananController extends Controller
         // Atau gunakan cara ini untuk memastikan data terbaru
         $pesanan = Pesanan::with(['buku', 'pembayaran'])->find($pesanan->id);
 
-        return view('user.pesanan.payment', compact('pesanan'));
+        // Ambil data rekening dari database
+        $rekenings = \App\Models\Rekening::orderBy('bank')->get();
+
+        return view('user.pesanan.payment', compact('pesanan', 'rekenings'));
     }
+
 
     public function uploadPayment(Request $request, Pesanan $pesanan)
     {
@@ -601,38 +605,31 @@ class PesananController extends Controller
         return response()->json($result);
     }
 
-    public function cancel(Pesanan $pesanan)
+    public function cancel($id)
     {
-        // Pastikan user hanya bisa cancel pesanannya sendiri
-        if ($pesanan->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        // Hanya bisa cancel jika status masih menunggu pembayaran
-        if ($pesanan->status !== 'menunggu_pembayaran') {
-            return back()->with('error', 'Pesanan tidak dapat dibatalkan.');
-        }
-
-        DB::beginTransaction();
         try {
-            // Kembalikan stok jika buku fisik
-            if ($pesanan->tipe_buku === 'fisik') {
-                $pesanan->buku->increment('stok', $pesanan->quantity);
+            $pesanan = \App\Models\Pesanan::where('user_id', Auth::id())
+                ->findOrFail($id);
+            
+            // Hanya bisa dibatalkan jika status menunggu pembayaran
+            if ($pesanan->status !== 'menunggu_pembayaran') {
+                return redirect()->back()
+                    ->with('error', 'Pesanan tidak dapat dibatalkan karena sudah diproses.');
             }
-
-            // Update status
-            $pesanan->update(['status' => 'dibatalkan']);
-
-            DB::commit();
-
-            return redirect()->route('user.pesanan.index')
+            
+            $pesanan->update([
+                'status' => 'dibatalkan'
+            ]);
+            
+            return redirect()->route('akun.pembelian')
                 ->with('success', 'Pesanan berhasil dibatalkan.');
-
+                
         } catch (\Exception $e) {
-            DB::rollback();
-            return back()->with('error', 'Terjadi kesalahan saat membatalkan pesanan.');
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat membatalkan pesanan.');
         }
     }
+
 
     /**
      * Validate promo code via AJAX

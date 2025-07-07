@@ -134,7 +134,6 @@
                                     <ul class="list-unstyled mb-0 small">
                                         <li><strong>Pembayaran:</strong> Maksimal 24 jam</li>
                                         <li><strong>Penulisan:</strong> Sesuai deadline</li>
-                                        <li><strong>Revisi:</strong> Maksimal 2 kali</li>
                                     </ul>
                                 </div>
                             </div>
@@ -149,8 +148,6 @@
                             <li>Naskah harus diselesaikan sesuai deadline yang ditentukan</li>
                             <li>Naskah harus original dan bebas plagiarisme</li>
                             <li>Mengikuti panduan penulisan yang telah ditentukan</li>
-                            <li>Revisi dapat diminta maksimal 2 kali</li>
-                            <li>Pembayaran akan dikembalikan jika tidak memenuhi standar kualitas</li>
                         </ul>
                     </div>
 
