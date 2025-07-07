@@ -27,7 +27,11 @@
             <div class="col">
                 <img src="{{ asset('img/Buku_Individu.png') }}" class="mb-2" width="50">
                 <p>Buku Individu</p>
+                <a href="{{ route('penerbitan-individu.index') }}" class="btn btn-primary btn-sm">
+                    Lihat Layanan
+                </a>
             </div>
+
             <div class="col">
                 <img src="{{ asset('img/Buku_kolaborasi.png') }}" class="mb-2" width="50">
                 <p>Buku Kolaboratif</p>

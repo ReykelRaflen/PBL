@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\User\BukuKolaboratifController;
+use App\Http\Controllers\User\PenerbitanIndividuController;
 use App\Http\Controllers\User\PesananController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -54,6 +55,10 @@ Route::middleware(['auth'])->prefix('akun')->name('akun.')->group(function () {
     Route::get('/pembelian', [AkunController::class, 'pembelian'])->name('pembelian');
     Route::get('/download', [AkunController::class, 'download'])->name('download');
     Route::put('/password', [AkunController::class, 'changePassword'])->name('password.update');
+
+    // Route untuk halaman penerbitan individu di akun
+    Route::get('/akun/penerbitan-individu', [App\Http\Controllers\User\AkunController::class, 'penerbitanIndividu'])->name('penerbitan-individu');
+
 
     // Template routes
     Route::get('/templates', [UserTemplateController::class, 'index'])->name('templates.index');
@@ -171,6 +176,26 @@ Route::get('/password/reset/{email}', [ForgotPasswordController::class, 'showRes
 Route::post('/password/reset', [ForgotPasswordController::class, 'reset'])->name('password.update');
 Route::post('/password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('password.resend');
 
+// Route untuk penerbitan individu (user)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/penerbitan-individu', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'index'])->name('penerbitan-individu.index');
+    Route::post('/penerbitan-individu/pilih-paket', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'pilihPaket'])->name('penerbitan-individu.pilih-paket');
+    Route::post('/penerbitan-individu/proses-pesanan', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'prosesPesanan'])->name('penerbitan-individu.proses-pesanan');
+    Route::get('/penerbitan-individu/{id}/pembayaran', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'pembayaran'])->name('penerbitan-individu.pembayaran');
+    Route::post('/penerbitan-individu/{id}/proses-pembayaran', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'prosesPembayaran'])->name('penerbitan-individu.proses-pembayaran');
+    Route::get('/penerbitan-individu/{id}/status', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'status'])->name('penerbitan-individu.status');
+    Route::get('/penerbitan-individu/{id}/form-pengajuan', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'formPengajuan'])->name('penerbitan-individu.form-pengajuan');
+    Route::post('/penerbitan-individu/{id}/submit-pengajuan', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'submitPengajuan'])->name('penerbitan-individu.submit-pengajuan');
+    Route::get('/penerbitan-individu/{id}/download-naskah', [App\Http\Controllers\User\PenerbitanIndividuController::class, 'downloadNaskah'])->name('penerbitan-individu.download-naskah');
+    Route::delete('/penerbitan-individu/{id}/batalkan', [PenerbitanIndividuController::class, 'batalkanPesanan'])->name('penerbitan-individu.batalkan');
+
+});
+
+// Add user kolaborasi upload route
+Route::put('/akun/kolaborasi/{id}/upload-naskah', [BukuKolaboratifController::class, 'uploadNaskah'])->name('akun.kolaborasi.upload-naskah');
+
+
+
 // Admin Routes
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuth::class, 'showLoginForm'])->name('admin.login');
@@ -202,11 +227,12 @@ Route::prefix('admin')->group(function () {
         });
 
         // Laporan Penerbitan Individu
-        Route::prefix('dashboard/penerbitan-individu')->name('penerbitanIndividu.')->group(function () {
+        Route::prefix('dashboard/penerbitan-individu')->name('admin.penerbitanIndividu.')->group(function () {
             Route::get('/', [LaporanPenerbitanIndividuController::class, 'index'])->name('index');
             Route::get('/create', [LaporanPenerbitanIndividuController::class, 'create'])->name('create');
             Route::post('/', [LaporanPenerbitanIndividuController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [LaporanPenerbitanIndividuController::class, 'edit'])->name('edit');
+            Route::get('/{id}', [LaporanPenerbitanIndividuController::class, 'show'])->name('show');
             Route::put('/{id}', [LaporanPenerbitanIndividuController::class, 'update'])->name('update');
             Route::delete('/{id}', [LaporanPenerbitanIndividuController::class, 'destroy'])->name('destroy');
         });
@@ -250,20 +276,40 @@ Route::prefix('admin')->group(function () {
             ->name('penerbitanKolaborasi.destroy');
     });
 
-    // Add user kolaborasi upload route
-    Route::put('/akun/kolaborasi/{id}/upload-naskah', [BukuKolaboratifController::class, 'uploadNaskah'])->name('akun.kolaborasi.upload-naskah');
 
 
 
     // Laporan Penjualan Individu Routes
-    Route::prefix('dashboard/laporan-penjualan')->group(function () {
-        Route::get('/', [LaporanPenjualanIndividuController::class, 'index'])->name('penjualanIndividu.index');
-        Route::get('/create', [LaporanPenjualanIndividuController::class, 'create'])->name('penjualanIndividu.create');
-        Route::post('/', [LaporanPenjualanIndividuController::class, 'store'])->name('penjualanIndividu.store');
-        Route::get('/{id}', [LaporanPenjualanIndividuController::class, 'show'])->name('penjualanIndividu.show');
-        Route::get('/{id}/edit', [LaporanPenjualanIndividuController::class, 'edit'])->name('penjualanIndividu.edit');
-        Route::put('/{id}', [LaporanPenjualanIndividuController::class, 'update'])->name('penjualanIndividu.update');
-        Route::delete('/{id}', [LaporanPenjualanIndividuController::class, 'destroy'])->name('penjualanIndividu.destroy');
+    // Route::prefix('dashboard/laporan-penjualan')->group(function () {
+    //     Route::get('/', [LaporanPenjualanIndividuController::class, 'index'])->name('penjualanIndividu.index');
+    //     Route::get('/create', [LaporanPenjualanIndividuController::class, 'create'])->name('penjualanIndividu.create');
+    //     Route::post('/', [LaporanPenjualanIndividuController::class, 'store'])->name('penjualanIndividu.store');
+    //     Route::get('/{id}', [LaporanPenjualanIndividuController::class, 'show'])->name('penjualanIndividu.show');
+    //     Route::get('/{id}/edit', [LaporanPenjualanIndividuController::class, 'edit'])->name('penjualanIndividu.edit');
+    //     Route::put('/{id}', [LaporanPenjualanIndividuController::class, 'update'])->name('penjualanIndividu.update');
+    //     Route::delete('/{id}', [LaporanPenjualanIndividuController::class, 'destroy'])->name('penjualanIndividu.destroy');
+    // });
+
+    // Laporan Penjualan Individu Routes
+    Route::prefix('laporan-penjualan-individu')->name('admin.laporan-penjualan-individu.')->group(function () {
+
+        // CRUD Routes
+        Route::get('/', [LaporanPenjualanIndividuController::class, 'index'])->name('index');
+        Route::get('/create', [LaporanPenjualanIndividuController::class, 'create'])->name('create');
+        Route::post('/', [LaporanPenjualanIndividuController::class, 'store'])->name('store');
+        Route::get('/{id}', [LaporanPenjualanIndividuController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [LaporanPenjualanIndividuController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [LaporanPenjualanIndividuController::class, 'update'])->name('update');
+        Route::delete('/{id}', [LaporanPenjualanIndividuController::class, 'destroy'])->name('destroy');
+
+        // Action Routes
+        Route::post('/{id}/verifikasi-pembayaran', [LaporanPenjualanIndividuController::class, 'verifikasiPembayaran'])->name('verifikasi-pembayaran');
+        Route::get('/{id}/download', [LaporanPenjualanIndividuController::class, 'download'])->name('download');
+        // Tambahkan routes ini di dalam group admin
+        Route::post('/{id}/setujui', [LaporanPenjualanIndividuController::class, 'setujui'])->name('admin.laporan-penjualan-individu.setujui');
+        Route::post('/{id}/tolak', [LaporanPenjualanIndividuController::class, 'tolak'])->name('admin.laporan-penjualan-individu.tolak');
+
+
     });
 
     // Laporan Penjualan Kolaborasi Routes
@@ -381,48 +427,56 @@ Route::prefix('admin')->group(function () {
     // });
 
     // Naskah Routes
-    Route::prefix('dashboard/naskah')->group(function () {
-        Route::get('/', [NaskahIndividuController::class, 'index'])->name('admin.naskahIndividu.index');
-        Route::get('/create', [NaskahIndividuController::class, 'create'])->name('admin.naskahIndividu.create');
-        Route::post('/', [NaskahIndividuController::class, 'store'])->name('admin.naskahIndividu.store');
-        Route::get('/search', [NaskahIndividuController::class, 'search'])->name('admin.naskahIndividu.search');
-        Route::get('/{naskah}', [NaskahIndividuController::class, 'show'])->name('admin.naskahIndividu.show');
-        Route::get('/{naskah}/edit', [NaskahIndividuController::class, 'edit'])->name('admin.naskahIndividu.edit');
-        Route::put('/{naskah}', [NaskahIndividuController::class, 'update'])->name('admin.naskahIndividu.update');
-        Route::delete('/{naskah}', [NaskahIndividuController::class, 'destroy'])->name('admin.naskahIndividu.destroy');
+    // Route::prefix('dashboard/naskah')->group(function () {
+    //     Route::get('/', [NaskahIndividuController::class, 'index'])->name('admin.naskahIndividu.index');
+    //     Route::get('/create', [NaskahIndividuController::class, 'create'])->name('admin.naskahIndividu.create');
+    //     Route::post('/', [NaskahIndividuController::class, 'store'])->name('admin.naskahIndividu.store');
+    //     Route::get('/search', [NaskahIndividuController::class, 'search'])->name('admin.naskahIndividu.search');
+    //     Route::get('/{naskah}', [NaskahIndividuController::class, 'show'])->name('admin.naskahIndividu.show');
+    //     Route::get('/{naskah}/edit', [NaskahIndividuController::class, 'edit'])->name('admin.naskahIndividu.edit');
+    //     Route::put('/{naskah}', [NaskahIndividuController::class, 'update'])->name('admin.naskahIndividu.update');
+    //     Route::delete('/{naskah}', [NaskahIndividuController::class, 'destroy'])->name('admin.naskahIndividu.destroy');
 
-        // Action routes - letakkan sebelum route {naskah} untuk menghindari konflik
-        Route::post('/{naskah}/setujui', [NaskahIndividuController::class, 'setujui'])->name('admin.naskahIndividu.setujui');
-        Route::post('/{naskah}/tolak', [NaskahIndividuController::class, 'tolak'])->name('admin.naskahIndividu.tolak');
-        Route::post('/{naskah}/update-status', [NaskahIndividuController::class, 'updateStatus'])->name('admin.naskahIndividu.update-status');
-        Route::get('/{naskah}/download', [NaskahIndividuController::class, 'download'])->name('admin.naskahIndividu.download');
-        Route::get('/{naskah}/preview', [NaskahIndividuController::class, 'preview'])->name('admin.naskahIndividu.preview');
-        Route::get('/{naskah}/status', [NaskahIndividuController::class, 'statusCheck'])->name('admin.naskahIndividu.status-check');
-        Route::post('/bulk-action', [NaskahIndividuController::class, 'bulkAction'])->name('admin.naskahIndividu.bulk-action');
-        Route::get('/export', [NaskahIndividuController::class, 'export'])->name('admin.naskahIndividu.export');
+    //     // Action routes - letakkan sebelum route {naskah} untuk menghindari konflik
+    //     Route::post('/{naskah}/setujui', [NaskahIndividuController::class, 'setujui'])->name('admin.naskahIndividu.setujui');
+    //     Route::post('/{naskah}/tolak', [NaskahIndividuController::class, 'tolak'])->name('admin.naskahIndividu.tolak');
+    //     Route::post('/{naskah}/update-status', [NaskahIndividuController::class, 'updateStatus'])->name('admin.naskahIndividu.update-status');
+    //     Route::get('/{naskah}/download', [NaskahIndividuController::class, 'download'])->name('admin.naskahIndividu.download');
+    //     Route::get('/{naskah}/preview', [NaskahIndividuController::class, 'preview'])->name('admin.naskahIndividu.preview');
+    //     Route::get('/{naskah}/status', [NaskahIndividuController::class, 'statusCheck'])->name('admin.naskahIndividu.status-check');
+    //     Route::post('/bulk-action', [NaskahIndividuController::class, 'bulkAction'])->name('admin.naskahIndividu.bulk-action');
+    //     Route::get('/export', [NaskahIndividuController::class, 'export'])->name('admin.naskahIndividu.export');
 
+    // });
+
+    Route::prefix('naskah-individu')->name('admin.naskah-individu.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\NaskahIndividuController::class, 'index'])->name('index');
+        Route::get('/{id}', [App\Http\Controllers\Admin\NaskahIndividuController::class, 'show'])->name('show');
+        Route::post('/{id}/update-status', [App\Http\Controllers\Admin\NaskahIndividuController::class, 'updateStatus'])->name('update-status');
+        Route::get('/{id}/download', [App\Http\Controllers\Admin\NaskahIndividuController::class, 'download'])->name('download');
+        Route::post('/bulk-action', [App\Http\Controllers\Admin\NaskahIndividuController::class, 'bulkAction'])->name('bulk-action');
     });
 
     // Naskah Kolaborasi Routes
-Route::prefix('admin/naskah-kolaborasi')->name('naskahKolaborasi.')->group(function () {
-    Route::get('/', [NaskahKolaborasiController::class, 'index'])->name('index');
-    Route::get('/create', [NaskahKolaborasiController::class, 'create'])->name('create');
-    Route::post('/', [NaskahKolaborasiController::class, 'store'])->name('store');
-    Route::get('/{id}', [NaskahKolaborasiController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [NaskahKolaborasiController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [NaskahKolaborasiController::class, 'update'])->name('update');
-    Route::delete('/{id}', [NaskahKolaborasiController::class, 'destroy'])->name('destroy');
-    Route::put('/{id}/terima', [NaskahKolaborasiController::class, 'terima'])->name('terima');
-    Route::put('/{id}/revisi', [NaskahKolaborasiController::class, 'revisi'])->name('revisi');
-    Route::put('/{id}/tolak', [NaskahKolaborasiController::class, 'tolak'])->name('tolak');
-    Route::get('/{id}/download', [NaskahKolaborasiController::class, 'download'])->name('download');
-});
+    Route::prefix('admin/naskah-kolaborasi')->name('naskahKolaborasi.')->group(function () {
+        Route::get('/', [NaskahKolaborasiController::class, 'index'])->name('index');
+        Route::get('/create', [NaskahKolaborasiController::class, 'create'])->name('create');
+        Route::post('/', [NaskahKolaborasiController::class, 'store'])->name('store');
+        Route::get('/{id}', [NaskahKolaborasiController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [NaskahKolaborasiController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [NaskahKolaborasiController::class, 'update'])->name('update');
+        Route::delete('/{id}', [NaskahKolaborasiController::class, 'destroy'])->name('destroy');
+        Route::put('/{id}/terima', [NaskahKolaborasiController::class, 'terima'])->name('terima');
+        Route::put('/{id}/revisi', [NaskahKolaborasiController::class, 'revisi'])->name('revisi');
+        Route::put('/{id}/tolak', [NaskahKolaborasiController::class, 'tolak'])->name('tolak');
+        Route::get('/{id}/download', [NaskahKolaborasiController::class, 'download'])->name('download');
+    });
 
-// API Routes untuk AJAX
-Route::prefix('admin/api')->group(function () {
-    Route::get('/buku-kolaboratif/{id}/bab', [NaskahKolaborasiController::class, 'getBabByBuku']);
-    Route::get('/pesanan-kolaborasi/{id}', [NaskahKolaborasiController::class, 'getPesananDetail']);
-});
+    // API Routes untuk AJAX
+    Route::prefix('admin/api')->group(function () {
+        Route::get('/buku-kolaboratif/{id}/bab', [NaskahKolaborasiController::class, 'getBabByBuku']);
+        Route::get('/pesanan-kolaborasi/{id}', [NaskahKolaborasiController::class, 'getPesananDetail']);
+    });
 
 
 

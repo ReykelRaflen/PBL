@@ -168,7 +168,7 @@
           </button>
           <ul x-show="openMenu === 'editor'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="{{route('admin.naskahIndividu.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
+              <a href="{{route('admin.naskah-individu.index')}}" class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Naskah Individu
               </a>
             </li>
@@ -198,7 +198,7 @@
           </button>
           <ul x-show="openMenu === 'penjualan'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="{{ route('penjualanIndividu.index') }}"
+              <a href="{{ route('admin.laporan-penjualan-individu.index') }}"
                 class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Buku Individu
               </a>
@@ -220,7 +220,7 @@
           </button>
           <ul x-show="openMenu === 'penerbitan'" x-transition class="pl-4 space-y-1">
             <li>
-              <a href="{{ route('penerbitanIndividu.index') }}"
+              <a href="{{ route('admin.penerbitanIndividu.index') }}"
                 class="flex items-center gap-2 py-1 px-6 rounded hover:bg-blue-100 dark:hover:bg-gray-700">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Buku Individu
               </a>

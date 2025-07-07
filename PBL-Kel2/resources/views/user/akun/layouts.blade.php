@@ -312,7 +312,6 @@
                             class="nav-link {{ request()->routeIs('akun.kolaborasi') ? 'active' : '' }}">
                             <i class="fas fa-handshake me-3"></i>Kolaborasi
                         </a> --}}
-
                         <!-- Add this menu item to your existing navigation -->
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('akun.kolaborasi') ? 'active' : '' }}" 
@@ -330,6 +329,24 @@
                             </a>
                         </li>
 
+                        <!-- Penerbitan Individu Menu -->
+                        <a href="{{ route('akun.penerbitan-individu') }}"
+                            class="nav-link {{ request()->routeIs('akun.penerbitan-individu') ? 'active' : '' }}">
+                            <i class="fas fa-book-open me-3"></i>Penerbitan Individu
+                            @php
+                                $penerbitanPending = \App\Models\PenerbitanIndividu::where('user_id', auth()->id())
+                                    ->where(function($query) {
+                                        $query->where('status_pembayaran', 'menunggu')
+                                              ->orWhere('status_pembayaran', 'ditolak')
+                                              ->orWhere('status_penerbitan', 'dapat_mulai')
+                                              ->orWhere('status_penerbitan', 'revisi');
+                                    })
+                                    ->count();
+                            @endphp
+                            @if($penerbitanPending > 0)
+                                <span class="badge bg-danger rounded-pill ms-1">{{ $penerbitanPending }}</span>
+                            @endif
+                        </a>
 
                         <a href="{{ route('akun.pembelian') }}"
                             class="nav-link {{ request()->routeIs('akun.pembelian') ? 'active' : '' }}">
@@ -349,6 +366,8 @@
                             @csrf
                         </form>
                     </nav>
+
+                        
                 </div>
             </div>
 

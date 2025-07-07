@@ -35,6 +35,16 @@ class AkunController extends Controller
         return view('user.akun.kolaborasi', compact('pesananKolaborasi'));
     }
 
+    public function penerbitanIndividu()
+{
+    $penerbitanList = \App\Models\PenerbitanIndividu::where('user_id', auth()->id())
+        ->orderBy('created_at', 'desc')
+        ->get();
+        
+    return view('user.akun.penerbitan-individu', compact('penerbitanList'));
+}
+
+
     public function pembelian()
     {
         return view('user.akun.pembelian');
