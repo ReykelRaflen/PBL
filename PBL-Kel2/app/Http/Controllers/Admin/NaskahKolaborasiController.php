@@ -73,7 +73,7 @@ class NaskahKolaborasiController extends Controller
         $users = User::whereIn('role', ['penulis', 'user', 'member'])
             ->orderBy('name')
             ->get();
-        
+
         // Jika tidak ada user dengan role tersebut, ambil semua user kecuali admin
         if ($users->isEmpty()) {
             $users = User::where('role', '!=', 'admin')
@@ -85,7 +85,7 @@ class NaskahKolaborasiController extends Controller
         if ($users->isEmpty()) {
             $users = User::orderBy('name')->get();
         }
-        
+
         $bukuKolaboratif = BukuKolaboratif::where('status', 'aktif')->get();
 
         // Debug log
@@ -175,7 +175,7 @@ class NaskahKolaborasiController extends Controller
         }
     }
 
-       public function show($id)
+    public function show($id)
     {
         $naskah = PesananKolaborasi::with(['bukuKolaboratif', 'babBuku', 'user'])
             ->findOrFail($id);
@@ -192,7 +192,7 @@ class NaskahKolaborasiController extends Controller
         $users = User::whereIn('role', ['penulis', 'user', 'member'])
             ->orderBy('name')
             ->get();
-        
+
         // Jika tidak ada user dengan role tersebut, ambil semua user kecuali admin
         if ($users->isEmpty()) {
             $users = User::where('role', '!=', 'admin')
@@ -225,10 +225,15 @@ class NaskahKolaborasiController extends Controller
             'tanggal_deadline' => 'nullable|date',
             'catatan_penulis' => 'nullable|string|max:1000',
             'catatan' => 'nullable|string|max:1000',
+            'status_penulisan' => 'required|in:belum_mulai,dapat_mulai,sedang_ditulis,sudah_kirim,revisi,disetujui,selesai,ditolak', // Tambahkan ini
         ]);
 
         try {
             DB::beginTransaction();
+
+            // Store old status for comparison
+            $oldStatus = $naskah->status_penulisan;
+            $newStatus = $validated['status_penulisan'];
 
             // Handle file upload
             if ($request->hasFile('file_naskah')) {
@@ -243,9 +248,44 @@ class NaskahKolaborasiController extends Controller
                 $validated['file_naskah'] = $filePath;
                 $validated['tanggal_upload_naskah'] = now();
 
-                // Update status if file uploaded
-                if (!$naskah->file_naskah) {
+                // Update status if file uploaded and status is still 'dapat_mulai'
+                if ($naskah->status_penulisan === 'dapat_mulai') {
                     $validated['status_penulisan'] = 'sudah_kirim';
+                }
+            }
+
+            // Handle status changes and their implications
+            if ($oldStatus !== $newStatus) {
+                // If changing from 'disetujui' to other status, handle bab status
+                if ($oldStatus === 'disetujui' && $newStatus !== 'disetujui') {
+                    if ($naskah->babBuku) {
+                        $naskah->babBuku->markAsTidakTersedia();
+                    }
+                    // Clear approval data
+                    $validated['catatan_persetujuan'] = null;
+                    $validated['tanggal_disetujui'] = null;
+                }
+
+                // If changing to 'disetujui', mark bab as completed
+                if ($newStatus === 'disetujui' && $oldStatus !== 'disetujui') {
+                    if ($naskah->babBuku) {
+                        $naskah->babBuku->markAsSelesai();
+                    }
+                    $validated['tanggal_disetujui'] = now();
+                }
+
+                // If changing to 'ditolak', return bab to available
+                if ($newStatus === 'ditolak' && $oldStatus !== 'ditolak') {
+                    if ($naskah->babBuku) {
+                        $naskah->babBuku->markAsTersedia();
+                    }
+                }
+
+                // If changing from 'ditolak' to other status, make bab unavailable again
+                if ($oldStatus === 'ditolak' && $newStatus !== 'ditolak') {
+                    if ($naskah->babBuku) {
+                        $naskah->babBuku->markAsTidakTersedia();
+                    }
                 }
             }
 
@@ -264,9 +304,15 @@ class NaskahKolaborasiController extends Controller
                         ->with('error', 'Bab yang dipilih sudah tidak tersedia.');
                 }
 
-                // Set new bab to unavailable
+                // Set new bab status based on current naskah status
                 if ($newBab) {
-                    $newBab->markAsTidakTersedia();
+                    if (in_array($validated['status_penulisan'], ['disetujui', 'selesai'])) {
+                        $newBab->markAsSelesai();
+                    } elseif ($validated['status_penulisan'] === 'ditolak') {
+                        $newBab->markAsTersedia();
+                    } else {
+                        $newBab->markAsTidakTersedia();
+                    }
                 }
             }
 
@@ -275,7 +321,9 @@ class NaskahKolaborasiController extends Controller
             Log::info('Naskah kolaborasi updated', [
                 'naskah_id' => $id,
                 'admin_id' => auth()->id(),
-                'nomor_pesanan' => $naskah->nomor_pesanan
+                'nomor_pesanan' => $naskah->nomor_pesanan,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus
             ]);
 
             DB::commit();
@@ -381,50 +429,50 @@ class NaskahKolaborasiController extends Controller
         }
     }
 
- /**
- * Get Bab by Buku ID (for AJAX)
- */
-public function getBabByBuku($bukuId)
-{
-    try {
-        Log::info('Getting bab for buku ID: ' . $bukuId);
-        
-        // Sesuaikan dengan kolom yang ada di database
-        $bab = BabBuku::where('buku_kolaboratif_id', $bukuId)
-            ->select('id', 'nomor_bab', 'judul_bab', 'status', 'deskripsi') // Hanya kolom yang ada
-            ->orderBy('nomor_bab')
-            ->get();
+    /**
+     * Get Bab by Buku ID (for AJAX)
+     */
+    public function getBabByBuku($bukuId)
+    {
+        try {
+            Log::info('Getting bab for buku ID: ' . $bukuId);
 
-        Log::info('Found bab count: ' . $bab->count());
-        Log::info('Bab data: ', $bab->toArray());
-        
-        // Transform data untuk response
-        $babData = $bab->map(function($item) {
-            return [
-                'id' => $item->id,
-                'nomor_bab' => $item->nomor_bab,
-                'judul_bab' => $item->judul_bab,
-                'status' => $item->status,
-                'deskripsi' => $item->deskripsi,
-                'status_text' => $item->status_text ?? ucfirst(str_replace('_', ' ', $item->status))
-            ];
-        });
+            // Sesuaikan dengan kolom yang ada di database
+            $bab = BabBuku::where('buku_kolaboratif_id', $bukuId)
+                ->select('id', 'nomor_bab', 'judul_bab', 'status', 'deskripsi') // Hanya kolom yang ada
+                ->orderBy('nomor_bab')
+                ->get();
 
-        return response()->json($babData);
-        
-    } catch (\Exception $e) {
-        Log::error('Error getting bab by buku', [
-            'buku_id' => $bukuId,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+            Log::info('Found bab count: ' . $bab->count());
+            Log::info('Bab data: ', $bab->toArray());
 
-        return response()->json([
-            'error' => 'Gagal mengambil data bab',
-            'message' => $e->getMessage()
-        ], 500);
+            // Transform data untuk response
+            $babData = $bab->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'nomor_bab' => $item->nomor_bab,
+                    'judul_bab' => $item->judul_bab,
+                    'status' => $item->status,
+                    'deskripsi' => $item->deskripsi,
+                    'status_text' => $item->status_text ?? ucfirst(str_replace('_', ' ', $item->status))
+                ];
+            });
+
+            return response()->json($babData);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting bab by buku', [
+                'buku_id' => $bukuId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => 'Gagal mengambil data bab',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     /**
      * Terima naskah
@@ -590,7 +638,7 @@ public function getBabByBuku($bukuId)
             return redirect()->route('naskahKolaborasi.index')
                 ->with('success', 'Naskah berhasil ditolak. Bab telah dikembalikan ke status tersedia.');
 
-               } catch (\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollback();
 
             Log::error('Error rejecting naskah', [
@@ -675,9 +723,9 @@ public function getBabByBuku($bukuId)
     {
         $users = User::all();
         $penulis = User::where('role', 'penulis')->get();
-        
+
         return response()->json([
-            'all_users' => $users->map(function($user) {
+            'all_users' => $users->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -685,7 +733,7 @@ public function getBabByBuku($bukuId)
                     'role' => $user->role
                 ];
             }),
-            'penulis_only' => $penulis->map(function($user) {
+            'penulis_only' => $penulis->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
