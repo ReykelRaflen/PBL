@@ -55,29 +55,30 @@ class LaporanPenerbitanIndividuController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memuat data laporan.');
         }
     }
+public function create()
+{
+    try {
+        // Perbaiki query sesuai dengan model yang ada
+        $penerbitanTersedia = PenerbitanIndividu::with('user')
+            ->where('status_penerbitan', 'disetujui')
+            ->whereDoesntHave('laporanPenerbitan') // Sesuai dengan relationship di model
+            ->latest('tanggal_disetujui') // Gunakan kolom yang ada di fillable
+            ->get();
 
-    public function create()
-    {
-        try {
-            // Ambil naskah yang sudah disetujui dan belum ada laporannya
-            $penerbitanTersedia = PenerbitanIndividu::with('user')
-                ->where('status_penerbitan', 'disetujui')
-                ->whereDoesntHave('laporanPenjualan')
-                ->latest('tanggal_review')
-                ->get();
+        return view('admin.penerbitanIndividu.create', compact('penerbitanTersedia'));
 
-            return view('admin.penerbitanIndividu.create', compact('penerbitanTersedia'));
+    } catch (\Exception $e) {
+        Log::error('Error in LaporanPenerbitanIndividuController@create', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
 
-        } catch (\Exception $e) {
-            Log::error('Error in LaporanPenerbitanIndividuController@create', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->route('admin.penerbitanIndividu.index')
-                ->with('error', 'Terjadi kesalahan saat memuat halaman tambah laporan.');
-        }
+        return redirect()->route('admin.penerbitanIndividu.index')
+            ->with('error', 'Terjadi kesalahan saat memuat halaman tambah laporan.');
     }
+}
+
+
 
     public function store(Request $request)
     {
