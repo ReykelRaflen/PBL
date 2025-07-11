@@ -323,17 +323,21 @@ Route::prefix('admin')->group(function () {
             ]
         ]);
 
-        // Bab Management
-        Route::get('buku-kolaboratif/{buku}/bab/tambah', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'tambahBab'])
-            ->name('buku-kolaboratif.tambah-bab');
-        Route::post('buku-kolaboratif/{buku}/bab', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'storeBab'])
-            ->name('buku-kolaboratif.store-bab');
-        Route::get('buku-kolaboratif/{buku}/bab/{bab}/edit', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'editBab'])
-            ->name('buku-kolaboratif.edit-bab');
-        Route::put('buku-kolaboratif/{buku}/bab/{bab}', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'updateBab'])
-            ->name('buku-kolaboratif.update-bab');
-        Route::delete('buku-kolaboratif/{buku}/bab/{bab}', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'hapusBab'])
-            ->name('buku-kolaboratif.hapus-bab');
+       // Additional chapter management routes
+    Route::get('buku-kolaboratif/{buku}/tambah-bab', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'tambahBab'])
+        ->name('admin.buku-kolaboratif.tambah-bab');
+    
+    Route::post('buku-kolaboratif/{buku}/bab', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'storeBab'])
+        ->name('admin.buku-kolaboratif.store-bab');
+    
+    Route::get('buku-kolaboratif/{buku}/bab/{bab}/edit', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'editBab'])
+        ->name('admin.buku-kolaboratif.edit-bab');
+    
+    Route::put('buku-kolaboratif/{buku}/bab/{bab}', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'updateBab'])
+        ->name('admin.buku-kolaboratif.update-bab');
+    
+    Route::delete('buku-kolaboratif/{buku}/bab/{bab}', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'hapusBab'])
+        ->name('admin.buku-kolaboratif.hapus-bab');
 
         //     // Penerbitan Kolaborasi routes
         //     Route::get('/penerbitan-kolaborasi', [App\Http\Controllers\Admin\LaporanPenerbitanKolaborasiController::class, 'index'])

@@ -572,14 +572,14 @@
                         <strong>Admin Proyek:</strong><br>
                         <small class="text-muted">Untuk pertanyaan seputar penulisan</small><br>
                         <a href="mailto:admin@penerbitkolaborasi.com" class="text-decoration-none">
-                            <i class="fas fa-envelope me-1"></i>admin@penerbitkolaborasi.com
+                            <i class="fas fa-envelope me-1"></i>admin@fanyapublishing.com
                         </a>
                     </div>
                     <div class="mb-3">
                         <strong>Customer Service:</strong><br>
                         <small class="text-muted">Untuk bantuan pembayaran</small><br>
                         <a href="https://wa.me/6281234567890" class="text-decoration-none" target="_blank">
-                            <i class="fab fa-whatsapp me-1"></i>+62 812-3456-7890
+                            <i class="fab fa-whatsapp me-1"></i>+62 813-2455-8686
                         </a>
                     </div>
                 </div>
@@ -595,15 +595,15 @@
                 <div class="card-body text-center">
                     <p class="text-muted small mb-3">Hubungi customer service kami jika ada kendala</p>
                     <div class="d-grid gap-2">
-                        <a href="https://wa.me/6281234567890?text=Halo, saya butuh bantuan untuk pesanan {{ $pesananBuku->nomor_pesanan }}"
+                        <a href="https://wa.me/+6281324558686?text=Halo, saya butuh bantuan untuk pesanan {{ $pesananBuku->nomor_pesanan }}"
                            class="btn btn-success btn-sm" target="_blank">
                             <i class="fab fa-whatsapp me-2"></i>WhatsApp
                         </a>
-                        <a href="mailto:support@penerbitkolaborasi.com?subject=Bantuan Pesanan {{ $pesananBuku->nomor_pesanan }}"
+                        <a href="mailto:admin@fanyapublishing.com?subject=Bantuan Pesanan {{ $pesananBuku->nomor_pesanan }}"
                            class="btn btn-primary btn-sm">
                             <i class="fas fa-envelope me-2"></i>Email Support
                         </a>
-                        <a href="tel:+6281234567890" class="btn btn-outline-secondary btn-sm">
+                        <a href="tel:+6281324558686" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-phone me-2"></i>Telepon
                         </a>
                     </div>
