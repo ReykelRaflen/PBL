@@ -260,6 +260,87 @@ public function updateStatus(Request $request, $id)
         }
     }
 
+    public function destroy($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Cari penerbitan
+            $penerbitan = PenerbitanIndividu::findOrFail($id);
+
+            // Pastikan admin sudah login
+            if (!auth()->check()) {
+                throw new \Exception('Admin tidak terautentikasi');
+            }
+
+            // Simpan data untuk logging sebelum dihapus
+            $logData = [
+                'penerbitan_id' => $penerbitan->id,
+                'nomor_pesanan' => $penerbitan->nomor_pesanan,
+                'judul_buku' => $penerbitan->judul_buku,
+                'nama_penulis' => $penerbitan->nama_penulis,
+                'user_id' => $penerbitan->user_id,
+                'admin_id' => auth()->id(),
+                'deleted_at' => now()
+            ];
+
+            // Hapus file naskah jika ada
+            if ($penerbitan->file_naskah && Storage::disk('public')->exists($penerbitan->file_naskah)) {
+                Storage::disk('public')->delete($penerbitan->file_naskah);
+                Log::info('File naskah berhasil dihapus dari storage', [
+                    'file_path' => $penerbitan->file_naskah,
+                    'penerbitan_id' => $penerbitan->id
+                ]);
+            }
+
+            // Hapus file cover jika ada
+            if ($penerbitan->cover && Storage::disk('public')->exists($penerbitan->cover)) {
+                Storage::disk('public')->delete($penerbitan->cover);
+                Log::info('File cover berhasil dihapus dari storage', [
+                    'file_path' => $penerbitan->cover,
+                    'penerbitan_id' => $penerbitan->id
+                ]);
+            }
+
+            // Hapus laporan buku individu yang terkait jika ada
+            LaporanBukuIndividu::where('penerbitan_individu_id', $penerbitan->id)->delete();
+
+            // Hapus data penerbitan
+            $penerbitan->delete();
+
+            DB::commit();
+
+            Log::info('Naskah individu berhasil dihapus', $logData);
+
+            return redirect()->route('admin.naskah-individu.index')
+                ->with('success', 'Naskah berhasil dihapus beserta file terkait.');
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollback();
+            
+            Log::error('Naskah tidak ditemukan untuk dihapus', [
+                'penerbitan_id' => $id,
+                'admin_id' => auth()->id() ?? 'not_authenticated'
+            ]);
+
+            return redirect()->route('admin.naskah-individu.index')
+                ->with('error', 'Naskah tidak ditemukan.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            Log::error('Error menghapus naskah individu', [
+                'penerbitan_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'admin_id' => auth()->id() ?? 'not_authenticated'
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat menghapus naskah: ' . $e->getMessage());
+        }
+    }
+
     public function bulkAction(Request $request)
     {
         try {
@@ -275,7 +356,6 @@ public function updateStatus(Request $request, $id)
             ]);
 
             DB::beginTransaction();
-
             $updated = PenerbitanIndividu::whereIn('id', $validated['selected_items'])
                 ->update([
                     'status_penerbitan' => $validated['action'],
@@ -327,27 +407,121 @@ public function updateStatus(Request $request, $id)
         }
     }
 
-    // Tambahkan method baru untuk membuat laporan penerbitan
-private function createLaporanPenerbitan($penerbitan)
-{
-    // Cek apakah sudah ada laporan untuk penerbitan ini
-    $existingLaporan = LaporanBukuIndividu::where('penerbitan_individu_id', $penerbitan->id)->first();
-    
-    if (!$existingLaporan) {
-        LaporanBukuIndividu::create([
-            'kode_buku' => LaporanBukuIndividu::generateKodeBuku(),
-            'judul' => $penerbitan->judul_buku,
-            'penulis' => $penerbitan->nama_penulis,
-            'tanggal_terbit' => now(),
-            'jumlah_terjual' => 0, // Default 0
-            'status' => 'terbit',
-            'penerbitan_individu_id' => $penerbitan->id
-        ]);
+    public function bulkDelete(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'selected_items' => 'required|array|min:1',
+                'selected_items.*' => 'exists:penerbitan_individu,id'
+            ]);
 
-        Log::info('Laporan penerbitan dibuat otomatis', [
-            'penerbitan_id' => $penerbitan->id,
-            'nomor_pesanan' => $penerbitan->nomor_pesanan
-        ]);
+            DB::beginTransaction();
+
+            // Pastikan admin sudah login
+            if (!auth()->check()) {
+                throw new \Exception('Admin tidak terautentikasi');
+            }
+
+            $deletedCount = 0;
+            $errors = [];
+
+            foreach ($validated['selected_items'] as $id) {
+                try {
+                    $penerbitan = PenerbitanIndividu::findOrFail($id);
+
+                    // Hapus file naskah jika ada
+                    if ($penerbitan->file_naskah && Storage::disk('public')->exists($penerbitan->file_naskah)) {
+                        Storage::disk('public')->delete($penerbitan->file_naskah);
+                    }
+
+                    // Hapus file cover jika ada
+                    if ($penerbitan->cover && Storage::disk('public')->exists($penerbitan->cover)) {
+                        Storage::disk('public')->delete($penerbitan->cover);
+                    }
+
+                    // Hapus laporan buku individu yang terkait jika ada
+                    LaporanBukuIndividu::where('penerbitan_individu_id', $penerbitan->id)->delete();
+
+                    // Hapus data penerbitan
+                    $penerbitan->delete();
+                    $deletedCount++;
+
+                    Log::info('Naskah individu berhasil dihapus (bulk)', [
+                        'penerbitan_id' => $id,
+                        'nomor_pesanan' => $penerbitan->nomor_pesanan,
+                        'admin_id' => auth()->id()
+                    ]);
+
+                } catch (\Exception $e) {
+                    $errors[] = "Error menghapus naskah ID {$id}: " . $e->getMessage();
+                    Log::error('Error dalam bulk delete naskah individu', [
+                        'penerbitan_id' => $id,
+                        'error' => $e->getMessage(),
+                        'admin_id' => auth()->id()
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            $message = "{$deletedCount} naskah berhasil dihapus.";
+            if (!empty($errors)) {
+                $message .= " Namun terdapat " . count($errors) . " error.";
+            }
+
+            Log::info('Bulk delete naskah individu selesai', [
+                'deleted_count' => $deletedCount,
+                'error_count' => count($errors),
+                'admin_id' => auth()->id(),
+                'total_items' => count($validated['selected_items'])
+            ]);
+
+            return redirect()->route('admin.naskah-individu.index')
+                ->with('success', $message);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollback();
+            
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->with('error', 'Data yang dipilih tidak valid.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            Log::error('Error bulk delete naskah individu', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'admin_id' => auth()->id() ?? 'not_authenticated',
+                'request_data' => $request->all()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat menghapus naskah: ' . $e->getMessage());
+        }
     }
-}
+
+    // Tambahkan method baru untuk membuat laporan penerbitan
+    private function createLaporanPenerbitan($penerbitan)
+    {
+        // Cek apakah sudah ada laporan untuk penerbitan ini
+        $existingLaporan = LaporanBukuIndividu::where('penerbitan_individu_id', $penerbitan->id)->first();
+        
+        if (!$existingLaporan) {
+            LaporanBukuIndividu::create([
+                'kode_buku' => LaporanBukuIndividu::generateKodeBuku(),
+                'judul' => $penerbitan->judul_buku,
+                'penulis' => $penerbitan->nama_penulis,
+                'tanggal_terbit' => now(),
+                'jumlah_terjual' => 0, // Default 0
+                'status' => 'terbit',
+                'penerbitan_individu_id' => $penerbitan->id
+            ]);
+
+            Log::info('Laporan penerbitan dibuat otomatis', [
+                'penerbitan_id' => $penerbitan->id,
+                'nomor_pesanan' => $penerbitan->nomor_pesanan
+            ]);
+        }
+    }
 }

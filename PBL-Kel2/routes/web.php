@@ -53,7 +53,7 @@ Route::middleware(['auth'])->prefix('akun')->name('akun.')->group(function () {
     Route::delete('/foto', [AkunController::class, 'deleteFoto'])->name('foto.delete');
     Route::get('/kolaborasi', [AkunController::class, 'kolaborasi'])->name('kolaborasi');
     Route::get('/pembelian', [AkunController::class, 'pembelian'])->name('pembelian');
-     Route::get('/pembelian/refresh', [AkunController::class, 'refreshPesanan'])->name('pembelian.refresh');
+    Route::get('/pembelian/refresh', [AkunController::class, 'refreshPesanan'])->name('pembelian.refresh');
     Route::get('/download', [AkunController::class, 'download'])->name('download');
     Route::put('/password', [AkunController::class, 'changePassword'])->name('password.update');
 
@@ -198,6 +198,12 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+// User routes
+Route::middleware(['auth'])->group(function () {
+    // Search route (accessible to all authenticated users)
+    Route::get('/search', [App\Http\Controllers\User\SearchController::class, 'index'])->name('user.search');
+
+});
 
 
 
@@ -323,21 +329,21 @@ Route::prefix('admin')->group(function () {
             ]
         ]);
 
-       // Additional chapter management routes
-    Route::get('buku-kolaboratif/{buku}/tambah-bab', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'tambahBab'])
-        ->name('admin.buku-kolaboratif.tambah-bab');
-    
-    Route::post('buku-kolaboratif/{buku}/bab', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'storeBab'])
-        ->name('admin.buku-kolaboratif.store-bab');
-    
-    Route::get('buku-kolaboratif/{buku}/bab/{bab}/edit', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'editBab'])
-        ->name('admin.buku-kolaboratif.edit-bab');
-    
-    Route::put('buku-kolaboratif/{buku}/bab/{bab}', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'updateBab'])
-        ->name('admin.buku-kolaboratif.update-bab');
-    
-    Route::delete('buku-kolaboratif/{buku}/bab/{bab}', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'hapusBab'])
-        ->name('admin.buku-kolaboratif.hapus-bab');
+        // Additional chapter management routes
+        Route::get('buku-kolaboratif/{buku}/tambah-bab', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'tambahBab'])
+            ->name('admin.buku-kolaboratif.tambah-bab');
+
+        Route::post('buku-kolaboratif/{buku}/bab', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'storeBab'])
+            ->name('admin.buku-kolaboratif.store-bab');
+
+        Route::get('buku-kolaboratif/{buku}/bab/{bab}/edit', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'editBab'])
+            ->name('admin.buku-kolaboratif.edit-bab');
+
+        Route::put('buku-kolaboratif/{buku}/bab/{bab}', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'updateBab'])
+            ->name('admin.buku-kolaboratif.update-bab');
+
+        Route::delete('buku-kolaboratif/{buku}/bab/{bab}', [App\Http\Controllers\Admin\BukuKolaboratifController::class, 'hapusBab'])
+            ->name('admin.buku-kolaboratif.hapus-bab');
 
         //     // Penerbitan Kolaborasi routes
         //     Route::get('/penerbitan-kolaborasi', [App\Http\Controllers\Admin\LaporanPenerbitanKolaborasiController::class, 'index'])
@@ -545,6 +551,9 @@ Route::prefix('admin')->group(function () {
             Route::post('/{id}/update-status', [App\Http\Controllers\Admin\NaskahIndividuController::class, 'updateStatus'])->name('update-status');
             Route::get('/{id}/download', [App\Http\Controllers\Admin\NaskahIndividuController::class, 'download'])->name('download');
             Route::post('/bulk-action', [App\Http\Controllers\Admin\NaskahIndividuController::class, 'bulkAction'])->name('bulk-action');
+            Route::delete('/admin/naskah-individu/{id}', [NaskahIndividuController::class, 'destroy'])->name('admin.naskah-individu.destroy');
+            Route::post('/admin/naskah-individu/bulk-delete', [NaskahIndividuController::class, 'bulkDelete'])->name('bulk-delete');
+
         });
 
         // Naskah Kolaborasi Routes

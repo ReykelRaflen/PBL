@@ -65,7 +65,8 @@
                         <!-- Cover Buku -->
                         @if($book->cover)
                             <img src="{{ asset('storage/' . $book->cover) }}" class="card-img-top" alt="{{ $book->judul_buku }}"
-                                style="height: 150px; object-fit: cover;">
+                                style="width: 100%; object-fit: contain;">
+
                         @else
                             <div class="card-img-top d-flex align-items-center justify-content-center bg-light"
                                 style="height: 150px;">
@@ -75,6 +76,7 @@
                                 </div>
                             </div>
                         @endif
+
 
                         <div class="card-body d-flex flex-column p-2">
                             <!-- Judul Buku -->

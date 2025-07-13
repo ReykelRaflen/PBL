@@ -5,15 +5,26 @@
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold">Detail Naskah - {{ $penerbitan->nomor_pesanan }}</h1>
-                <a href="{{ route('admin.naskah-individu.index') }}"
-                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Kembali
-                </a>
+                <div class="flex space-x-2">
+                    <a href="{{ route('admin.naskah-individu.index') }}"
+                        class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Kembali
+                    </a>
+                    <button onclick="confirmDelete({{ $penerbitan->id }}, '{{ $penerbitan->nomor_pesanan }}')"
+                        class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Hapus Naskah
+                    </button>
+                </div>
             </div>
 
             @if(session('success'))
@@ -24,7 +35,7 @@
             @endif
 
             @if(session('error'))
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 dark:bg-red-800 dark:text-red-100">
+                              <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 dark:bg-red-800 dark:text-red-100">
                     {{ session('error') }}
                 </div>
             @endif
@@ -191,7 +202,7 @@
                             </a>
                         </div>
                     </div>
-                                    </div>
+                </div>
             @endif
 
             <!-- Catatan Review -->
@@ -210,7 +221,7 @@
                             <h3 class="ml-3 text-lg font-semibold text-orange-900 dark:text-orange-100">Catatan Review</h3>
                         </div>
                         <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-orange-200 dark:border-orange-600">
-                            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                 {{ $penerbitan->catatan_review }}</p>
                             @if($penerbitan->admin && $penerbitan->tanggal_review)
                                 <div class="mt-3 pt-3 border-t border-orange-200 dark:border-orange-600">
@@ -378,7 +389,7 @@
                                                     @endif
                                                 </span>
                                             </div>
-                                                                                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                                                 <div>
                                                     <p class="text-sm text-gray-500 dark:text-gray-400">
                                                         {{ $penerbitan->status_penerbitan_text }}
@@ -408,7 +419,7 @@
                     <div class="flex items-center mb-4">
                         <div class="flex-shrink-0">
                             <svg class="h-8 w-8 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                               fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
@@ -544,6 +555,39 @@
         </div>
     </div>
 
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 dark:text-red-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Hapus Naskah</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500 dark:text-gray-400" id="deleteMessage"></p>
+                    <form id="deleteForm" method="POST" class="mt-4">
+                        @csrf
+                        @method('DELETE')
+                        <div class="flex justify-center space-x-3">
+                            <button type="button" onclick="closeDeleteModal()"
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                             Batal
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Hapus
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Quick Action Modal -->
     <div id="quickActionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
@@ -551,7 +595,7 @@
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4" id="quickActionIcon">
                     <!-- Icon will be set by JavaScript -->
                 </div>
-                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100" id="quickActionTitle">Update Status</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100" id="quickActionTitle">Update Status</h3>
                 <div class="mt-2 px-7 py-3">
                     <p class="text-sm text-gray-500 dark:text-gray-400" id="quickActionMessage"></p>
                     <form id="quickActionForm" method="POST"
@@ -584,6 +628,25 @@
     </div>
 
     <script>
+        // Delete functionality
+        function confirmDelete(id, nomorPesanan) {
+            const modal = document.getElementById('deleteModal');
+            const form = document.getElementById('deleteForm');
+            const message = document.getElementById('deleteMessage');
+
+            form.action = `/admin/naskah-individu/${id}`;
+            message.textContent = `Apakah Anda yakin ingin menghapus naskah "${nomorPesanan}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua file terkait.`;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
         // Quick Action functionality
         function quickUpdateStatus(status) {
             const modal = document.getElementById('quickActionModal');
@@ -645,20 +708,35 @@
             icon.innerHTML = `<div class="${config.iconColor}">${config.icon}</div>`;
 
             modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeQuickActionModal() {
             document.getElementById('quickActionModal').classList.add('hidden');
             document.getElementById('quickActionCatatan').value = '';
+            document.body.style.overflow = 'auto';
         }
 
         // Close modal when clicking outside
         window.onclick = function (event) {
-            const modal = document.getElementById('quickActionModal');
-            if (event.target === modal) {
+            const quickModal = document.getElementById('quickActionModal');
+            const deleteModal = document.getElementById('deleteModal');
+            
+            if (event.target === quickModal) {
                 closeQuickActionModal();
             }
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
         }
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeQuickActionModal();
+                closeDeleteModal();
+            }
+        });
 
         // Auto-update status select when form is used
         document.getElementById('status_penerbitan').addEventListener('change', function () {
@@ -709,11 +787,12 @@
             // ESC to close modal
             if (e.key === 'Escape') {
                 closeQuickActionModal();
+                closeDeleteModal();
             }
 
             // Ctrl/Cmd + Enter to submit form
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                const activeForm = document.querySelector('form:not(#quickActionForm)');
+                const activeForm = document.querySelector('form:not(#quickActionForm):not(#deleteForm)');
                 if (activeForm) {
                     activeForm.submit();
                 }
@@ -764,7 +843,7 @@
             background: #a8a8a8;
         }
 
-        /* Dark mode scrollbar */
+              /* Dark mode scrollbar */
         .dark textarea::-webkit-scrollbar-track {
             background: #374151;
         }
@@ -796,7 +875,8 @@
         }
 
         /* Modal animation */
-        #quickActionModal {
+        #quickActionModal,
+        #deleteModal {
             animation: fadeIn 0.3s ease-out;
         }
 
@@ -818,12 +898,9 @@
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
+            0%, 100% {
                 opacity: 1;
             }
-
             50% {
                 opacity: 0.8;
             }
@@ -835,6 +912,279 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        /* Timeline improvements */
+        .timeline-item {
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 32px;
+            bottom: -32px;
+            width: 2px;
+            background: linear-gradient(to bottom, #e5e7eb, transparent);
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
+        /* Card hover effects */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* File type icons */
+        .file-icon {
+            position: relative;
+        }
+
+        .file-icon::after {
+            content: attr(data-type);
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            padding: 1px 3px;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+
+            .quick-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .quick-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .bg-gradient-to-r {
+                background: #f8f9fa !important;
+            }
+        }
+
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus visible for better accessibility */
+        button:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .bg-gradient-to-r {
+                background: #ffffff !important;
+                border: 2px solid #000000 !important;
+            }
+
+            .text-gray-500 {
+                color: #000000 !important;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Custom tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .tooltip:hover::before {
+            opacity: 1;
+        }
+
+        /* Status indicator animations */
+        .status-indicator {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Form validation styles */
+        .form-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .form-success {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+        }
+
+        /* Loading spinner for buttons */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .notification.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .notification.warning {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .notification.info {
+            border-left: 4px solid #3b82f6;
         }
     </style>
 @endsection

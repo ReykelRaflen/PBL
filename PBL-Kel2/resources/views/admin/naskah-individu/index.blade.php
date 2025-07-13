@@ -16,6 +16,16 @@
                         </svg>
                         Bulk Action
                     </button>
+                    <button onclick="openBulkDeleteModal()"
+                        class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 disabled:opacity-50 transition ease-in-out duration-150"
+                        id="bulkDeleteBtn" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Bulk Delete
+                    </button>
                 </div>
             </div>
 
@@ -194,7 +204,7 @@
                                         $statusText = match ($naskah->status_penerbitan) {
                                             'sudah_kirim' => 'Sudah Kirim',
                                             'revisi' => 'Revisi',
-                                                                                        'disetujui' => 'Disetujui',
+                                            'disetujui' => 'Disetujui',
                                             'ditolak' => 'Ditolak',
                                             default => ucfirst(str_replace('_', ' ', $naskah->status_penerbitan))
                                         };
@@ -233,6 +243,18 @@
                                                 </svg>
                                             </a>
                                         @endif
+
+                                        <!-- Delete Button -->
+                                        <button onclick="confirmDelete({{ $naskah->id }}, '{{ $naskah->nomor_pesanan }}')"
+                                            class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                            title="Hapus Naskah">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                                fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 112 0v3a1 1 0 11-2 0V9zm4 0a1 1 0 112 0v3a1 1 0 11-2 0V9z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
 
                                         <!-- Quick Actions - Updated to use existing ENUM values -->
                                         @if($naskah->status_penerbitan === 'sudah_kirim')
@@ -332,6 +354,40 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div class="mt-3 text-center">
+                <div
+                    class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 dark:text-red-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Hapus Naskah</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500 dark:text-gray-400" id="deleteMessage"></p>
+                    <form id="deleteForm" method="POST" class="mt-4">
+                        @csrf
+                        @method('DELETE')
+                        <div class="flex justify-center space-x-3">
+                            <button type="button" onclick="closeDeleteModal()"
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Hapus
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Quick Action Modal -->
     <div id="quickActionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
@@ -363,7 +419,7 @@
                             <button type="button" onclick="closeQuickActionModal()"
                                 class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 Batal
-                                                            </button>
+                            </button>
                             <button type="submit" id="quickActionSubmit"
                                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 Update
@@ -433,6 +489,41 @@
         </div>
     </div>
 
+    <!-- Bulk Delete Modal -->
+    <div id="bulkDeleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div class="mt-3 text-center">
+                <div
+                    class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 dark:text-red-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Bulk Delete</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Hapus semua item yang dipilih? Tindakan ini
+                        tidak dapat dibatalkan.</p>
+                    <form id="bulkDeleteForm" method="POST" action="{{ route('admin.naskah-individu.bulk-delete') }}">
+                        @csrf
+                        <div id="selectedDeleteItemsContainer"></div>
+                        <div class="flex justify-center space-x-3">
+                            <button type="button" onclick="closeBulkDeleteModal()"
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Hapus Semua
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Checkbox functionality
         document.addEventListener('DOMContentLoaded', function () {
@@ -444,13 +535,13 @@
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = this.checked;
                 });
-                updateBulkActionButton();
+                updateBulkActionButtons();
             });
 
             // Individual checkbox functionality
             itemCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function () {
-                    updateBulkActionButton();
+                    updateBulkActionButtons();
 
                     // Update select all checkbox state
                     const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
@@ -460,29 +551,73 @@
             });
         });
 
-        function updateBulkActionButton() {
+        function updateBulkActionButtons() {
             const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
             const bulkActionBtn = document.getElementById('bulkActionBtn');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
 
             if (checkedBoxes.length > 0) {
                 bulkActionBtn.disabled = false;
                 bulkActionBtn.classList.remove('opacity-50');
+                bulkDeleteBtn.disabled = false;
+                bulkDeleteBtn.classList.remove('opacity-50');
+
                 bulkActionBtn.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                         Bulk Action (${checkedBoxes.length})
+                    `;
+
+                bulkDeleteBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Bulk Delete (${checkedBoxes.length})
                     `;
             } else {
                 bulkActionBtn.disabled = true;
                 bulkActionBtn.classList.add('opacity-50');
+                bulkDeleteBtn.disabled = true;
+                bulkDeleteBtn.classList.add('opacity-50');
+
                 bulkActionBtn.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                         Bulk Action
                     `;
+
+                bulkDeleteBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Bulk Delete
+                    `;
             }
+        }
+
+        // Delete functionality
+        function confirmDelete(id, nomorPesanan) {
+            const modal = document.getElementById('deleteModal');
+            const form = document.getElementById('deleteForm');
+            const message = document.getElementById('deleteMessage');
+
+            form.action = `/admin/naskah-individu/${id}`;
+            message.textContent = `Apakah Anda yakin ingin menghapus naskah "${nomorPesanan}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua file terkait.`;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
 
         // Quick Action Modal - Updated to use existing ENUM values
@@ -577,16 +712,54 @@
             document.getElementById('bulkAction').value = '';
         }
 
+        // Bulk Delete Modal
+        function openBulkDeleteModal() {
+            const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Pilih minimal satu item untuk dihapus');
+                return;
+            }
+
+            const container = document.getElementById('selectedDeleteItemsContainer');
+            container.innerHTML = '';
+
+            checkedBoxes.forEach(checkbox => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'selected_items[]';
+                input.value = checkbox.value;
+                container.appendChild(input);
+            });
+
+            const modal = document.getElementById('bulkDeleteModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBulkDeleteModal() {
+            const modal = document.getElementById('bulkDeleteModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
         // Close modals when clicking outside
         window.onclick = function (event) {
             const quickModal = document.getElementById('quickActionModal');
             const bulkModal = document.getElementById('bulkActionModal');
+            const deleteModal = document.getElementById('deleteModal');
+            const bulkDeleteModal = document.getElementById('bulkDeleteModal');
 
             if (event.target === quickModal) {
                 closeQuickActionModal();
             }
             if (event.target === bulkModal) {
                 closeBulkActionModal();
+            }
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
+            if (event.target === bulkDeleteModal) {
+                closeBulkDeleteModal();
             }
         }
 
@@ -595,6 +768,8 @@
             if (event.key === 'Escape') {
                 closeQuickActionModal();
                 closeBulkActionModal();
+                closeDeleteModal();
+                closeBulkDeleteModal();
             }
         });
 
@@ -623,6 +798,21 @@
             }
         });
 
+        // Form validation for bulk delete
+        document.getElementById('bulkDeleteForm').addEventListener('submit', function (e) {
+            const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                e.preventDefault();
+                alert('Pilih minimal satu item untuk dihapus');
+                return;
+            }
+
+            if (!confirm(`Yakin ingin menghapus ${checkedBoxes.length} naskah? Tindakan ini tidak dapat dibatalkan!`)) {
+                e.preventDefault();
+                return;
+            }
+        });
+
         // Auto-hide alerts after 5 seconds
         document.addEventListener('DOMContentLoaded', function () {
             const alerts = document.querySelectorAll('[role="alert"]');
@@ -638,4 +828,3 @@
         });
     </script>
 @endsection
-

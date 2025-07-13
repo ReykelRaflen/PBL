@@ -6,15 +6,41 @@
             <img src="{{ asset('img/logo.png') }}" alt="Fanya Logo" style="height: 40px;">
         </a>
 
-        <!-- Search Bar -->
-        <form class="d-none d-md-flex flex-grow-1 mx-4" style="max-width: 500px;">
+               <!-- Search Bar -->
+        <form class="d-none d-md-flex flex-grow-1 mx-4" style="max-width: 500px;" 
+              action="{{ route('user.search') }}" method="GET">
             <div class="input-group">
-                <input type="text" class="form-control border-end-0 bg-light" placeholder="Search Product" style="border-radius: 50px 0 0 50px;">
-                <span class="input-group-text bg-light border-start-0" style="border-radius: 0 50px 50px 0;">
+                <input type="text" 
+                       name="q" 
+                       value="{{ request('q') }}"
+                       class="form-control border-end-0 bg-light" 
+                       placeholder="Cari judul, penulis, atau penerbit..." 
+                       style="border-radius: 50px 0 0 50px;">
+                <button type="submit" 
+                        class="input-group-text bg-primary text-white border-start-0" 
+                        style="border-radius: 0 50px 50px 0; cursor: pointer; border: none;">
                     <i class="bi bi-search"></i>
-                </span>
+                </button>
             </div>
         </form>
+
+                <!-- Mobile Search (optional) -->
+        <div class="d-md-none w-100 mt-2">
+            <form action="{{ route('user.search') }}" method="GET">
+                <div class="input-group">
+                    <input type="text" 
+                           name="q" 
+                           value="{{ request('q') }}"
+                           class="form-control" 
+                           placeholder="Cari buku...">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+
 
         <!-- Masuk | Daftar -->
         <div>
