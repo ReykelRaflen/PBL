@@ -1,4 +1,4 @@
-# Nama Project Laravel
+# PBL-2 Fanya Publishing
 
 Proyek ini bertujuan untuk mengembangkan sistem berbasis web yang lebih efisien dan terortomatisasi, sistem ini akan mempermudahkan dalam pengelolaan naskah, katalog buku, transaksi penjualan dan laporannya dengan proses yang otomatis dan real-time pada Fanya Publishing
 
