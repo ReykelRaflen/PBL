@@ -18,11 +18,11 @@ class PenerbitanIndividuController extends Controller
     {
         $paketOptions = [
             'silver' => [
-                'harga' => 500000,
+                'harga' => 1500000,
                 'gambar' => 'img/paket-silver.jpg',
             ],
             'gold' => [
-                'harga' => 1000000,
+                'harga' => 3500000,
                 'gambar' => 'img/paket-gold.jpg',
                 'fitur' => [
                     'Editing dan Proofreading Premium',
@@ -36,7 +36,7 @@ class PenerbitanIndividuController extends Controller
                 ]
             ],
             'diamond' => [
-                'harga' => 2000000,
+                'harga' => 5000000,
                 'gambar' => 'img/paket-diamond.jpg',
                 'fitur' => [
                     'Editing dan Proofreading Premium',

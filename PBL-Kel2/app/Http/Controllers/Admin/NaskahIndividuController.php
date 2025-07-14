@@ -514,7 +514,7 @@ public function updateStatus(Request $request, $id)
                 'penulis' => $penerbitan->nama_penulis,
                 'tanggal_terbit' => now(),
                 'jumlah_terjual' => 0, // Default 0
-                'status' => 'terbit',
+                'status' => 'pending',
                 'penerbitan_individu_id' => $penerbitan->id
             ]);
 

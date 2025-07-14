@@ -55,57 +55,62 @@ class LaporanPenerbitanIndividuController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memuat data laporan.');
         }
     }
-public function create()
-{
-    try {
-        // Perbaiki query sesuai dengan model yang ada
-        $penerbitanTersedia = PenerbitanIndividu::with('user')
-            ->where('status_penerbitan', 'disetujui')
-            ->whereDoesntHave('laporanPenerbitan') // Sesuai dengan relationship di model
-            ->latest('tanggal_disetujui') // Gunakan kolom yang ada di fillable
-            ->get();
 
-        return view('admin.penerbitanIndividu.create', compact('penerbitanTersedia'));
+    public function create()
+    {
+        try {
+            // Perbaiki query sesuai dengan model yang ada
+            $penerbitanTersedia = PenerbitanIndividu::with('user')
+                ->where('status_penerbitan', 'disetujui')
+                ->whereDoesntHave('laporanPenerbitan') // Sesuai dengan relationship di model
+                ->latest('tanggal_disetujui') // Gunakan kolom yang ada di fillable
+                ->get();
 
-    } catch (\Exception $e) {
-        Log::error('Error in LaporanPenerbitanIndividuController@create', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+            return view('admin.penerbitanIndividu.create', compact('penerbitanTersedia'));
 
-        return redirect()->route('admin.penerbitanIndividu.index')
-            ->with('error', 'Terjadi kesalahan saat memuat halaman tambah laporan.');
+        } catch (\Exception $e) {
+            Log::error('Error in LaporanPenerbitanIndividuController@create', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->route('admin.penerbitanIndividu.index')
+                ->with('error', 'Terjadi kesalahan saat memuat halaman tambah laporan.');
+        }
     }
-}
-
-
 
     public function store(Request $request)
     {
         try {
             $validated = $request->validate([
-                'kode_buku' => 'required|unique:laporan_penerbitan_individu',
+                'kode_buku' => 'nullable|unique:laporan_penerbitan_individu', // Changed to nullable for auto-generation
                 'judul' => 'required|string|max:255',
                 'penulis' => 'required|string|max:255',
                 'tanggal_terbit' => 'nullable|date',
                 'isbn' => 'nullable|string|max:50',
-                'status' => 'required|in:proses,terbit,pending',
+                'status' => 'nullable|in:proses,terbit,pending', // Changed to nullable for default value
                 'penerbitan_individu_id' => 'nullable|exists:penerbitan_individu,id',
             ]);
 
             DB::beginTransaction();
 
-            LaporanBukuIndividu::create($validated);
+            // Remove empty values to let model handle defaults
+            $validated = array_filter($validated, function($value) {
+                return $value !== null && $value !== '';
+            });
+
+            $laporan = LaporanBukuIndividu::create($validated);
 
             DB::commit();
 
             Log::info('Laporan penerbitan individu berhasil ditambahkan', [
-                'kode_buku' => $validated['kode_buku'],
+                'laporan_id' => $laporan->id,
+                'kode_buku' => $laporan->kode_buku,
                 'admin_id' => auth()->id()
             ]);
 
             return redirect()->route('admin.penerbitanIndividu.index')
-                ->with('success', 'Laporan penerbitan berhasil ditambahkan.');
+                ->with('success', 'Laporan penerbitan berhasil ditambahkan dengan kode buku: ' . $laporan->kode_buku);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollback();
@@ -157,7 +162,19 @@ public function create()
             $laporan = LaporanBukuIndividu::with(['penerbitanIndividu.user'])
                 ->findOrFail($id);
 
-            return view('admin.penerbitanIndividu.edit', compact('laporan'));
+            // Get available penerbitan for dropdown if needed
+            $penerbitanTersedia = PenerbitanIndividu::with('user')
+                ->where('status_penerbitan', 'disetujui')
+                ->where(function($query) use ($id) {
+                    $query->whereDoesntHave('laporanPenerbitan')
+                          ->orWhereHas('laporanPenerbitan', function($q) use ($id) {
+                              $q->where('id', $id);
+                          });
+                })
+                ->latest('tanggal_disetujui')
+                ->get();
+
+            return view('admin.penerbitanIndividu.edit', compact('laporan', 'penerbitanTersedia'));
 
         } catch (\Exception $e) {
             Log::error('Error in LaporanPenerbitanIndividuController@edit', [
@@ -183,6 +200,7 @@ public function create()
                 'tanggal_terbit' => 'nullable|date',
                 'isbn' => 'nullable|string|max:50',
                 'status' => 'required|in:proses,terbit,pending',
+                'penerbitan_individu_id' => 'nullable|exists:penerbitan_individu,id',
             ]);
 
             DB::beginTransaction();
@@ -197,7 +215,7 @@ public function create()
                 'admin_id' => auth()->id()
             ]);
 
-            return redirect()->route('admin.penerbitanIndividu.index', $id)
+            return redirect()->route('admin.penerbitanIndividu.index')
                 ->with('success', 'Laporan penerbitan berhasil diperbarui.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -258,6 +276,48 @@ public function create()
 
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat menghapus laporan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bulk update status
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'ids' => 'required|array',
+                'ids.*' => 'exists:laporan_penerbitan_individu,id',
+                'status' => 'required|in:pending,proses,terbit'
+            ]);
+
+            DB::beginTransaction();
+
+            $updated = LaporanBukuIndividu::whereIn('id', $validated['ids'])
+                ->update(['status' => $validated['status']]);
+
+            DB::commit();
+
+            Log::info('Bulk update status laporan penerbitan individu', [
+                'updated_count' => $updated,
+                'status' => $validated['status'],
+                'admin_id' => auth()->id()
+            ]);
+
+            return redirect()->back()
+                ->with('success', "Berhasil mengupdate status {$updated} laporan menjadi {$validated['status']}.");
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            Log::error('Error bulk updating status', [
+                'error' => $e->getMessage(),
+                'admin_id' => auth()->id(),
+                'request_data' => $request->all()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat mengupdate status: ' . $e->getMessage());
         }
     }
 }

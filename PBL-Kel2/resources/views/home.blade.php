@@ -22,26 +22,50 @@
 
 
     <!-- Fitur Navigasi -->
-    <div class="container mt-5 text-center">
-        <div class="row">
-            <div class="col">
-                <img src="{{ asset('img/Buku_Individu.png') }}" class="mb-2" width="50">
-                <p>Buku Individu</p>
-                <a href="{{ route('penerbitan-individu.index') }}" class="btn btn-primary btn-sm">
-                    Lihat Layanan
-                </a>
+  <div class="container mt-5">
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm border-0 text-center p-4">
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-3">
+                        <img src="{{ asset('img/Buku_Individu.png') }}" 
+                             class="img-fluid" 
+                             width="60" 
+                             alt="Buku Individu">
+                    </div>
+                    <h5 class="card-title mb-3">Buku Individu</h5>
+                    <div class="mt-auto">
+                        <a href="{{ route('penerbitan-individu.index') }}" 
+                           class="btn btn-primary px-4 py-2">
+                            Pesan Sekarang
+                        </a>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="col">
-                <img src="{{ asset('img/Buku_kolaborasi.png') }}" class="mb-2" width="50">
-                <p>Buku Kolaboratif</p>
-                <a href="{{ route('buku-kolaboratif.index') }}" class="btn btn-primary btn-sm">
-                    Pesan Sekarang
-                </a>
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm border-0 text-center p-4">
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-3">
+                        <img src="{{ asset('img/Buku_kolaborasi.png') }}" 
+                             class="img-fluid" 
+                             width="60" 
+                             alt="Buku Kolaboratif">
+                    </div>
+                    <h5 class="card-title mb-3">Buku Kolaboratif</h5>
+                    <div class="mt-auto">
+                        <a href="{{ route('buku-kolaboratif.index') }}" 
+                           class="btn btn-primary px-4 py-2">
+                            Pesan Sekarang
+                        </a>
+                    </div>
+                </div>
             </div>
-
         </div>
     </div>
+</div>
+
 
     <div class="container mt-5">
         <h4 class="mb-4 fw-bold">Buku Terbaru Fanya Untukmu</h4>

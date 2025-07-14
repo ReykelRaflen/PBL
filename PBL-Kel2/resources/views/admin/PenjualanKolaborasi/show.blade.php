@@ -4,7 +4,7 @@
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold">Detail Pembayaran</h1>
+                <h1 class="text-2xl font-bold">Detail Laporan Penjualan Kolaborasi</h1>
                 <a href="{{ route('penjualanKolaborasi.index') }}"
                     class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24"
@@ -26,24 +26,27 @@
                                 <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Nomor
                                     Invoice</label>
                                 <p class="text-lg font-semibold text-blue-600">
-                                    {{ $laporan->nomor_invoice ?? $laporan->invoice }}</p>
+                                    {{ $laporan->nomor_invoice }}</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Jumlah
                                     Pembayaran</label>
-                                <p class="text-lg font-semibold text-green-600">{{ $laporan->jumlah_pembayaran_formatted }}
+                                <p class="text-lg font-semibold text-green-600">
+                                    Rp {{ number_format($laporan->jumlah_pembayaran, 0, ',', '.') }}
                                 </p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Tanggal
                                     Pembayaran</label>
-                                <p class="text-gray-900 dark:text-white">{{ $laporan->tanggal->format('d F Y') }}</p>
+                                <p class="text-gray-900 dark:text-white">
+                                    {{ \Carbon\Carbon::parse($laporan->tanggal)->format('d F Y') }}</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Status</label>
-                                <span
-                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $laporan->status_badge }}">
-                                    {{ $laporan->status_text }}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                    {{ $laporan->status_pembayaran === 'sukses' ? 'bg-green-500' : 
+                                       ($laporan->status_pembayaran === 'menunggu_verifikasi' ? 'bg-yellow-500' : 'bg-red-500') }} text-white">
+                                    {{ ucwords(str_replace('_', ' ', $laporan->status_pembayaran)) }}
                                 </span>
                             </div>
                         </div>
@@ -71,10 +74,7 @@
                     </div>
 
                     <!-- Informasi Pesanan (jika ada) -->
-                    @if($laporan->pesananKolaborasi ?? $laporan->pesananBuku)
-                        @php
-                            $pesanan = $laporan->pesananKolaborasi ?? $laporan->pesananBuku;
-                        @endphp
+                    @if($laporan->pesananKolaborasi)
                         <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
                             <h3 class="text-lg font-semibold mb-4">Detail Pesanan</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -82,27 +82,28 @@
                                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Nomor
                                         Pesanan</label>
                                     <p class="text-gray-900 dark:text-white font-mono">
-                                        {{ $pesanan->nomor_pesanan }}</p>
+                                        {{ $laporan->pesananKolaborasi->nomor_pesanan ?? '-' }}</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Email
                                         Penulis</label>
-                                    <p class="text-gray-900 dark:text-white">{{ $pesanan->user->email ?? $pesanan->pengguna->email ?? '-' }}
+                                    <p class="text-gray-900 dark:text-white">
+                                        {{ $laporan->pesananKolaborasi->user->email ?? '-' }}
                                     </p>
                                 </div>
-                                @if($pesanan->babBuku)
+                                @if($laporan->pesananKolaborasi->babBuku)
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Tingkat
                                             Kesulitan</label>
                                         <span
                                             class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {{ ucfirst($pesanan->babBuku->tingkat_kesulitan) }}
+                                            {{ ucfirst($laporan->pesananKolaborasi->babBuku->tingkat_kesulitan ?? '-') }}
                                         </span>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Harga Bab</label>
                                         <p class="text-gray-900 dark:text-white">Rp
-                                            {{ number_format($pesanan->babBuku->harga, 0, ',', '.') }}</p>
+                                            {{ number_format($laporan->jumlah_pembayaran ?? 0, 0, ',', '.') }}</p>
                                     </div>
                                 @endif
                                 <div>
@@ -110,15 +111,15 @@
                                         Penulisan</label>
                                     <span
                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-                                        {{ $pesanan->status_penulisan === 'dapat_mulai' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                        {{ ucwords(str_replace('_', ' ', $pesanan->status_penulisan)) }}
+                                        {{ ($laporan->pesananKolaborasi->status_penulisan ?? '') === 'dapat_mulai' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                        {{ ucwords(str_replace('_', ' ', $laporan->pesananKolaborasi->status_penulisan ?? 'Belum ditentukan')) }}
                                     </span>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">Tanggal
                                         Pesanan</label>
                                     <p class="text-gray-900 dark:text-white">
-                                        {{ $pesanan->created_at->format('d F Y H:i') }}</p>
+                                        {{ $laporan->pesananKolaborasi->created_at ? $laporan->pesananKolaborasi->created_at->format('d F Y H:i') : '-' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -132,7 +133,7 @@
                             <p class="text-yellow-700 dark:text-yellow-300">{{ $laporan->catatan_admin }}</p>
                             @if($laporan->tanggal_verifikasi)
                                 <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-2">
-                                    Diverifikasi pada: {{ $laporan->tanggal_verifikasi->format('d F Y H:i') }}
+                                    Diverifikasi pada: {{ \Carbon\Carbon::parse($laporan->tanggal_verifikasi)->format('d F Y H:i') }}
                                 </p>
                             @endif
                         </div>
@@ -149,7 +150,7 @@
                                 @php
                                     $extension = pathinfo($laporan->bukti_pembayaran, PATHINFO_EXTENSION);
                                     $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
-                                    $imagePath = Str::startsWith($laporan->bukti_pembayaran, 'bukti_pembayaran/') 
+                                    $imagePath = Str::startsWith($laporan->bukti_pembayaran, 'bukti-pembayaran/') 
                                         ? $laporan->bukti_pembayaran 
                                         : 'bukti/' . $laporan->bukti_pembayaran;
                                 @endphp
@@ -188,10 +189,9 @@
                             <h3 class="text-lg font-semibold mb-4">Verifikasi Pembayaran</h3>
                             
                             <!-- Setujui -->
-                            <form action="{{ route('penjualanKolaborasi.verifikasi', $laporan->id) }}" method="POST"
+                            <form action="{{ route('penjualanKolaborasi.accept', $laporan->id) }}" method="POST"
                                 onsubmit="return confirm('Yakin ingin menyetujui pembayaran ini?')" class="mb-3">
                                 @csrf
-                                {{-- Hapus @method('PATCH') karena route menggunakan POST --}}
                                 <input type="hidden" name="status" value="sukses">
                                 <button type="submit"
                                     class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
@@ -204,7 +204,7 @@
                                 </button>
                             </form>
 
-                            <!-- Tolak -->
+                                                       <!-- Tolak -->
                             <button type="button" onclick="openRejectModal()"
                                 class="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-2" fill="none"
@@ -217,7 +217,7 @@
                         </div>
                     @endif
 
-                                       <!-- Aksi Lainnya -->
+                    <!-- Aksi Lainnya -->
                     <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
                         <h3 class="text-lg font-semibold mb-4">Aksi Lainnya</h3>
                         <div class="space-y-3">
@@ -258,13 +258,12 @@
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Tolak Pembayaran</h3>
-                <form action="{{ route('penjualanKolaborasi.verifikasi', $laporan->id) }}" method="POST">
+                <form action="{{ route('penjualanKolaborasi.reject', $laporan->id) }}" method="POST">
                     @csrf
-                    {{-- Hapus @method('PATCH') karena route menggunakan POST --}}
                     <input type="hidden" name="status" value="tidak_sesuai">
                     <div class="mb-4">
                         <label for="catatan_admin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Alasan Penolakan
+                            Alasan Penolakan <span class="text-red-500">*</span>
                         </label>
                         <textarea name="catatan_admin" id="catatan_admin" rows="4"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"

@@ -55,7 +55,7 @@ class PenerbitanIndividu extends Model
         return [
             'silver' => [
                 'nama' => 'Silver',
-                'harga' => 500000,
+                'harga' => 1500000,
                 'gambar' => 'img/paket-silver.jpg', // Added to match controller
                 'fitur' => [
                     'Maksimal 3 Penulis',
@@ -70,7 +70,7 @@ class PenerbitanIndividu extends Model
             ],
             'gold' => [
                 'nama' => 'Gold',
-                'harga' => 1000000,
+                'harga' => 3500000,
                 'gambar' => 'img/paket-gold.jpg', // Added to match controller
                 'fitur' => [
                     'Maksimal 3 Penulis',
@@ -85,7 +85,7 @@ class PenerbitanIndividu extends Model
             ],
             'diamond' => [
                 'nama' => 'Diamond',
-                'harga' => 2000000, // Updated to match controller (was 1500000)
+                'harga' => 5000000, // Updated to match controller (was 1500000)
                 'gambar' => 'img/paket-diamond.jpg', // Added to match controller
                 'fitur' => [
                     'Maksimal 3 Penulis',

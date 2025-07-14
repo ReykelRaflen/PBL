@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api; 
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Promo;
@@ -15,17 +15,17 @@ class PromoController extends Controller
         try {
             $request->validate([
                 'kode_promo' => 'required|string',
-                'buku_id' => 'required|exists:buku,id',
+                'buku_id' => 'required|exists:bukus,id',
                 'tipe_buku' => 'required|in:fisik,ebook',
                 'subtotal' => 'required|numeric|min:0'
             ]);
 
             $kodePromo = strtoupper(trim($request->kode_promo));
-            
+
             // Cari promo berdasarkan kode
             $promo = Promo::where('kode_promo', $kodePromo)
-                          ->where('status', 'Aktif')
-                          ->first();
+                ->where('status', 'Aktif')
+                ->first();
 
             if (!$promo) {
                 return response()->json([
@@ -97,7 +97,7 @@ class PromoController extends Controller
 
         if ($promo->tipe === 'Persentase') {
             $diskon = ($subtotal * $promo->besaran) / 100;
-            
+
             // Batasi maksimal diskon jika perlu (opsional)
             $maxDiscount = $subtotal * 0.5; // Maksimal 50% dari subtotal
             $diskon = min($diskon, $maxDiscount);
@@ -132,13 +132,13 @@ class PromoController extends Controller
     {
         try {
             $today = Carbon::now()->toDateString();
-            
+
             $promos = Promo::where('status', 'Aktif')
-                          ->where('tanggal_mulai', '<=', $today)
-                          ->where('tanggal_selesai', '>=', $today)
-                          ->whereRaw('(kuota IS NULL OR kuota_terpakai < kuota)')
-                          ->select('kode_promo', 'keterangan', 'tipe', 'besaran', 'kuota', 'kuota_terpakai')
-                          ->get();
+                ->where('tanggal_mulai', '<=', $today)
+                ->where('tanggal_selesai', '>=', $today)
+                ->whereRaw('(kuota IS NULL OR kuota_terpakai < kuota)')
+                ->select('kode_promo', 'keterangan', 'tipe', 'besaran', 'kuota', 'kuota_terpakai')
+                ->get();
 
             return response()->json([
                 'success' => true,

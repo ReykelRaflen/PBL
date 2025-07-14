@@ -14,7 +14,7 @@ class LaporanPenjualanIndividuController extends Controller
 {
     public function index(Request $request)
     {
-        $query = LaporanPenjualanIndividu::with('penerbitanIndividu.user')->latest('tanggal');
+        $query = LaporanPenjualanIndividu::with('penerbitanIndividu.user')->latest('id');
 
         // Filter berdasarkan status pembayaran
         if ($request->filled('status_pembayaran')) {
